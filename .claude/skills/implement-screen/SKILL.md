@@ -54,7 +54,7 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 기준으로 Figma를 
 2. `ds-check` 스킬로 디자인 시스템 위반을 점검한다.
 3. `get_screenshot`으로 Figma와 비교한다.
 4. 상태별로 화면을 확인한다.
-5. 규모가 크거나 신규 컴포넌트가 있으면 `design-system-reviewer` 에이전트에 독립 검토를 맡긴다.
+5. 규모가 크거나 신규 컴포넌트가 있으면 `design-system-reviewer` 에이전트에 독립 검토를 맡긴다. 화면 ID, 바뀐 파일 목록, ds-check 결과를 함께 넘긴다.
 - 위반·차이가 있으면 고친 뒤 다시 검증한다.
 
 ### 7. 완료 기준 대조
