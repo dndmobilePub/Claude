@@ -64,7 +64,8 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 기준으로 Figma를 
 ### 8. 보고 → 승인 후 마무리
 - 아래 형식으로 보고한다.
 - 승인을 받은 뒤:
-  - `docs/ui-flow/_index.md`의 해당 화면 상태를 갱신한다.
+  - 화면 명세 frontmatter의 `status`를 "구현완료"로, `updated`를 오늘 날짜로 바꾼다. 이번에 만든·확장한 컴포넌트 명세의 `status`도 "구현완료"로 바꾼다.
+  - `_index.md`는 고치지 않는다. (`build-index` 훅이 자동 갱신)
   - `docs/GIT.md` 규칙대로 작업 브랜치에 커밋한다. 메시지 형식: `feat(<화면ID>): <화면명> 구현`
   - PR 생성을 제안한다. (생성은 승인 후, `.github/pull_request_template.md` 양식)
 

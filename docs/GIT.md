@@ -57,7 +57,7 @@
 - 본문: `.github/pull_request_template.md` 양식을 채운다.
 - 합치기 전 조건: 리뷰 승인, 검증 통과, 구현을 막는 미결 사항 없음
 - 합치는 방식: squash merge 권장 (화면 하나가 커밋 하나로 남도록)
-- 합친 뒤 `docs/ui-flow/_index.md`의 화면 상태를 "구현완료"로 갱신한다. (구현 PR에 포함해도 된다)
+- 화면 상태 "구현완료"는 화면 명세 frontmatter의 `status`로 바꾸고, 구현 PR에 함께 포함한다. (`implement-screen` 마무리 단계) `_index.md`는 훅이 자동 갱신하므로 직접 고치지 않는다.
 
 ## 7. 프로젝트별 예외 (선택)
 - 기본 브랜치: [TODO: 예) main]

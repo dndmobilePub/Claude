@@ -19,16 +19,17 @@ docs/
   DESIGN.md                   # 디자인 시스템 사용 규칙 (값은 Figma가 원본)
   GIT.md                      # 브랜치·커밋·PR 규칙
   HARNESS.md                  # 권한·훅 설정 설명과 토큰 절감 습관
-  ui-flow/_index.md           # 화면 ID 체계·상태 정의·전체 화면 맵
-  ui-flow/<도메인>.md          # 도메인별 플로우
-  screens/<화면ID>.md          # 화면 명세 (화면당 1파일)
-  components/_index.md        # 컴포넌트 명세 인덱스
+  ui-flow/_index.md           # 화면 ID 체계·상태 정의 + 현황 표(자동 생성)
+  ui-flow/<도메인>.md          # 도메인별 플로우 (화면 ID·화면명의 원본)
+  screens/<화면ID>.md          # 화면 명세 (화면당 1파일, frontmatter가 상태의 원본)
+  components/_index.md        # 컴포넌트 명세 현황 표(자동 생성)
   components/<컴포넌트명>.md    # 컴포넌트 명세 (신규·확장·조합만)
   decisions/<번호>-<제목>.md    # 설계 결정 기록 (ADR)
 .claude/
   settings.json               # 권한(읽기 금지·명령 차단·확인) + 훅 등록
   hooks/
     check-hardcoded.mjs       #   파일 수정 직후 하드코딩 색상·px 경고
+    build-index.mjs           #   문서 수정 직후 _index.md 현황 표 재생성·불일치 경고
     session-reminder.mjs      #   대화 압축 후 핵심 규칙·작업 위치 재안내
   rules/                      # src/ 작업 시 자동 적용되는 규칙
     figma-design-system.md    #   Figma → 코드 구현 절차
@@ -93,12 +94,13 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
     → 완료 기준 대조 → 보고 [승인] → 상태 갱신·커밋 (구현완료)
 ```
 
+- 괄호 안의 상태는 화면 명세 frontmatter의 `status`에만 적습니다. `_index.md` 현황 표는 훅이 자동으로 다시 만듭니다.
 - 새 컴포넌트가 필요하면 구현 전에 `templates/component-spec.md`로 명세를 쓰고 승인받습니다.
 - 디자인 시스템에 없는 것이 나오면 멈추고 선택지를 받은 뒤 `templates/adr.md`로 기록합니다.
 
 ## 5. 운영 원칙
 
 - **승인**: 파일 생성·수정·커밋 전에 항상 승인을 받습니다. 단계를 건너뛰지 않습니다.
-- **원본은 하나**: 디자인 값은 Figma, 프로젝트 설정은 `PROJECT.md`, 결정은 ADR. 같은 내용을 여러 곳에 복사하지 않습니다.
+- **원본은 하나**: 디자인 값은 Figma, 프로젝트 설정은 `PROJECT.md`, 결정은 ADR, 화면 목록은 플로우 문서, 화면·컴포넌트 상태는 각 명세의 frontmatter. 같은 내용을 여러 곳에 복사하지 않습니다.
 - **토큰 절감**: 작업에 필요한 문서·Figma 노드만 읽습니다. 명세·플로우는 파일을 잘게 나누고, 템플릿 주석은 작성 후 지웁니다. 빌드 결과·잠금 파일은 권한 설정으로 읽기를 막아 두었습니다. (`docs/HARNESS.md`)
 - **역할 분리**: 하드코딩 값은 `ds-check`, 명세·접근성·금융 규칙 검토는 `design-system-reviewer`가 맡습니다.

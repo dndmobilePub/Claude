@@ -38,8 +38,12 @@
 | 훅 | 시점 | 하는 일 |
 |---|---|---|
 | `check-hardcoded.mjs` | 파일 수정 직후 (Edit·Write) | `src/`의 스타일·컴포넌트 파일에서 HEX·rgb/hsl 색상, 2px 이상 px 값을 찾아 Claude에게 알린다. 최대 10건만 보여준다 |
+| `build-index.mjs` | 파일 수정 직후 (Edit·Write) | `docs/ui-flow/`·`docs/screens/`·`docs/components/` 파일이 바뀌면 두 `_index.md`의 AUTO 블록(현황 표)을 다시 만든다. ID 중복·허용되지 않은 상태 값 등 불일치를 Claude에게 알린다 |
 | `session-reminder.mjs` | 대화 압축 직후 | 승인·토큰·디자인 핵심 규칙, 현재 브랜치, 커밋되지 않은 변경을 다시 알려준다 |
 
+- `build-index`의 원본: 화면 ID·화면명은 플로우 문서 "2. 화면 목록" 표, 상태·Figma는 각 명세의 frontmatter. frontmatter는 한 줄짜리 `키: 값`만 읽는다.
+- `build-index`가 고치는 `_index.md` 변경은 승인받은 원본 수정의 결과이므로 별도 승인을 받지 않는다. 커밋할 때는 원본과 함께 포함한다.
+- 에디터에서 직접 문서를 고쳤으면 `node .claude/hooks/build-index.mjs`로 수동 실행한다. (경고가 있으면 종료 코드 1)
 - `check-hardcoded`는 빠른 1차 경고다. 전체 점검(스타일 작성 방식·컴포넌트)은 `ds-check` 스킬이 맡는다.
 - 제외 대상: 테스트·스토리 파일, `docs/PROJECT.md`의 "코드 토큰 위치"에 적힌 파일·폴더. 이 값이 [TODO]면 토큰 파일도 점검되므로 먼저 채운다.
 - 훅 스크립트에 오류가 나면 작업을 막지 않고 통과시킨다.
