@@ -17,6 +17,7 @@ docs/
   PROJECT.md                  # 프로젝트별 설정: 서비스명·스택·명령어·Figma URL·토큰 위치
   PRODUCT.md                  # 기획·도메인·용어집
   DESIGN.md                   # 디자인 시스템 사용 규칙 (값은 Figma가 원본)
+  GIT.md                      # 브랜치·커밋·PR 규칙
   ui-flow/_index.md           # 화면 ID 체계·상태 정의·전체 화면 맵
   ui-flow/<도메인>.md          # 도메인별 플로우
   screens/<화면ID>.md          # 화면 명세 (화면당 1파일)
@@ -42,14 +43,15 @@ templates/                    # 양식
   component-spec.md           #   컴포넌트 명세
   adr.md                      #   설계 결정 기록
 src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·Props)
+.github/pull_request_template.md  # PR 본문 양식
 ```
 
 ## 2. 재사용 구분
 
 | 구분 | 파일 | 새 프로젝트에서 |
 |---|---|---|
-| 공통 | `CLAUDE.md`, `templates/`, `.claude/skills/`, `.claude/agents/` | 그대로 사용 |
-| 공통 + 예외 섹션 | `docs/DESIGN.md`(9번), `.claude/rules/` 3종, `src/components/CLAUDE.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 |
+| 공통 | `CLAUDE.md`, `templates/`, `.claude/skills/`, `.claude/agents/`, `.github/pull_request_template.md` | 그대로 사용 |
+| 공통 + 예외 섹션 | `docs/DESIGN.md`(9번), `docs/GIT.md`(7번), `.claude/rules/` 3종, `src/components/CLAUDE.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 |
 | 프로젝트별 | `docs/PROJECT.md`, `docs/PRODUCT.md`, `docs/ui-flow/`, `docs/screens/`, `docs/components/`, `docs/decisions/` | 새로 작성 |
 
 - 공통 규칙을 고치고 싶으면 프로젝트 저장소가 아니라 **이 원본 저장소**에서 고친 뒤 각 프로젝트에 반영합니다.
@@ -66,7 +68,7 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 | 단계 | 할 일 | Claude Code에 요청하는 예 |
 |---|---|---|
 | 1 | 프로젝트 설정 채우기 | `/project-init` |
-| 2 | 예외 섹션 채우기 (DESIGN.md 9번, rules 3종, 컴포넌트 규칙 8번) | "finance-ui.md 예외 섹션 같이 채우자" |
+| 2 | 예외 섹션 채우기 (DESIGN.md 9번, GIT.md 7번, rules 3종, 컴포넌트 규칙 8번) | "finance-ui.md 예외 섹션 같이 채우자" |
 | 3 | 기획 문서 작성 | "PRODUCT.md 작성 도와줘" |
 | 4 | 도메인별 플로우 작성 (화면 ID 부여 포함) | `/write-flow 이체` |
 | 5 | 화면 명세 작성 | `/write-screen-spec TRF-010` |
