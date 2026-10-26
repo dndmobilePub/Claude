@@ -1,0 +1,39 @@
+# CLAUDE.md — 프로젝트 라우터
+
+> 이 파일은 짧게 유지한다 (100줄 내외). 세부 내용은 아래 문서로 연결만 한다.
+
+## 프로젝트 개요
+- 서비스명: [TODO]
+- 기술 스택: [TODO: 예) React / TypeScript / Vite]
+- 디자인 시스템: Figma — [TODO: 라이브러리 파일 URL]
+
+## 주요 명령어
+- 개발 서버: `[TODO]`
+- 빌드: `[TODO]`
+- 린트/테스트: `[TODO]`
+
+## 작업별로 먼저 읽을 문서
+| 작업 | 읽을 문서 |
+|---|---|
+| 기획·도메인 이해 | `docs/PRODUCT.md` |
+| UI 작성·수정 | `docs/DESIGN.md` → 해당 `docs/screens/<화면ID>.md` |
+| 화면 흐름 파악 | `docs/ui-flow/_index.md` → 도메인별 플로우 |
+| 새 화면 명세 작성 | `templates/screen-spec.md` |
+| 새 컴포넌트 작성 | `templates/component-spec.md`, `src/components/CLAUDE.md` |
+| 설계 결정 확인 | `docs/decisions/` |
+
+## 항상 지킬 규칙
+- IMPORTANT: 필요한 문서만 읽는다. 전체 docs를 한꺼번에 읽지 않는다.
+- IMPORTANT: 색상·간격·폰트는 토큰만 사용한다. 하드코딩 금지.
+- IMPORTANT: 기존 컴포넌트를 먼저 찾고, 없을 때만 새로 만든다.
+- 파일 생성·수정·커밋 전에는 사용자 승인을 받는다.
+- 단계를 임의로 건너뛰지 않는다.
+
+## 경로별 규칙 (자동 적용)
+- `.claude/rules/figma-design-system.md`
+- `.claude/rules/a11y.md`
+- `.claude/rules/finance-ui.md`
+
+## 반복 절차 (스킬)
+- `implement-screen` — 화면 명세 → Figma 조회 → 구현 → 검증
+- `ds-check` — 디자인 시스템 위반 검출

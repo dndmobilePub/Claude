@@ -1,0 +1,10 @@
+# 개인 작업 설정 (커밋하지 않음)
+CLAUDE.local.md
+.claude/settings.local.json
+
+# 의존성·빌드 산출물
+node_modules/
+dist/
+build/
+.env*
+.DS_Store
