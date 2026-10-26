@@ -13,7 +13,7 @@ paths:
 - [TODO: 컴포넌트 위치, 네이밍 규칙]
 
 ## 토큰
-- 토큰 정의 위치: [TODO]
+- 토큰 정의 위치: `docs/PROJECT.md` 참조
 - IMPORTANT: 하드코딩 색상·간격 금지
 
 ## 에셋

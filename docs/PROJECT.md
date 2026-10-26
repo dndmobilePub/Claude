@@ -12,6 +12,7 @@
 - 프레임워크: [TODO: 예) React + TypeScript + Vite / Next.js]
 - 스타일링: [TODO: 예) CSS Modules / styled-components / Tailwind]
 - 기타 주요 라이브러리: [TODO]
+- 코드 토큰 위치: [TODO: 예) src/styles/tokens.ts]
 
 ## 명령어
 - 개발 서버: `[TODO]`
