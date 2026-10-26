@@ -7,6 +7,7 @@ Claude Code로 UI를 만들기 위한 재사용 가능한 md 구조입니다. �
 CLAUDE.md                 # 라우터: 작업별로 읽을 문서 안내
 CLAUDE.local.example.md   # 개인 설정 예시 (CLAUDE.local.md로 복사, git 제외)
 docs/
+  PROJECT.md              # 프로젝트별 설정 (서비스명·스택·명령어·Figma URL)
   PRODUCT.md              # 기획·도메인
   DESIGN.md               # 디자인 시스템 규칙
   ui-flow/                # 화면 흐름 (_index + 도메인별)
@@ -22,4 +23,4 @@ src/components/CLAUDE.md  # 컴포넌트 폴더 규칙
 
 ## 재사용 구분
 - 공통(그대로 재사용): `templates/`, `.claude/skills/`, `.claude/agents/`, `.claude/rules/`의 일반 규칙
-- 프로젝트별(새로 작성): `docs/PRODUCT.md`, `docs/DESIGN.md`, `docs/ui-flow/`, `docs/screens/`
+- 프로젝트별(새로 작성): `docs/PROJECT.md`(서비스명·스택·명령어·Figma URL, `project-init` 스킬로 작성 가능), `docs/PRODUCT.md`, `docs/DESIGN.md`, `docs/ui-flow/`, `docs/screens/`

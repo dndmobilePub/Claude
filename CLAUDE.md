@@ -2,15 +2,10 @@
 
 > 이 파일은 짧게 유지한다 (100줄 내외). 세부 내용은 아래 문서로 연결만 한다.
 
-## 프로젝트 개요
-- 서비스명: [TODO]
-- 기술 스택: [TODO: 예) React / TypeScript / Vite]
-- 디자인 시스템: Figma — [TODO: 라이브러리 파일 URL]
+## 프로젝트 설정
+@docs/PROJECT.md
 
-## 주요 명령어
-- 개발 서버: `[TODO]`
-- 빌드: `[TODO]`
-- 린트/테스트: `[TODO]`
+- IMPORTANT: PROJECT.md에 [TODO]가 남아 있고 지금 작업에 그 값이 필요하면, 추측하지 말고 사용자에게 먼저 묻는다.
 
 ## 작업별로 먼저 읽을 문서
 | 작업 | 읽을 문서 |
@@ -35,5 +30,6 @@
 - `.claude/rules/finance-ui.md`
 
 ## 반복 절차 (스킬)
+- `project-init` — 새 프로젝트 시작 시 `docs/PROJECT.md` 채우기
 - `implement-screen` — 화면 명세 → Figma 조회 → 구현 → 검증
 - `ds-check` — 디자인 시스템 위반 검출
