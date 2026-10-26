@@ -18,6 +18,7 @@ docs/
   PRODUCT.md                  # 기획·도메인·용어집
   DESIGN.md                   # 디자인 시스템 사용 규칙 (값은 Figma가 원본)
   GIT.md                      # 브랜치·커밋·PR 규칙
+  HARNESS.md                  # 권한·훅 설정 설명과 토큰 절감 습관
   ui-flow/_index.md           # 화면 ID 체계·상태 정의·전체 화면 맵
   ui-flow/<도메인>.md          # 도메인별 플로우
   screens/<화면ID>.md          # 화면 명세 (화면당 1파일)
@@ -25,6 +26,10 @@ docs/
   components/<컴포넌트명>.md    # 컴포넌트 명세 (신규·확장·조합만)
   decisions/<번호>-<제목>.md    # 설계 결정 기록 (ADR)
 .claude/
+  settings.json               # 권한(읽기 금지·명령 차단·확인) + 훅 등록
+  hooks/
+    check-hardcoded.mjs       #   파일 수정 직후 하드코딩 색상·px 경고
+    session-reminder.mjs      #   대화 압축 후 핵심 규칙·작업 위치 재안내
   rules/                      # src/ 작업 시 자동 적용되는 규칙
     figma-design-system.md    #   Figma → 코드 구현 절차
     a11y.md                   #   접근성
@@ -50,8 +55,8 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 
 | 구분 | 파일 | 새 프로젝트에서 |
 |---|---|---|
-| 공통 | `CLAUDE.md`, `templates/`, `.claude/skills/`, `.claude/agents/`, `.github/pull_request_template.md` | 그대로 사용 |
-| 공통 + 예외 섹션 | `docs/DESIGN.md`(9번), `docs/GIT.md`(7번), `.claude/rules/` 3종, `src/components/CLAUDE.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 |
+| 공통 | `CLAUDE.md`, `templates/`, `.claude/skills/`, `.claude/agents/`, `.claude/settings.json`, `.claude/hooks/`, `.github/pull_request_template.md` | 그대로 사용 (경로가 다르면 `docs/HARNESS.md` 5번대로 조정) |
+| 공통 + 예외 섹션 | `docs/DESIGN.md`(9번), `docs/GIT.md`(7번), `docs/HARNESS.md`(6번), `.claude/rules/` 3종, `src/components/CLAUDE.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 |
 | 프로젝트별 | `docs/PROJECT.md`, `docs/PRODUCT.md`, `docs/ui-flow/`, `docs/screens/`, `docs/components/`, `docs/decisions/` | 새로 작성 |
 
 - 공통 규칙을 고치고 싶으면 프로젝트 저장소가 아니라 **이 원본 저장소**에서 고친 뒤 각 프로젝트에 반영합니다.
@@ -60,7 +65,7 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 ## 3. 새 프로젝트 시작 순서
 
 ### 준비
-- Claude Code 설치
+- Claude Code 설치, Node.js 설치 (훅 스크립트 실행용 — 프론트엔드 프로젝트라면 이미 있음)
 - Figma MCP 서버를 Claude Code에 연결 (Figma 공식 문서 참고)
 - 이 저장소의 파일을 프로젝트 저장소 루트로 복사
 
@@ -95,5 +100,5 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 
 - **승인**: 파일 생성·수정·커밋 전에 항상 승인을 받습니다. 단계를 건너뛰지 않습니다.
 - **원본은 하나**: 디자인 값은 Figma, 프로젝트 설정은 `PROJECT.md`, 결정은 ADR. 같은 내용을 여러 곳에 복사하지 않습니다.
-- **토큰 절감**: 작업에 필요한 문서·Figma 노드만 읽습니다. 명세·플로우는 파일을 잘게 나누고, 템플릿 주석은 작성 후 지웁니다.
+- **토큰 절감**: 작업에 필요한 문서·Figma 노드만 읽습니다. 명세·플로우는 파일을 잘게 나누고, 템플릿 주석은 작성 후 지웁니다. 빌드 결과·잠금 파일은 권한 설정으로 읽기를 막아 두었습니다. (`docs/HARNESS.md`)
 - **역할 분리**: 하드코딩 값은 `ds-check`, 명세·접근성·금융 규칙 검토는 `design-system-reviewer`가 맡습니다.

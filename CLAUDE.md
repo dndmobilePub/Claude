@@ -20,6 +20,7 @@
 | 설계 결정 확인 | `docs/decisions/` |
 | 설계 결정 기록 | `templates/adr.md` → `docs/decisions/<번호>-<제목>.md`에 저장 |
 | 브랜치·커밋·PR | `docs/GIT.md` |
+| 권한·훅 설정, 작업이 권한에 막힘 | `docs/HARNESS.md` |
 
 ## 항상 지킬 규칙
 - IMPORTANT: 필요한 문서만 읽는다. 전체 docs를 한꺼번에 읽지 않는다.
