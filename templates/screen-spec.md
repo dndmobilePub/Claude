@@ -3,6 +3,7 @@ id: XXX-000
 status: 초안           # 초안 | 검토 | 확정 | 구현완료
 figma:                 # 노드 URL. 확정 전 필수 — 없으면 구현을 시작하지 않는다
 flow: ui-flow/<도메인>.md#<하위 흐름 앵커>
+route:                 # 이 화면의 URL (예: /transfer/amount). ARCHITECTURE.md 4번
 updated: YYYY-MM-DD
 ---
 

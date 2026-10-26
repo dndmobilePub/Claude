@@ -5,7 +5,7 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 기준으로 Figma를 
 
 # 화면 구현 절차
 
-> 규칙 원본: `docs/DESIGN.md`, `.claude/rules/` (figma-design-system · a11y · finance-ui).
+> 규칙 원본: `docs/DESIGN.md`, `docs/ARCHITECTURE.md`, `.claude/rules/` (figma-design-system · a11y · finance-ui).
 > 이 스킬은 규칙을 반복하지 않고 **작업 순서와 멈춤 지점**만 정한다.
 
 ## 입력
@@ -14,7 +14,9 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 기준으로 Figma를 
 ## 멈춤 조건 (해당하면 즉시 멈추고 묻는다)
 - 화면 명세 파일이 없거나 Figma 노드 URL이 비어 있음
 - 화면 상태가 "확정"이 아님 (`write-screen-spec`의 확정 점검을 먼저 안내)
-- 이 작업에 필요한 `docs/PROJECT.md` 값(스택·스타일링·토큰 위치·명령어)이 [TODO]
+- 이 작업에 필요한 `docs/PROJECT.md` 값(스택·라이브러리·스타일링·토큰 위치·명령어)이 [TODO]
+- 이 작업에 필요한 `docs/ARCHITECTURE.md` 10번 예외 값(라우트 위치 등)이 [TODO]
+- 화면 명세 frontmatter의 `route`가 비어 있음 (라우트를 만드는 화면만)
 - Figma 값에 대응하는 토큰·컴포넌트가 없음 (DESIGN.md 8번 절차)
 - 필요한 상태(로딩·빈 값·에러 등)의 디자인이 Figma에 없음
 
@@ -23,6 +25,8 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 기준으로 Figma를 
 ### 1. 사전 점검
 - `docs/screens/<화면ID>.md`를 읽는다. 연결된 플로우 문서는 해당 섹션만 읽는다.
 - 다른 화면 명세는 읽지 않는다. (토큰 절감)
+- `docs/ARCHITECTURE.md`는 이 화면에 필요한 섹션만 읽는다. (보통 2~6번)
+- 같은 도메인의 기존 화면 폴더(`screens/<도메인>/`)와 데이터 계층(`api/<도메인>`)이 있는지 확인한다. 있으면 그 방식을 따른다.
 - 멈춤 조건을 확인한다.
 
 ### 2. Figma 조회
@@ -37,7 +41,7 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 기준으로 Figma를 
   |---|---|---|
 
 - 대응 토큰이 없는 값 목록
-- 만들거나 고칠 파일 목록
+- 만들거나 고칠 파일 목록 (`ARCHITECTURE.md` 2·3번 경로 기준: 화면 폴더, 라우트, 데이터 함수·타입, 임시 데이터, 상태)
 - 구현할 상태 목록과 "디자인 필요" 항목
 - 아직 정해지지 않은 데이터(API 필드 등)와 임시 처리 방법
 
@@ -48,7 +52,8 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 기준으로 Figma를 
 - 승인된 계획 범위 안에서만 작업한다. 범위가 바뀌면 다시 승인받는다.
 - 화면 파일은 조립만 하고 디자인 값을 직접 쓰지 않는다.
 - 명세에 적힌 상태를 모두 구현한다.
-- API가 정해지지 않았으면 타입을 먼저 정의하고 임시 데이터를 쓴다. 임시 처리한 위치에 `TODO(<화면ID>)` 주석을 남긴다.
+- 화면은 데이터 계층 함수만 호출한다. (`ARCHITECTURE.md` 5번)
+- API가 정해지지 않았으면 타입을 먼저 정의하고, 임시 데이터는 데이터 계층 함수 안에서만 반환한다. 임시 처리한 함수에 `TODO(<화면ID>)` 주석을 남긴다. (`ARCHITECTURE.md` 6번)
 
 ### 6. 검증
 1. `docs/PROJECT.md`의 린트/테스트 명령을 실행한다.

@@ -11,6 +11,10 @@
 ## 기술 스택
 - 프레임워크: [TODO: 예) React + TypeScript + Vite / Next.js]
 - 스타일링: [TODO: 예) CSS Modules / styled-components / Tailwind]
+- 라우팅: [TODO: 예) React Router / Next.js App Router]
+- 서버 상태: [TODO: 예) TanStack Query / 사용 안 함]
+- 전역·플로우 상태: [TODO: 예) Zustand / Context]
+- 폼·검증: [TODO: 예) React Hook Form + Zod]
 - 기타 주요 라이브러리: [TODO]
 - 코드 토큰 위치: [TODO: 예) src/styles/tokens.ts]
 

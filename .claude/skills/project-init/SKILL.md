@@ -1,6 +1,6 @@
 ---
 name: project-init
-description: 새 프로젝트를 시작할 때 docs/PROJECT.md의 프로젝트별 설정(서비스명, Figma URL, 기술 스택, 스타일링, 명령어)을 채울 때 사용.
+description: 새 프로젝트를 시작할 때 docs/PROJECT.md의 프로젝트별 설정(서비스명, Figma URL, 기술 스택·라이브러리, 스타일링, 명령어)을 채울 때 사용.
 ---
 
 # 프로젝트 초기 설정 절차
@@ -8,17 +8,19 @@ description: 새 프로젝트를 시작할 때 docs/PROJECT.md의 프로젝트�
 ## 단계
 1. `docs/PROJECT.md`를 읽고 [TODO]가 남은 항목을 확인한다.
 2. 저장소 구성에서 추측할 수 있는 값을 찾는다.
-   - `package.json`의 dependencies → 프레임워크, 스타일링, 주요 라이브러리
+   - `package.json`의 dependencies → 프레임워크, 스타일링, 라우팅·서버 상태·전역 상태·폼 검증 라이브러리, 기타 주요 라이브러리
    - `package.json`의 scripts → 개발 서버, 빌드, 린트/테스트 명령어
    - 설정 파일(vite.config, next.config, tailwind.config 등) → 보조 근거
 3. 항목별로 사용자에게 묻는다. 추측한 값이 있으면 근거와 함께 제안하고, 없으면 빈 질문으로 묻는다.
    - 서비스명
    - Figma 라이브러리 URL
-   - 프레임워크 / 스타일링 / 기타 주요 라이브러리
+   - 프레임워크 / 스타일링
+   - 라우팅 / 서버 상태 / 전역·플로우 상태 / 폼·검증 / 기타 주요 라이브러리
    - 코드 토큰 위치
    - 개발 서버 / 빌드 / 린트·테스트 명령어
 4. 사용자가 "미정"이라고 한 항목은 [TODO]로 남긴다.
 5. 반영할 내용을 미리 보여주고 승인을 받은 뒤 `docs/PROJECT.md`를 수정한다.
+6. 라우트 위치·실제 경로처럼 코드 구조에 관한 값은 `docs/ARCHITECTURE.md` 10번 예외 섹션에서 정한다는 것을 안내한다. (이 스킬에서 채우지 않는다)
 
 ## 규칙
 - IMPORTANT: 확인받지 않은 추측 값은 기록하지 않는다.

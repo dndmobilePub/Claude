@@ -12,6 +12,7 @@
 |---|---|
 | 기획·도메인 이해 | `docs/PRODUCT.md` |
 | UI 작성·수정 | `docs/DESIGN.md` → 해당 `docs/screens/<화면ID>.md` |
+| 화면·라우트·데이터·상태 코드 위치 | `docs/ARCHITECTURE.md` (필요한 섹션만) |
 | 화면 흐름 파악 | `docs/ui-flow/_index.md` → 도메인별 플로우 |
 | 새 플로우 작성 | `write-flow` 스킬 (양식 `templates/flow.md`) |
 | 새 화면 명세 작성 | `write-screen-spec` 스킬 (양식 `templates/screen-spec.md`) |
