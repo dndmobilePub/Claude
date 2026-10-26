@@ -13,6 +13,7 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 기준으로 Figma를 
 
 ## 멈춤 조건 (해당하면 즉시 멈추고 묻는다)
 - 화면 명세 파일이 없거나 Figma 노드 URL이 비어 있음
+- 화면 상태가 "확정"이 아님 (`write-screen-spec`의 확정 점검을 먼저 안내)
 - 이 작업에 필요한 `docs/PROJECT.md` 값(스택·스타일링·토큰 위치·명령어)이 [TODO]
 - Figma 값에 대응하는 토큰·컴포넌트가 없음 (DESIGN.md 8번 절차)
 - 필요한 상태(로딩·빈 값·에러 등)의 디자인이 Figma에 없음

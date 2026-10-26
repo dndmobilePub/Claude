@@ -1,10 +1,11 @@
 # UI Flow 인덱스
 
-> 플로우 문서는 `templates/flow.md`로, 화면 명세는 `templates/screen-spec.md`로 작성한다.
+> 플로우는 `write-flow`, 화면 명세는 `write-screen-spec` 스킬로 작성한다. (양식: `templates/flow.md`, `templates/screen-spec.md`)
 > 새 플로우·화면을 만들면 아래 표에 등록한다.
 
 ## 화면 ID 체계
 - 형식: `[도메인 약어]-[3자리 번호]` (예: ACC-010)
+- 번호는 10 단위로 붙인다. (사이에 화면을 끼워 넣을 수 있게)
 - 도메인 약어: [TODO: 예) ACC 계좌, TRF 이체]
 
 ## 도메인별 플로우

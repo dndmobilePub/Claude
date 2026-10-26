@@ -30,6 +30,8 @@ docs/
     finance-ui.md             #   금융 UI
   skills/                     # 반복 절차
     project-init/             #   PROJECT.md 채우기
+    write-flow/               #   도메인 플로우 작성
+    write-screen-spec/        #   화면 명세 작성·확정 점검
     implement-screen/         #   화면 명세 → Figma 조회 → 구현 → 검증
     ds-check/                 #   디자인 시스템 위반 검출
   agents/
@@ -66,9 +68,9 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 | 1 | 프로젝트 설정 채우기 | `/project-init` |
 | 2 | 예외 섹션 채우기 (DESIGN.md 9번, rules 3종, 컴포넌트 규칙 8번) | "finance-ui.md 예외 섹션 같이 채우자" |
 | 3 | 기획 문서 작성 | "PRODUCT.md 작성 도와줘" |
-| 4 | 화면 ID 체계 정하기 | "ui-flow/_index.md에 도메인 약어 정하자" |
-| 5 | 도메인별 플로우 작성 | "templates/flow.md로 이체 플로우 만들어줘" |
-| 6 | 화면 명세 작성 → 상태 "확정" | "templates/screen-spec.md로 TRF-010 명세 만들어줘" |
+| 4 | 도메인별 플로우 작성 (화면 ID 부여 포함) | `/write-flow 이체` |
+| 5 | 화면 명세 작성 | `/write-screen-spec TRF-010` |
+| 6 | 명세 확정 점검 → 상태 "확정" | `/write-screen-spec TRF-010 확정점검` |
 | 7 | 화면 구현 | `/implement-screen TRF-010` |
 
 - 비어 있는 `[TODO]` 값이 작업에 필요하면 Claude가 추측하지 않고 먼저 묻습니다.
@@ -76,7 +78,8 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 ## 4. 화면 하나가 완성되는 흐름
 
 ```
-화면 명세 작성 (초안) → 기획·디자인 확인 (검토) → Figma 노드·필수 섹션 채움 (확정)
+/write-flow (화면 등록) → /write-screen-spec (초안) → 기획·디자인 확인 (검토)
+→ /write-screen-spec 확정점검 (확정)
 → /implement-screen
     사전 점검 → Figma 조회 → 구현 계획 [승인] → 구현
     → 검증 (린트·테스트, ds-check, Figma 비교, design-system-reviewer)
