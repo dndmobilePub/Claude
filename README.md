@@ -11,6 +11,7 @@ docs/
   DESIGN.md               # 디자인 시스템 규칙
   ui-flow/                # 화면 흐름 (_index + 도메인별)
   screens/                # 화면 명세 (화면당 1파일)
+  components/             # 컴포넌트 명세 (신규·확장·조합 컴포넌트만)
   decisions/              # 설계 결정 기록 (ADR)
 .claude/
   rules/                  # 경로별 자동 적용 규칙
@@ -22,4 +23,4 @@ src/components/CLAUDE.md  # 컴포넌트 폴더 규칙
 
 ## 재사용 구분
 - 공통(그대로 재사용): `docs/DESIGN.md`(9번 예외 섹션만 프로젝트별), `templates/`, `.claude/skills/`, `.claude/agents/`, `.claude/rules/`의 일반 규칙
-- 프로젝트별(새로 작성): `docs/PROJECT.md`(서비스명·스택·명령어·Figma URL·토큰 위치, `project-init` 스킬로 작성 가능), `docs/PRODUCT.md`, `docs/ui-flow/`, `docs/screens/`
+- 프로젝트별(새로 작성): `docs/PROJECT.md`(서비스명·스택·명령어·Figma URL·토큰 위치, `project-init` 스킬로 작성 가능), `docs/PRODUCT.md`, `docs/ui-flow/`, `docs/screens/`, `docs/components/`

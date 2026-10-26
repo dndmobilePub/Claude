@@ -14,7 +14,8 @@
 | UI 작성·수정 | `docs/DESIGN.md` → 해당 `docs/screens/<화면ID>.md` |
 | 화면 흐름 파악 | `docs/ui-flow/_index.md` → 도메인별 플로우 |
 | 새 화면 명세 작성 | `templates/screen-spec.md` |
-| 새 컴포넌트 작성 | `templates/component-spec.md`, `src/components/CLAUDE.md` |
+| 새 컴포넌트 작성 | `templates/component-spec.md` → `docs/components/<컴포넌트명>.md`에 저장 |
+| 컴포넌트 명세 확인 | `docs/components/_index.md` → 해당 명세 |
 | 설계 결정 확인 | `docs/decisions/` |
 
 ## 항상 지킬 규칙
