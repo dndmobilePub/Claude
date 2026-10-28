@@ -7,6 +7,7 @@
 ## 기본 정보
 - 서비스명: [TODO]
 - Figma 라이브러리: [TODO: URL]
+- Figma 변수 파일: [TODO: URL. 라이브러리와 같으면 "라이브러리와 같음"]
 
 ## 기술 스택
 - 프레임워크: [TODO: 예) React + TypeScript + Vite / Next.js]
@@ -16,7 +17,7 @@
 - 전역·플로우 상태: [TODO: 예) Zustand / Context]
 - 폼·검증: [TODO: 예) React Hook Form + Zod]
 - 기타 주요 라이브러리: [TODO]
-- 코드 토큰 위치: [TODO: 예) src/styles/tokens.ts]
+- 코드 토큰 위치: [TODO: 기본 src/styles/tokens/ (token-sync가 tokens.css·tokens.ts를 만드는 폴더)]
 
 ## 명령어
 - 개발 서버: `[TODO]`

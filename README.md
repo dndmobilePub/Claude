@@ -41,6 +41,7 @@ docs/
     write-flow/               #   도메인 플로우 작성
     write-screen-spec/        #   화면 명세 작성·확정 점검
     implement-screen/         #   화면 명세 → Figma 조회 → 구현 → 검증
+    token-sync/               #   Figma 변수 → 코드 토큰 파일(tokens.css·tokens.ts), 읽기 전용 조회 스크립트 포함
     ds-check/                 #   디자인 시스템 위반 검출
   agents/
     design-system-reviewer.md #   독립 리뷰어 (명세·상태·코드 구조·접근성·금융 규칙)
@@ -76,11 +77,12 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 |---|---|---|
 | 1 | 프로젝트 설정 채우기 | `/project-init` |
 | 2 | 예외 섹션 채우기 (DESIGN.md 9번, ARCHITECTURE.md 10번, GIT.md 7번, rules 3종, 컴포넌트 규칙 8번) | "finance-ui.md 예외 섹션 같이 채우자" |
-| 3 | 기획 문서 작성 | "PRODUCT.md 작성 도와줘" |
-| 4 | 도메인별 플로우 작성 (화면 ID 부여 포함) | `/write-flow 이체` |
-| 5 | 화면 명세 작성 | `/write-screen-spec TRF-010` |
-| 6 | 명세 확정 점검 → 상태 "확정" | `/write-screen-spec TRF-010 확정점검` |
-| 7 | 화면 구현 | `/implement-screen TRF-010` |
+| 3 | 코드 토큰 파일 만들기 (Figma 변수가 바뀔 때마다 다시 실행) | `/token-sync` |
+| 4 | 기획 문서 작성 | "PRODUCT.md 작성 도와줘" |
+| 5 | 도메인별 플로우 작성 (화면 ID 부여 포함) | `/write-flow 이체` |
+| 6 | 화면 명세 작성 | `/write-screen-spec TRF-010` |
+| 7 | 명세 확정 점검 → 상태 "확정" | `/write-screen-spec TRF-010 확정점검` |
+| 8 | 화면 구현 | `/implement-screen TRF-010` |
 
 - 비어 있는 `[TODO]` 값이 작업에 필요하면 Claude가 추측하지 않고 먼저 묻습니다.
 
@@ -102,6 +104,6 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 ## 5. 운영 원칙
 
 - **승인**: 파일 생성·수정·커밋 전에 항상 승인을 받습니다. 단계를 건너뛰지 않습니다.
-- **원본은 하나**: 디자인 값은 Figma, 프로젝트 설정은 `PROJECT.md`, 결정은 ADR, 화면 목록은 플로우 문서, 화면·컴포넌트 상태는 각 명세의 frontmatter. 같은 내용을 여러 곳에 복사하지 않습니다.
+- **원본은 하나**: 디자인 값은 Figma(코드 토큰 파일은 `token-sync`가 만드는 사본), 프로젝트 설정은 `PROJECT.md`, 결정은 ADR, 화면 목록은 플로우 문서, 화면·컴포넌트 상태는 각 명세의 frontmatter. 같은 내용을 여러 곳에 복사하지 않습니다.
 - **토큰 절감**: 작업에 필요한 문서·Figma 노드만 읽습니다. 명세·플로우는 파일을 잘게 나누고, 템플릿 주석은 작성 후 지웁니다. 빌드 결과·잠금 파일은 권한 설정으로 읽기를 막아 두었습니다. (`docs/HARNESS.md`)
 - **역할 분리**: 하드코딩 값은 `ds-check`, 명세·접근성·금융 규칙 검토는 `design-system-reviewer`가 맡습니다.

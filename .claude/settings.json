@@ -35,7 +35,8 @@
       "Bash(npm install *)",
       "Bash(npm i *)",
       "Bash(pnpm add *)",
-      "Bash(yarn add *)"
+      "Bash(yarn add *)",
+      "mcp__figma__use_figma"
     ]
   },
   "hooks": {

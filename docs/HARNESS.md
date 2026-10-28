@@ -28,6 +28,7 @@
 ### ask — 실행 전 항상 확인
 - `git commit`, `git push`, `git merge`, `git rebase`, `gh pr create`, `gh pr merge`
 - 패키지 추가: `npm install`, `npm i`, `pnpm add`, `yarn add` (새 의존성 임의 추가 방지)
+- Figma `use_figma`: Figma 파일을 고칠 수도 있는 도구라 실행할 때마다 코드를 보고 확인한다. 이 지침에서는 `token-sync`의 읽기 전용 조회에만 쓴다
 
 ### 주의
 - 명령 규칙은 Claude가 보통 쓰는 형태를 막는 장치이지 완전한 보안 경계가 아니다. 다른 형태로 같은 명령을 쓸 수 있으므로 문서 규칙과 함께 둔다.
@@ -65,6 +66,7 @@
 | 개인 설정 (예: 자주 쓰는 린트 명령 자동 허용) | `.claude/settings.local.json`에 작성 (git 제외 대상) |
 | 빌드 결과 폴더가 다름 | deny 목록의 폴더 경로 수정 |
 | 패키지 매니저가 다름 | ask 목록의 패키지 추가 명령 수정 |
+| Figma MCP 서버 이름이 `figma`가 아님 | ask 목록의 `mcp__figma__use_figma`를 `mcp__<서버 이름>__use_figma`로 수정 (`/mcp`에서 이름 확인) |
 | 하드코딩 점검 범위 조정 | `check-hardcoded.mjs`의 `RULES`·대상 경로 수정 |
 
 - 설정을 바꾸면 Claude Code를 다시 시작해야 반영된다.

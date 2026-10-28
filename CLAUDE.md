@@ -17,6 +17,7 @@
 | 새 플로우 작성 | `write-flow` 스킬 (양식 `templates/flow.md`) |
 | 새 화면 명세 작성 | `write-screen-spec` 스킬 (양식 `templates/screen-spec.md`) |
 | 새 컴포넌트 작성 | `templates/component-spec.md` → `docs/components/<컴포넌트명>.md`에 저장 |
+| Figma 변수 → 코드 토큰 반영 | `token-sync` 스킬 |
 | 컴포넌트 명세 확인 | `docs/components/_index.md` → 해당 명세 |
 | 설계 결정 확인 | `docs/decisions/` |
 | 설계 결정 기록 | `templates/adr.md` → `docs/decisions/<번호>-<제목>.md`에 저장 |
@@ -26,6 +27,7 @@
 ## 항상 지킬 규칙
 - IMPORTANT: 필요한 문서만 읽는다. 전체 docs를 한꺼번에 읽지 않는다.
 - IMPORTANT: 색상·간격·폰트는 토큰만 사용한다. 하드코딩 금지.
+- 코드 토큰 파일은 직접 고치지 않는다. `token-sync`로만 갱신한다.
 - IMPORTANT: 기존 컴포넌트를 먼저 찾고, 없을 때만 새로 만든다.
 - 화면·컴포넌트 상태는 각 명세의 frontmatter에서만 고친다. `_index.md`의 AUTO 블록은 훅이 만들므로 직접 고치지 않는다.
 - 파일 생성·수정·커밋 전에는 사용자 승인을 받는다.
@@ -41,4 +43,5 @@
 - `write-flow` — 도메인 플로우 작성 (화면 목록·ID·흐름도·예외 흐름)
 - `write-screen-spec` — 화면 명세 작성, "확정" 점검
 - `implement-screen` — 화면 명세 → Figma 조회 → 구현 → 검증
+- `token-sync` — Figma 변수 → 코드 토큰 파일(tokens.css·tokens.ts) 생성·갱신
 - `ds-check` — 디자인 시스템 위반 검출

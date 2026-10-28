@@ -17,6 +17,7 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 기준으로 Figma를 
 - 이 작업에 필요한 `docs/PROJECT.md` 값(스택·라이브러리·스타일링·토큰 위치·명령어)이 [TODO]
 - 이 작업에 필요한 `docs/ARCHITECTURE.md` 10번 예외 값(라우트 위치 등)이 [TODO]
 - 화면 명세 frontmatter의 `route`가 비어 있음 (라우트를 만드는 화면만)
+- 코드 토큰 파일이 없거나, 필요한 Figma 변수가 토큰 파일에 없음 (`token-sync`를 먼저 안내)
 - Figma 값에 대응하는 토큰·컴포넌트가 없음 (DESIGN.md 8번 절차)
 - 필요한 상태(로딩·빈 값·에러 등)의 디자인이 Figma에 없음
 
