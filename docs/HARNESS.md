@@ -24,11 +24,12 @@
 | `node_modules/`, `dist/`, `build/`, `.next/`, `coverage/` | **토큰 절감**: 검색·읽기 대상에서 뺀다 |
 | `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml` | **토큰 절감** + 직접 수정 방지 (패키지 매니저로만 변경) |
 | 강제 푸시, `git reset --hard`, `git clean`, `git branch -D`, `rm -rf` | 되돌릴 수 없는 작업 차단 (`docs/GIT.md` 5번) |
+| Figma 쓰기 도구 (`create_new_file`, `send_code_to_figma`, `upload_assets`, `generate_diagram`, `generate_image`, Code Connect 매핑 쓰기, 플러그인·셰이더 생성·수정) | 이 지침에서 Figma는 읽기만 한다. 기획 설계서·디자인은 사람이 Figma에 만들고, AI는 분석해 md로 옮긴다 |
 
 ### ask — 실행 전 항상 확인
 - `git commit`, `git push`, `git merge`, `git rebase`, `gh pr create`, `gh pr merge`
 - 패키지 추가: `npm install`, `npm i`, `pnpm add`, `yarn add` (새 의존성 임의 추가 방지)
-- Figma `use_figma`: Figma 파일을 고칠 수도 있는 도구라 실행할 때마다 코드를 보고 확인한다. 이 지침에서는 `token-sync`의 읽기 전용 조회에만 쓴다
+- Figma `use_figma`: Figma 파일을 고칠 수도 있는 도구라 실행할 때마다 코드를 보고 확인한다. 이 지침에서는 `token-sync`·`write-flow`의 읽기 전용 조회 스크립트에만 쓴다
 
 ### 주의
 - 명령 규칙은 Claude가 보통 쓰는 형태를 막는 장치이지 완전한 보안 경계가 아니다. 다른 형태로 같은 명령을 쓸 수 있으므로 문서 규칙과 함께 둔다.
@@ -56,6 +57,7 @@
 | 대화가 길어지면 `/compact` | 압축 후 `session-reminder` 훅이 핵심 규칙을 복원한다 |
 | 화면 명세·플로우를 잘게 나누고, 템플릿 주석은 작성 후 지운다 | 읽는 양 자체를 줄인다 |
 | Figma는 명세에 적힌 노드만 조회 | 파일 전체 조회는 결과가 매우 크다 |
+| 기획 설계서는 한 번 분석해 `docs/storyboard/`에 md로 남기고, 이후에는 md의 해당 화면 절만 읽는다 | 같은 설계서를 화면마다 다시 조회하지 않는다 |
 | 넓은 코드 검색은 서브에이전트에 맡긴다 | 검색 결과 대신 결론만 대화에 남는다 |
 | 같은 문서를 반복해서 붙여 넣지 않는다 | 파일 경로만 알려주면 필요한 부분만 읽는다 |
 
@@ -66,7 +68,8 @@
 | 개인 설정 (예: 자주 쓰는 린트 명령 자동 허용) | `.claude/settings.local.json`에 작성 (git 제외 대상) |
 | 빌드 결과 폴더가 다름 | deny 목록의 폴더 경로 수정 |
 | 패키지 매니저가 다름 | ask 목록의 패키지 추가 명령 수정 |
-| Figma MCP 서버 이름이 `figma`가 아님 | ask 목록의 `mcp__figma__use_figma`를 `mcp__<서버 이름>__use_figma`로 수정 (`/mcp`에서 이름 확인) |
+| Figma MCP 서버 이름이 `figma`가 아님 | ask 목록의 `mcp__figma__use_figma`와 deny 목록의 Figma 쓰기 도구를 `mcp__<서버 이름>__<도구>`로 수정 (`/mcp`에서 이름 확인) |
+| Figma MCP 도구 이름이 다름·쓰기 도구가 추가됨 | `/mcp`에서 도구 목록을 확인하고 deny 목록의 Figma 쓰기 도구를 맞춘다 |
 | 하드코딩 점검 범위 조정 | `check-hardcoded.mjs`의 `RULES`·대상 경로 수정 |
 
 - 설정을 바꾸면 Claude Code를 다시 시작해야 반영된다.

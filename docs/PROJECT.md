@@ -6,6 +6,7 @@
 
 ## 기본 정보
 - 서비스명: [TODO]
+- Figma 기획 설계서: [TODO: URL. 없으면 "없음"]
 - Figma 라이브러리: [TODO: URL]
 - Figma 변수 파일: [TODO: URL. 라이브러리와 같으면 "라이브러리와 같음"]
 

@@ -23,7 +23,18 @@
       "Bash(git reset --hard *)",
       "Bash(git clean *)",
       "Bash(git branch -D *)",
-      "Bash(rm -rf *)"
+      "Bash(rm -rf *)",
+      "mcp__figma__create_new_file",
+      "mcp__figma__send_code_to_figma",
+      "mcp__figma__upload_assets",
+      "mcp__figma__generate_diagram",
+      "mcp__figma__generate_image",
+      "mcp__figma__add_code_connect_map",
+      "mcp__figma__send_code_connect_mappings",
+      "mcp__figma__create_generative_plugin",
+      "mcp__figma__update_generative_plugin",
+      "mcp__figma__create_shader",
+      "mcp__figma__update_shader"
     ],
     "ask": [
       "Bash(git commit *)",
