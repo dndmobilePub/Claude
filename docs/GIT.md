@@ -57,7 +57,7 @@
 ## 6. PR
 - 제목: 커밋 메시지 형식과 같게 쓴다.
 - 본문: `.github/pull_request_template.md` 양식을 채운다.
-- 합치기 전 조건: 리뷰 승인, 검증 통과, 구현을 막는 미결 사항 없음
+- 합치기 전 조건: 리뷰 승인, 검증 통과, 이 화면의 열린 차단 질문 없음 (`docs/questions/`)
 - 합치는 방식: squash merge 권장 (화면 하나가 커밋 하나로 남도록)
 - 화면 상태 "구현완료"는 화면 명세 frontmatter의 `status`로 바꾸고, 구현 PR에 함께 포함한다. (`implement-screen` 마무리 단계) `_index.md`는 훅이 자동 갱신하므로 직접 고치지 않는다.
 

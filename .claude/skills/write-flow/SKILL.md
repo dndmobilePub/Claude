@@ -7,6 +7,7 @@ description: 기획서(Figma 기획 설계서·PPT)를 분석해 docs/storyboard
 
 > 양식: `templates/flow.md`, 기획서 분석 `templates/storyboard.md`. 조회 스크립트: `read-storyboard.js`(Figma), `read-ppt.mjs`(PPT). 화면 ID 체계·상태 정의: `docs/ui-flow/_index.md`.
 > 이 스킬은 **화면 사이의 이동**만 다룬다. 화면 안의 내용은 `write-screen-spec`이 맡는다.
+> 질문 기록 규칙: `docs/questions/_index.md` (기획서 내용은 `plan.md`, 원본끼리 다른 것·흐름 질문은 `spec.md`)
 
 ## 입력
 - 도메인 (IA 사본이 있으면 `docs/ia/source.md` 3번의 도메인 키. 예: transfer)
@@ -15,7 +16,7 @@ description: 기획서(Figma 기획 설계서·PPT)를 분석해 docs/storyboard
 - 참고 자료 (있으면): 사용자 설명, 기획 문서
 
 ## 원칙
-- IMPORTANT: 업무 규칙·분기 조건을 지어내지 않는다. 자료에 없으면 질문하고, 답이 없으면 "미결 사항"에 남긴다.
+- IMPORTANT: 업무 규칙·분기 조건을 지어내지 않는다. 자료에 없으면 질문하고, 답이 없으면 `docs/questions/`에 남긴다. 플로우·기획서 분석 md 본문에는 질문을 적지 않는다.
 - IMPORTANT: IA 사본이 있으면 화면 ID·화면명은 IA를 그대로 쓴다. 새 화면 ID를 지어 붙이거나 화면명을 바꾸지 않는다.
 - IMPORTANT: Figma는 읽기만 한다. 기획 설계서·디자인을 새로 그리거나 고치지 않는다. PPT 원본 파일도 읽기만 한다.
 - 기획서는 0단계에서 한 번 분석해 md로 남기고, 이후 단계는 그 md만 읽는다. 디자인 파일 세부는 이 스킬에서 조회하지 않는다. (토큰 절감)
@@ -34,9 +35,9 @@ description: 기획서(Figma 기획 설계서·PPT)를 분석해 docs/storyboard
   - PPT: `node .claude/skills/write-flow/read-ppt.mjs <파일> list`
     1. 슬라이드 목록(첫 줄·글자 수·이미지 수)을 보고 이 도메인에 해당하는 슬라이드 범위를 확인받는다.
     2. `text --slides <범위> --notes`로 읽는다. `# 다음:` 값이 있으면 이어서 읽는다.
-    3. "텍스트 없음 · 이미지" 슬라이드는 내용을 추측하지 않는다. 해당 슬라이드를 이미지·PDF로 받아 확인하거나 "확인 필요"에 남긴다.
+    3. "텍스트 없음 · 이미지" 슬라이드는 내용을 추측하지 않는다. 해당 슬라이드를 이미지·PDF로 받아 확인하거나 질문으로 남긴다.
 - `templates/storyboard.md` 양식으로 초안을 만들어 보여주고 승인받은 뒤 저장한다.
-- 기획서에 없는 내용은 채우지 않는다. 해석이 필요한 것과 원본끼리 다른 것(Figma와 PPT, 기획서와 IA)은 "확인 필요"에 남기고, 4단계 질문 목록에 함께 넣는다.
+- 기획서에 없는 내용은 채우지 않는다. 해석이 필요한 것과 Figma·PPT가 다른 것은 `plan.md`, 기획서와 IA가 다른 것은 `spec.md`에 질문으로 남기고, 4단계 질문 목록에 함께 넣는다.
 
 ### 1. 사전 확인
 - `docs/ui-flow/_index.md`에서 이 도메인의 기존 플로우와 화면 ID를 확인한다. 현황 표는 전체를 읽지 않고 도메인 키·약어로 검색한다.
@@ -52,7 +53,7 @@ description: 기획서(Figma 기획 설계서·PPT)를 분석해 docs/storyboard
   | 화면 ID (IA) | 화면명 (IA) | 역할 | 근거 (기획서 위치) |
   |---|---|---|---|
 
-- IA에는 있는데 기획서에 없는 화면, 기획서에는 있는데 IA에 없는 화면은 목록에 넣지 않고 "미결 사항"(확인 대상: 기획)에 남긴다. IA에 없는 화면에 임시 ID를 붙이지 않는다.
+- IA에는 있는데 기획서에 없는 화면, 기획서에는 있는데 IA에 없는 화면은 목록에 넣지 않고 `spec.md`에 질문(확인 대상: 기획)으로 남긴다. IA에 없는 화면에 임시 ID를 붙이지 않는다.
 
 **IA가 "없음"일 때**
 - 자료에서 화면을 뽑아 목록을 만든다. 화면 ID는 `docs/PROJECT.md` "화면 ID 형식"을 따라 제안하고 승인받는다.
@@ -76,11 +77,13 @@ description: 기획서(Figma 기획 설계서·PPT)를 분석해 docs/storyboard
 - 뒤로 가기, 입력 중 이탈, 완료 후 뒤로 가기
 - 중간 저장·이어하기 여부
 - 플로우 밖으로 나가는 지점과 돌아오는 지점
+- 답을 받지 못한 것은 `docs/questions/_index.md` 규칙대로 한 줄씩 남긴다. 대상은 관련 화면 ID, 특정 화면이 아니면 도메인 키.
 
 ### 5. 초안 제시 → 승인 → 저장
-- 완성된 초안 전체를 보여주고 승인받는다.
+- 완성된 초안 전체를 보여주고 승인받는다. 새로 남길 질문 줄도 함께 보여준다.
 - 승인 후:
-  - `docs/ui-flow/<도메인>.md`로 저장한다. frontmatter(`domain`, `code`, `status: 초안`, `updated`)를 채우고 템플릿 주석은 지운다.
+  - `docs/ui-flow/<도메인>.md`로 저장한다. frontmatter(`domain`, `code`, `status: 초안`, `updated`)를 채우고 템플릿 주석은 지운다. 9번에 관련 질문 ID를 적는다.
+  - 질문 줄을 해당 질문 파일에 추가한다.
   - storyboard md의 각 화면 절 "화면 ID"를 채운다. (플로우 초안과 함께 승인)
   - `_index.md`는 고치지 않는다. 저장하면 `build-index` 훅이 화면 목록 표를 읽어 현황에 "명세 전"으로 등록한다.
   - 훅이 불일치 경고(IA와 다른 화면명·도메인, IA에 없는 화면, ID 중복 등)를 내면 보고하고, 고칠지 승인받는다. IA 쪽이 틀렸으면 플로우를 맞추지 않고 IA 수정을 요청한다.
@@ -92,6 +95,6 @@ description: 기획서(Figma 기획 설계서·PPT)를 분석해 docs/storyboard
 - 기획서 분석: docs/storyboard/<도메인>.md (분석일 YYYY-MM-DD / 없음) — 원본: Figma / PPT / 둘 다
 - 화면: n개 (IA 기준 / IA 없음), IA에만 있는 화면 n · 기획서에만 있는 화면 n
 - 하위 흐름: n개
-- 미결 사항: n건 (목록)
+- 질문: 새로 남김 n (ID 목록) · 열린 질문 n (차단 n)
 - 다음 작업: write-screen-spec으로 화면 명세 작성 (권장 순서: 하위 흐름 4.1부터)
 ```

@@ -40,7 +40,7 @@
 | 훅 | 시점 | 하는 일 |
 |---|---|---|
 | `check-hardcoded.mjs` | 파일 수정 직후 (Edit·Write) | `src/`의 스타일·컴포넌트 파일에서 HEX·rgb/hsl 색상, 2px 이상 px 값을 찾아 Claude에게 알린다. 최대 10건만 보여준다 |
-| `build-index.mjs` | 파일 수정 직후 (Edit·Write) | `docs/ia/`·`docs/ui-flow/`·`docs/screens/`·`docs/components/`·`docs/PROJECT.md`가 바뀌면 두 `_index.md`의 AUTO 블록(현황 표)을 다시 만든다. ID 중복·형식 오류, IA와 플로우의 화면명·도메인 차이, 허용되지 않은 상태 값 등 불일치를 Claude에게 알린다 |
+| `build-index.mjs` | 파일 수정 직후 (Edit·Write) | `docs/ia/`·`docs/ui-flow/`·`docs/screens/`·`docs/components/`·`docs/questions/`·`docs/PROJECT.md`가 바뀌면 세 `_index.md`(화면·컴포넌트·질문)의 AUTO 블록을 다시 만든다. ID 중복·형식 오류, IA와 플로우의 화면명·도메인 차이, 허용되지 않은 상태 값, 질문 칸 누락(확정인데 반영 위치 없음, 차단 질문을 가정으로 진행 등) 같은 불일치를 Claude에게 알린다 |
 | `session-reminder.mjs` | 대화 압축 직후 | 승인·토큰·디자인 핵심 규칙, 현재 브랜치, 커밋되지 않은 변경을 다시 알려준다 |
 
 - `build-index`의 원본: 화면 ID·화면명·예정일은 IA 사본 `docs/ia/screen-list.md` (없으면 플로우 문서 "2. 화면 목록" 표), 화면 ID 형식은 `docs/PROJECT.md` "화면 ID 형식", 상태·Figma는 각 명세의 frontmatter. frontmatter는 한 줄짜리 `키: 값`만 읽고, 표는 머리글 이름으로 읽는다.

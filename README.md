@@ -29,6 +29,8 @@ docs/
   screens/<화면ID>.md          # 화면 명세 (화면당 1파일, frontmatter가 상태의 원본)
   components/_index.md        # 컴포넌트 명세 현황 표(자동 생성)
   components/<컴포넌트명>.md    # 컴포넌트 명세 (신규·확장·조합만)
+  questions/_index.md         # 질문 기록 규칙 + 열린 질문 현황(자동 생성)
+  questions/<원본>.md          # 질문 원본: ia·plan(기획서)·design(디자인)·spec(작업 중·원본끼리 다름)
   decisions/<번호>-<제목>.md    # 설계 결정 기록 (ADR)
 .claude/
   settings.json               # 권한(읽기 금지·명령 차단·확인) + 훅 등록
@@ -60,6 +62,7 @@ templates/                    # 양식
   storyboard.md               #   기획서 분석
   ia-source.md                #   IA 읽는 방법
   ia-screen-list.md           #   IA 사본 (화면 목록·일정)
+  questions.md                #   질문 파일
 src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·Props)
 .github/pull_request_template.md  # PR 본문 양식
 ```
@@ -70,7 +73,7 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 |---|---|---|
 | 공통 | `CLAUDE.md`, `templates/`, `.claude/skills/`, `.claude/agents/`, `.claude/settings.json`, `.claude/hooks/`, `.claude/scripts/`, `.github/pull_request_template.md` | 그대로 사용 (경로가 다르면 `docs/HARNESS.md` 5번대로 조정) |
 | 공통 + 예외 섹션 | `docs/DESIGN.md`(9번), `docs/ARCHITECTURE.md`(11번), `docs/GIT.md`(7번), `docs/HARNESS.md`(6번), `.claude/rules/` 3종, `src/components/CLAUDE.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 |
-| 프로젝트별 | `docs/PROJECT.md`, `docs/PRODUCT.md`, `docs/ia/`, `docs/storyboard/`, `docs/ui-flow/`, `docs/screens/`, `docs/components/`, `docs/decisions/` | 새로 작성 |
+| 프로젝트별 | `docs/PROJECT.md`, `docs/PRODUCT.md`, `docs/ia/`, `docs/questions/`(`_index.md`의 1~4번 규칙은 공통), `docs/storyboard/`, `docs/ui-flow/`, `docs/screens/`, `docs/components/`, `docs/decisions/` | 새로 작성 |
 
 - 공통 규칙을 고치고 싶으면 프로젝트 저장소가 아니라 **이 원본 저장소**에서 고친 뒤 각 프로젝트에 반영합니다.
 - 프로젝트에서만 다른 점은 공통 규칙을 고치지 말고 예외 섹션이나 ADR로 남깁니다.
@@ -113,11 +116,12 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 - 괄호 안의 상태는 화면 명세 frontmatter의 `status`에만 적습니다. `_index.md` 현황 표는 훅이 자동으로 다시 만듭니다.
 - 새 컴포넌트가 필요하면 구현 전에 `templates/component-spec.md`로 명세를 쓰고 승인받습니다.
 - 디자인 시스템에 없는 것이 나오면 멈추고 선택지를 받은 뒤 `templates/adr.md`로 기록합니다.
+- 어느 단계에서든 자료에 없는 것은 지어내지 않고 `docs/questions/`에 질문으로 남깁니다. 차단 질문이 열려 있으면 명세 확정·퍼블을 시작하지 않습니다. 열린 질문 수는 화면 맵과 `docs/questions/_index.md`에 자동으로 모입니다.
 
 ## 5. 운영 원칙
 
 - **승인**: 파일 생성·수정·커밋 전에 항상 승인을 받습니다. 단계를 건너뛰지 않습니다.
 - **입력 원본은 읽기만**: IA·기획서·디자인은 사람이 만듭니다. AI는 새로 그리거나 고치지 않고, 읽어서 분석한 뒤 md로 옮깁니다. (Figma 쓰기 도구는 권한 설정으로 막아 두었습니다)
-- **원본은 하나**: 디자인 값은 Figma(코드 토큰 파일은 `token-sync`가 만드는 사본), 화면 ID·화면명·일정은 IA(`docs/ia/`는 `ia-sync`가 만드는 사본, IA가 없으면 플로우 문서), 기획 내용은 기획서(`docs/storyboard/`는 `write-flow`가 만드는 사본), 프로젝트 설정은 `PROJECT.md`, 결정은 ADR, 화면·컴포넌트 상태는 각 명세의 frontmatter. 같은 내용을 여러 곳에 복사하지 않습니다.
+- **원본은 하나**: 디자인 값은 Figma(코드 토큰 파일은 `token-sync`가 만드는 사본), 화면 ID·화면명·일정은 IA(`docs/ia/`는 `ia-sync`가 만드는 사본, IA가 없으면 플로우 문서), 기획 내용은 기획서(`docs/storyboard/`는 `write-flow`가 만드는 사본), 프로젝트 설정은 `PROJECT.md`, 결정은 ADR, 질문과 답은 `docs/questions/`의 질문 줄, 화면·컴포넌트 상태는 각 명세의 frontmatter. 같은 내용을 여러 곳에 복사하지 않습니다.
 - **토큰 절감**: 작업에 필요한 문서·Figma 노드만 읽습니다. 명세·플로우는 파일을 잘게 나누고, 템플릿 주석은 작성 후 지웁니다. 빌드 결과·잠금 파일은 권한 설정으로 읽기를 막아 두었습니다. (`docs/HARNESS.md`)
 - **역할 분리**: 하드코딩 값은 `ds-check`, 명세·접근성·금융 규칙 검토는 `design-system-reviewer`가 맡습니다.

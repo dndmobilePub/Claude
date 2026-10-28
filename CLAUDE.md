@@ -23,6 +23,8 @@
 | 새 컴포넌트 작성 | `templates/component-spec.md` → `docs/components/<컴포넌트명>.md`에 저장 |
 | Figma 변수 → 코드 토큰 반영 | `token-sync` 스킬 |
 | 컴포넌트 명세 확인 | `docs/components/_index.md` → 해당 명세 |
+| 질문 남기기·답 반영 (자료에 없음·해석 필요·원본끼리 다름) | `docs/questions/_index.md` 1~3번 → 해당 질문 파일 |
+| 열린 질문 확인 | `docs/questions/_index.md` 현황 (대상·확인 대상 행만 검색) |
 | 설계 결정 확인 | `docs/decisions/` |
 | 설계 결정 기록 | `templates/adr.md` → `docs/decisions/<번호>-<제목>.md`에 저장 |
 | 브랜치·커밋·PR | `docs/GIT.md` |
@@ -35,6 +37,7 @@
 - 코드 토큰 파일은 직접 고치지 않는다. `token-sync`로만 갱신한다.
 - IMPORTANT: 기존 컴포넌트를 먼저 찾고, 없을 때만 새로 만든다.
 - IMPORTANT: 화면 ID·화면명은 IA를 따른다. 새로 만들거나 바꾸지 않는다. (IA가 없는 프로젝트는 플로우 문서 화면 목록) `docs/ia/`는 `ia-sync`로만 갱신한다.
+- IMPORTANT: 자료에 없는 것을 지어내지 않는다. 질문은 `docs/questions/`에만 한 줄씩 적고, 답·상태도 그 줄에서만 바꾼다. 다른 문서에는 질문 ID만 적는다.
 - 화면·컴포넌트 상태는 각 명세의 frontmatter에서만 고친다. `_index.md`의 AUTO 블록은 훅이 만들므로 직접 고치지 않는다.
 - IMPORTANT: 입력 원본(IA·기획서·Figma)은 읽기만 한다. 기획 설계서·디자인을 새로 그리거나, IA·PPT 파일을 고치지 않는다.
 - 파일 생성·수정·커밋 전에는 사용자 승인을 받는다.

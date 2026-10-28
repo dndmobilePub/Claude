@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 인덱스 자동 생성 훅
-// - PostToolUse(Edit|Write): docs/ia/, docs/ui-flow/, docs/screens/, docs/components/ 파일을 고친 직후 실행된다.
+// - PostToolUse(Edit|Write): docs/ia/, docs/ui-flow/, docs/screens/, docs/components/, docs/questions/ 파일을 고친 직후 실행된다.
 // - 수동 실행: node .claude/hooks/build-index.mjs (에디터에서 직접 고쳤을 때)
 //
 // 원본 → 생성 결과
@@ -10,6 +10,8 @@
 // - 플로우 frontmatter, 화면 명세 frontmatter(id·status·figma·flow)
 //   → docs/ui-flow/_index.md 의 AUTO 블록 (도메인별 플로우, 전체 화면 맵)
 // - 컴포넌트 명세 frontmatter → docs/components/_index.md 의 AUTO 블록
+// - 질문 파일(docs/questions/<source>.md)의 "## 질문 목록" 표
+//   → docs/questions/_index.md 의 AUTO 블록 (열린 질문 모음), 화면 맵의 "열린 질문" 칸
 // - 화면 ID 형식: docs/PROJECT.md "화면 ID 형식"의 정규식 (비어 있으면 기본값)
 //
 // 불일치(ID 중복, IA와 플로우의 차이, 허용되지 않은 상태 값 등)는 훅 모드에서 exit 2 + stderr로 Claude에게 알린다.
@@ -71,9 +73,10 @@ function cells(row) {
   return row.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
 }
 
-// "## <번호>. <제목>" 섹션의 표를 { 머리글: 값 } 행 목록으로 읽는다. 구분선 행은 건너뛴다.
+// "## <번호>. <제목>"(번호가 null이면 "## <제목>") 섹션의 표를 { 머리글: 값 } 행 목록으로 읽는다. 구분선 행은 건너뛴다.
 function sectionTable(text, no, title) {
-  const sec = text.match(new RegExp(`^##\\s*${no}\\.\\s*${title}[^\\n]*\\n([\\s\\S]*?)(?=^##\\s|(?![\\s\\S]))`, 'm'));
+  const num = no === null ? '' : `${no}\\.\\s*`;
+  const sec = text.match(new RegExp(`^##\\s*${num}${title}[^\\n]*\\n([\\s\\S]*?)(?=^##\\s|(?![\\s\\S]))`, 'm'));
   if (!sec) return [];
   const lines = sec[1].split(/\r?\n/).filter((l) => l.trim().startsWith('|'));
   if (lines.length < 2) return [];
@@ -136,9 +139,84 @@ function readIa(root, idRe, warn) {
 
 const esc = (s) => String(s ?? '').replace(/\|/g, '\\|');
 
+// ---------- 질문 ----------
+
+const Q_STATUS = ['미답변', '보류', '가정', '확정'];
+const Q_OPEN = ['미답변', '보류', '가정'];
+const Q_BLOCK = ['예', '아니오'];
+
+// docs/questions/<source>.md 의 "## 질문 목록" 표를 읽고 형식을 점검한다.
+function readQuestions(root, warn) {
+  const dir = join(root, 'docs/questions');
+  const list = [];
+  const seen = new Map();
+  for (const file of mdFiles(dir)) {
+    const text = read(join(dir, file));
+    const where = `docs/questions/${file}`;
+    const fm = (text && frontmatter(text)) || {};
+    if (!fm.prefix) warn(`${where}: frontmatter에 prefix(질문 ID 앞부분)가 없습니다.`);
+    for (const r of sectionTable(text || '', null, '질문 목록')) {
+      const q = {
+        id: r['ID'] || '',
+        target: r['대상'] || '',
+        from: r['출처 위치'] || '',
+        text: r['질문'] || '',
+        who: r['확인 대상'] || '',
+        block: r['차단'] || '',
+        status: r['상태'] || '',
+        answer: r['답'] || '',
+        applied: r['반영 위치'] || '',
+        file,
+      };
+      if (!q.id && !q.text) continue;
+      const at = `${where} ${q.id || '(ID 없음)'}`;
+      if (!/^[A-Z][A-Z0-9-]*-\d{3}$/.test(q.id)) warn(`${at}: ID 형식이 "<앞부분>-<3자리 번호>"가 아닙니다.`);
+      else if (fm.prefix && !q.id.startsWith(`${fm.prefix}-`)) warn(`${at}: ID가 이 파일의 prefix(${fm.prefix})로 시작하지 않습니다.`);
+      if (seen.has(q.id)) warn(`${at}: 질문 ID가 ${seen.get(q.id)}에도 있습니다.`);
+      else seen.set(q.id, where);
+      if (!q.target) warn(`${at}: 대상이 비어 있습니다. (화면 ID·컴포넌트·도메인 키·공통)`);
+      if (!q.who) warn(`${at}: 확인 대상이 비어 있습니다.`);
+      if (!Q_BLOCK.includes(q.block)) warn(`${at}: 차단 "${q.block}"는 허용 값이 아닙니다 (${Q_BLOCK.join(' | ')}).`);
+      if (!Q_STATUS.includes(q.status)) warn(`${at}: 상태 "${q.status}"는 허용 값이 아닙니다 (${Q_STATUS.join(' | ')}).`);
+      if (q.status === '가정' && !q.answer) warn(`${at}: 가정인데 답 칸에 가정한 내용이 없습니다.`);
+      if (q.status === '가정' && q.block === '예') warn(`${at}: 차단 질문은 가정으로 진행할 수 없습니다.`);
+      if (q.status === '확정' && (!q.answer || !q.applied)) warn(`${at}: 확정인데 답 또는 반영 위치가 비어 있습니다.`);
+      const path = q.applied.replace(/`/g, '').split('#')[0].trim();
+      if (/^(docs|src)\//.test(path) && !existsSync(join(root, path))) warn(`${at}: 반영 위치 ${path} 파일이 없습니다.`);
+      list.push(q);
+    }
+  }
+  return list;
+}
+
+function buildQuestions(questions) {
+  const out = [START_LINE, ''];
+  if (questions.length === 0) {
+    out.push('아직 등록된 질문이 없다.', '', END);
+    return out.join('\n');
+  }
+  const n = (f) => questions.filter(f).length;
+  const open = questions.filter((q) => Q_OPEN.includes(q.status));
+  out.push(
+    `전체 ${questions.length} · ${Q_STATUS.map((s) => `${s} ${n((q) => q.status === s)}`).join(' · ')} · 열린 차단 질문 ${n((q) => Q_OPEN.includes(q.status) && q.block === '예')}`,
+    '',
+    '### 열린 질문 (차단 먼저, 확인 대상별)',
+  );
+  if (open.length === 0) out.push('열린 질문이 없다.');
+  else {
+    open.sort((a, b) => (a.block === '예' ? 0 : 1) - (b.block === '예' ? 0 : 1) || a.who.localeCompare(b.who) || a.id.localeCompare(b.id));
+    out.push('| ID | 대상 | 질문 | 확인 대상 | 차단 | 상태 | 답(가정·보류 이유) | 파일 |', '|---|---|---|---|---|---|---|---|');
+    for (const q of open) {
+      out.push(`| ${esc(q.id)} | ${esc(q.target)} | ${esc(q.text)} | ${esc(q.who)} | ${esc(q.block)} | ${esc(q.status)} | ${esc(q.answer)} | [${q.file}](${q.file}) |`);
+    }
+  }
+  out.push('', '- 확정된 질문은 원본 파일에서 ID로 검색한다.', '', END);
+  return out.join('\n');
+}
+
 // ---------- 화면·플로우 ----------
 
-function buildScreens(root, warn) {
+function buildScreens(root, warn, questions = []) {
   const idRe = screenIdPattern(root);
   const ia = readIa(root, idRe, warn);
   const flowDir = join(root, 'docs/ui-flow');
@@ -205,6 +283,19 @@ function buildScreens(root, warn) {
     if (!seen.has(id)) warn(`docs/screens/${spec.file}: ${id}가 어느 플로우의 화면 목록에도 없습니다.`);
   }
 
+  // 질문 대상 점검: 화면 ID 형식인데 화면 목록에 없는 대상
+  const known = new Set([...(ia?.ids || []), ...seen.keys()]);
+  for (const q of questions) {
+    if (idRe.test(q.target) && !known.has(q.target)) {
+      warn(`docs/questions/${q.file} ${q.id}: 대상 ${q.target}가 화면 목록(${ia ? 'IA' : '플로우'})에 없습니다.`);
+    }
+  }
+  const openQ = (id) => {
+    const qs = questions.filter((q) => q.target === id && Q_OPEN.includes(q.status));
+    const b = qs.filter((q) => q.block === '예').length;
+    return qs.length ? `${qs.length}${b ? ` (차단 ${b})` : ''}` : '';
+  };
+
   // 화면 맵 행
   const flowOf = (id) => flows.find((f) => f.screens.some((s) => s.id === id));
   const rowOf = (id, title) => {
@@ -217,6 +308,7 @@ function buildScreens(root, warn) {
       spec: spec ? `[보기](../screens/${spec.file})` : '-',
       status: spec ? spec.status : f ? NO_SPEC : NO_FLOW,
       figma: spec?.figma ? '있음' : '없음',
+      questions: openQ(id),
       due: ia?.due.get(id) || '',
     };
   };
@@ -253,11 +345,11 @@ function buildScreens(root, warn) {
     out.push('', '### 전체 화면 맵', `전체 ${rows.length} · ${count(rows)}`, '');
     if (ia) {
       const dueHead = `예정일${ia.stage ? ` (${ia.stage})` : ''}`;
-      out.push(`| 화면 ID | 화면명 | 플로우 | 명세 | 상태 | Figma | ${dueHead} |`, '|---|---|---|---|---|---|---|');
-      for (const r of rows) out.push(`| ${r.id} | ${esc(r.title)} | ${r.flow} | ${r.spec} | ${r.status} | ${r.figma} | ${esc(r.due)} |`);
+      out.push(`| 화면 ID | 화면명 | 플로우 | 명세 | 상태 | Figma | 열린 질문 | ${dueHead} |`, '|---|---|---|---|---|---|---|---|');
+      for (const r of rows) out.push(`| ${r.id} | ${esc(r.title)} | ${r.flow} | ${r.spec} | ${r.status} | ${r.figma} | ${r.questions} | ${esc(r.due)} |`);
     } else {
-      out.push('| 화면 ID | 화면명 | 플로우 | 명세 | 상태 | Figma |', '|---|---|---|---|---|---|');
-      for (const r of rows) out.push(`| ${r.id} | ${esc(r.title)} | ${r.flow} | ${r.spec} | ${r.status} | ${r.figma} |`);
+      out.push('| 화면 ID | 화면명 | 플로우 | 명세 | 상태 | Figma | 열린 질문 |', '|---|---|---|---|---|---|---|');
+      for (const r of rows) out.push(`| ${r.id} | ${esc(r.title)} | ${r.flow} | ${r.spec} | ${r.status} | ${r.figma} | ${r.questions} |`);
     }
   }
   out.push('', END);
@@ -332,14 +424,16 @@ function main() {
 
   if (hookMode) {
     const rel = relative(root, input.tool_input.file_path || '').replace(/\\/g, '/');
-    if (!/^docs\/(ia|ui-flow|screens|components)\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
+    if (!/^docs\/(ia|ui-flow|screens|components|questions)\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
     if (basename(rel) === '_index.md') return 0;
   }
 
   const warnings = [];
   const warn = (m) => warnings.push(m);
-  replaceBlock(root, 'docs/ui-flow/_index.md', buildScreens(root, warn), warn);
+  const questions = readQuestions(root, warn);
+  replaceBlock(root, 'docs/ui-flow/_index.md', buildScreens(root, warn, questions), warn);
   replaceBlock(root, 'docs/components/_index.md', buildComponents(root, warn), warn);
+  replaceBlock(root, 'docs/questions/_index.md', buildQuestions(questions), warn);
 
   if (!hookMode) {
     process.stdout.write(`인덱스를 다시 만들었습니다. 경고 ${warnings.length}건\n`);
@@ -352,7 +446,7 @@ function main() {
       `[인덱스 경고] 인덱스는 다시 만들었지만 원본 문서에서 불일치 ${warnings.length}건을 찾았습니다.`,
       ...warnings.slice(0, 10).map((w) => `- ${w}`),
       ...(warnings.length > 10 ? [`- 외 ${warnings.length - 10}건`] : []),
-      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
+      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
     ].join('\n') + '\n',
   );
   return 2;
