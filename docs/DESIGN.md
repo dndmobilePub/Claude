@@ -7,7 +7,7 @@
 ## 1. 원본(Source of Truth)
 - 값의 원본은 Figma다. 이 문서나 다른 md에 값을 복사해 두지 않는다. (복사하면 Figma와 어긋난다)
 - 코드의 토큰 파일은 Figma 변수를 옮긴 결과물이다. 둘이 다르면 Figma를 기준으로 하고 사용자에게 알린다.
-- IMPORTANT: 코드 토큰 파일(`tokens.css`, `tokens.ts`)은 `token-sync` 스킬로만 만든다. 손으로 고치지 않는다. (다음 동기화 때 사라진다)
+- IMPORTANT: 코드 토큰 파일(`tokens.css`와 참조 파일 `tokens.ts`·`tokens.js`)은 `token-sync` 스킬로만 만든다. 손으로 고치지 않는다. (다음 동기화 때 사라진다)
 
 ## 2. 값 조회 방법 (Figma MCP)
 | 필요한 정보 | 조회 방법 |
@@ -39,7 +39,7 @@
 - 제외: 게시에서 숨긴 컬렉션·변수, 불리언 변수, 9번에 적은 제외 컬렉션
 
 **이름**
-| Figma 변수 | CSS 변수 | TS 참조 |
+| Figma 변수 | CSS 변수 | 참조 파일 |
 |---|---|---|
 | `color/text/primary` | `--color-text-primary` | `tokens.color.text.primary` |
 | `color/bg subtle` | `--color-bg-subtle` | `tokens.color.bgSubtle` |
@@ -48,7 +48,7 @@
 
 - 소문자로 바꾸고, `/`와 공백은 `-`, `.`은 `_`로 바꾼다. 그 밖의 특수문자는 지운다.
 - 컬렉션 이름은 넣지 않는다.
-- TS는 `/`로 나눈 단계를 객체 단계로 쓴다. 단계 안의 `-`는 camelCase로 바꾸고, 숫자로 시작하는 단계는 문자열 키로 쓴다.
+- 참조 파일은 `/`로 나눈 단계를 객체 단계로 쓴다. 단계 안의 `-`는 camelCase로 바꾸고, 숫자로 시작하는 단계는 문자열 키로 쓴다.
 - 변환한 이름이 겹치거나, 한 이름이 값이면서 하위 단계를 가지면 변환하지 않고 멈춘다. (Figma 이름을 정리해야 한다)
 
 **값**
@@ -70,12 +70,20 @@
 - 컬렉션의 기본 모드 값은 `:root`에, 나머지 모드 값은 `[data-theme="<모드 이름>"]` 블록에 쓴다. 모드 이름도 이름 규칙으로 바꾼다. (예: `Dark` → `dark`)
 - 기본 모드와 값이 같은 변수는 모드 블록에 다시 쓰지 않는다.
 - 모드가 2개 이상인 컬렉션이 둘 이상이면 9번에 컬렉션별 속성 이름을 정한 뒤 진행한다.
-- TS 참조는 `var()` 문자열이므로 모드와 관계없이 하나다.
+- 참조 파일의 값은 `var()` 문자열이므로 모드와 관계없이 하나다.
 
 **순서·파일**
 - 순서: 원시 토큰(모든 모드 값이 직접 값) → 의미 토큰(별칭 값이 하나라도 있음). 각각 이름순.
-- `tokens.css`: CSS 변수 정의 / `tokens.ts`: 같은 토큰의 `var()` 참조 객체 (`as const`)
-- 두 파일 맨 위에 자동 생성 표시를 넣는다.
+- 만드는 파일은 `docs/PROJECT.md`의 퍼블 언어·TypeScript로 정한다.
+
+| 퍼블 언어 | 만드는 파일 |
+|---|---|
+| JS(HTML·CSS·JS) | `tokens.css`만 |
+| React·Vue + TypeScript | `tokens.css` + `tokens.ts` (`as const` 객체) |
+| React·Vue, TypeScript 미사용 | `tokens.css` + `tokens.js` (`as const` 없이 같은 객체) |
+
+- `tokens.css`는 CSS 변수 정의, 참조 파일은 같은 토큰의 `var()` 참조 객체다.
+- 모든 파일 맨 위에 자동 생성 표시를 넣는다.
 
 ```css
 /* 자동 생성 — 직접 고치지 마세요. token-sync 스킬로 갱신합니다. */

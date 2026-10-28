@@ -3,7 +3,8 @@
 Claude Code로 UI를 만들기 위한 **재사용 가능한 md 지침 세트**입니다.
 공통 규칙·절차·양식은 그대로 쓰고, 프로젝트마다 다른 값만 정해진 자리에 채워 사용합니다.
 
-- 대상 범위: 기획(플로우·화면 명세) → 디자인(Figma 디자인 시스템) → 퍼블리싱(컴포넌트·화면 구현)
+- 대상 범위: 기획(플로우·화면 명세) → 디자인(Figma 디자인 시스템) → 퍼블리싱(컴포넌트·화면)
+- 결과물: **개발팀에 넘기는 퍼블리싱 파일** (JS(HTML·CSS·JS) / React / Vue 중 프로젝트에서 선택). 화면 이동·서버 연결은 개발 몫입니다.
 - 기준 도구: Claude Code + Figma MCP
 - 모든 지침 문서는 한국어로 작성합니다.
 
@@ -14,10 +15,10 @@ Claude Code로 UI를 만들기 위한 **재사용 가능한 md 지침 세트**�
 ```
 CLAUDE.md                     # 라우터: 작업별로 읽을 문서 안내 (짧게 유지)
 docs/
-  PROJECT.md                  # 프로젝트별 설정: 서비스명·스택·라이브러리·명령어·Figma URL·토큰 위치
+  PROJECT.md                  # 프로젝트별 설정: 서비스명·퍼블 언어·스타일링·명령어·Figma URL·토큰 위치
   PRODUCT.md                  # 기획·도메인·용어집
   DESIGN.md                   # 디자인 시스템 사용 규칙 (값은 Figma가 원본)
-  ARCHITECTURE.md             # 코드 구조: 화면·라우트·데이터·임시 데이터·상태
+  ARCHITECTURE.md             # 퍼블 파일 구조: 퍼블과 개발의 경계·화면 폴더·이동 표시·더미 데이터·상태 확인
   GIT.md                      # 브랜치·커밋·PR 규칙
   HARNESS.md                  # 권한·훅 설정 설명과 토큰 절감 습관
   storyboard/<도메인>.md       # 기획 설계서 분석 (Figma 설계서의 md 사본, write-flow가 생성)
@@ -41,8 +42,8 @@ docs/
     project-init/             #   PROJECT.md 채우기
     write-flow/               #   기획 설계서 분석 + 도메인 플로우 작성, 읽기 전용 조회 스크립트 포함
     write-screen-spec/        #   화면 명세 작성·확정 점검
-    implement-screen/         #   화면 명세 → Figma 조회 → 구현 → 검증
-    token-sync/               #   Figma 변수 → 코드 토큰 파일(tokens.css·tokens.ts), 읽기 전용 조회 스크립트 포함
+    implement-screen/         #   화면 명세 → Figma 조회 → 퍼블 → 검증 → 개발 전달 보고
+    token-sync/               #   Figma 변수 → 코드 토큰 파일(tokens.css, React·Vue는 참조 파일 포함), 읽기 전용 조회 스크립트 포함
     ds-check/                 #   디자인 시스템 위반 검출
   agents/
     design-system-reviewer.md #   독립 리뷰어 (명세·상태·코드 구조·접근성·금융 규칙)
@@ -61,7 +62,7 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 | 구분 | 파일 | 새 프로젝트에서 |
 |---|---|---|
 | 공통 | `CLAUDE.md`, `templates/`, `.claude/skills/`, `.claude/agents/`, `.claude/settings.json`, `.claude/hooks/`, `.github/pull_request_template.md` | 그대로 사용 (경로가 다르면 `docs/HARNESS.md` 5번대로 조정) |
-| 공통 + 예외 섹션 | `docs/DESIGN.md`(9번), `docs/ARCHITECTURE.md`(10번), `docs/GIT.md`(7번), `docs/HARNESS.md`(6번), `.claude/rules/` 3종, `src/components/CLAUDE.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 |
+| 공통 + 예외 섹션 | `docs/DESIGN.md`(9번), `docs/ARCHITECTURE.md`(11번), `docs/GIT.md`(7번), `docs/HARNESS.md`(6번), `.claude/rules/` 3종, `src/components/CLAUDE.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 |
 | 프로젝트별 | `docs/PROJECT.md`, `docs/PRODUCT.md`, `docs/storyboard/`, `docs/ui-flow/`, `docs/screens/`, `docs/components/`, `docs/decisions/` | 새로 작성 |
 
 - 공통 규칙을 고치고 싶으면 프로젝트 저장소가 아니라 **이 원본 저장소**에서 고친 뒤 각 프로젝트에 반영합니다.
@@ -78,13 +79,13 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 | 단계 | 할 일 | Claude Code에 요청하는 예 |
 |---|---|---|
 | 1 | 프로젝트 설정 채우기 | `/project-init` |
-| 2 | 예외 섹션 채우기 (DESIGN.md 9번, ARCHITECTURE.md 10번, GIT.md 7번, rules 3종, 컴포넌트 규칙 8번) | "finance-ui.md 예외 섹션 같이 채우자" |
+| 2 | 예외 섹션 채우기 (DESIGN.md 9번, ARCHITECTURE.md 11번, GIT.md 7번, rules 3종, 컴포넌트 규칙 8번) | "finance-ui.md 예외 섹션 같이 채우자" |
 | 3 | 코드 토큰 파일 만들기 (Figma 변수가 바뀔 때마다 다시 실행) | `/token-sync` |
 | 4 | 기획 문서 작성 | "PRODUCT.md 작성 도와줘" |
 | 5 | 기획 설계서 분석 + 도메인별 플로우 작성 (화면 ID 부여 포함) | `/write-flow 이체` |
 | 6 | 화면 명세 작성 | `/write-screen-spec TRF-010` |
 | 7 | 명세 확정 점검 → 상태 "확정" | `/write-screen-spec TRF-010 확정점검` |
-| 8 | 화면 구현 | `/implement-screen TRF-010` |
+| 8 | 화면 퍼블 → 개발 전달 | `/implement-screen TRF-010` |
 
 - 비어 있는 `[TODO]` 값이 작업에 필요하면 Claude가 추측하지 않고 먼저 묻습니다.
 
@@ -94,9 +95,9 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 /write-flow (설계서 분석 → 화면 등록) → /write-screen-spec (초안) → 기획·디자인 확인 (검토)
 → /write-screen-spec 확정점검 (확정)
 → /implement-screen
-    사전 점검 → Figma 조회 → 구현 계획 [승인] → 구현
-    → 검증 (린트·테스트, ds-check, Figma 비교, design-system-reviewer)
-    → 완료 기준 대조 → 보고 [승인] → 상태 갱신·커밋 (구현완료)
+    사전 점검 → Figma 조회 → 퍼블 계획 [승인] → 퍼블 (이동은 data-screen-link 표시만)
+    → 검증 (린트·테스트, ds-check, Figma 비교, 상태별 확인, design-system-reviewer)
+    → 완료 기준 대조 → 보고·개발 전달 목록 [승인] → 상태 갱신·커밋 (구현완료)
 ```
 
 - 괄호 안의 상태는 화면 명세 frontmatter의 `status`에만 적습니다. `_index.md` 현황 표는 훅이 자동으로 다시 만듭니다.

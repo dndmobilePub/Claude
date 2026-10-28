@@ -1,6 +1,6 @@
 ---
 paths:
-  - "src/**/*.{ts,tsx}"
+  - "src/**/*.{html,vue,js,jsx,ts,tsx}"
 ---
 
 # 금융 UI 규칙

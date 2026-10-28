@@ -1,6 +1,6 @@
 ---
 paths:
-  - "src/**/*.{ts,tsx,css,scss}"
+  - "src/**/*.{html,vue,js,jsx,ts,tsx,css,scss}"
 ---
 
 # Figma → 코드 구현 규칙
@@ -19,7 +19,7 @@ paths:
 - Figma 결과에 나온 HEX·px 값은 대응하는 토큰으로 바꾼다. 대응 토큰이 없으면 멈추고 묻는다.
 - Figma 변수에는 있는데 코드 토큰 파일에 없으면 토큰 파일을 직접 고치지 않고 `token-sync`를 안내한다. (`DESIGN.md` 3-1)
 - Figma 레이어 이름을 클래스명·변수명에 그대로 쓰지 않는다. 의미 있는 이름을 쓴다.
-- 결과에 포함된 스타일링 방식(예: Tailwind)이 프로젝트와 다르면 `docs/PROJECT.md`의 스타일링 방식으로 바꾼다.
+- 조회 결과의 언어(보통 React)와 스타일링 방식(예: Tailwind)이 프로젝트와 다르면 `docs/PROJECT.md`의 퍼블 언어·스타일링 방식으로 바꾼다.
 
 ## 3. 컴포넌트 작성
 - 컴포넌트 위치·폴더 구조·네이밍은 `src/components/CLAUDE.md`를 따른다.

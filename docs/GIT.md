@@ -10,7 +10,7 @@
 
 | 예 | 용도 |
 |---|---|
-| `feat/TRF-010-amount-input` | 화면 구현 |
+| `feat/TRF-010-amount-input` | 화면 퍼블 |
 | `feat/component-amount-input` | 컴포넌트 신규·확장 |
 | `docs/flow-transfer` | 플로우·화면 명세 작성 |
 | `fix/TRF-010-mask-error` | 버그 수정 |
@@ -30,8 +30,8 @@
 | test | 테스트 추가·수정 |
 | chore | 설정·의존성·토큰 반영 |
 
-- 본문(선택): 무엇을, 왜 바꿨는지. 남긴 `TODO(<화면ID>)`가 있으면 적는다.
-- 예: `feat(TRF-010): 이체 금액 입력 화면 구현`, `docs(transfer): 이체 플로우 작성`, `chore(tokens): Figma 변수 동기화`
+- 본문(선택): 무엇을, 왜 바꿨는지. 화면 퍼블이면 개발에 넘길 항목(`ARCHITECTURE.md` 10번)을 요약해 적는다.
+- 예: `feat(TRF-010): 이체 금액 입력 화면 퍼블`, `docs(transfer): 이체 플로우 작성`, `chore(tokens): Figma 변수 동기화`
 
 ## 3. 커밋 단위
 - 하나의 논리적 변경 = 커밋 하나. 관련 없는 변경을 섞지 않는다.

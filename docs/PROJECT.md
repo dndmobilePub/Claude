@@ -10,15 +10,15 @@
 - Figma 라이브러리: [TODO: URL]
 - Figma 변수 파일: [TODO: URL. 라이브러리와 같으면 "라이브러리와 같음"]
 
-## 기술 스택
-- 프레임워크: [TODO: 예) React + TypeScript + Vite / Next.js]
-- 스타일링: [TODO: 예) CSS Modules / styled-components / Tailwind]
-- 라우팅: [TODO: 예) React Router / Next.js App Router]
-- 서버 상태: [TODO: 예) TanStack Query / 사용 안 함]
-- 전역·플로우 상태: [TODO: 예) Zustand / Context]
-- 폼·검증: [TODO: 예) React Hook Form + Zod]
-- 기타 주요 라이브러리: [TODO]
-- 코드 토큰 위치: [TODO: 기본 src/styles/tokens/ (token-sync가 tokens.css·tokens.ts를 만드는 폴더)]
+## 퍼블 기술 스택
+> 결과물은 개발팀에 넘기는 퍼블리싱 파일이다. 라우팅·서버 연결·전역 상태는 개발 몫이라 여기서 정하지 않는다. (`docs/ARCHITECTURE.md` 1번)
+- 퍼블 언어: [TODO: JS(HTML·CSS·JS) / React / Vue]
+- TypeScript: [TODO: 사용 / 미사용. JS(HTML·CSS·JS)면 "미사용"]
+- 빌드 도구: [TODO: 예) Vite / 없음(정적 파일)]
+- 스타일링: [TODO: 예) CSS / SCSS / CSS Modules / Tailwind]
+- 스토리북: [TODO: 사용 / 미사용]
+- 기타 주요 라이브러리: [TODO: 없으면 "없음"]
+- 코드 토큰 위치: [TODO: 기본 src/styles/tokens/ (token-sync가 토큰 파일을 만드는 폴더)]
 
 ## 명령어
 - 개발 서버: `[TODO]`

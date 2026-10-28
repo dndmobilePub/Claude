@@ -12,7 +12,7 @@
 |---|---|
 | 기획·도메인 이해 | `docs/PRODUCT.md` |
 | UI 작성·수정 | `docs/DESIGN.md` → 해당 `docs/screens/<화면ID>.md` |
-| 화면·라우트·데이터·상태 코드 위치 | `docs/ARCHITECTURE.md` (필요한 섹션만) |
+| 퍼블 파일 위치·퍼블과 개발의 경계·더미 데이터 | `docs/ARCHITECTURE.md` (필요한 섹션만) |
 | 화면 흐름 파악 | `docs/ui-flow/_index.md` → 도메인별 플로우 |
 | 기획 설계서 분석 | `write-flow` 스킬 0단계 (양식 `templates/storyboard.md`) |
 | 설계서 내용 확인 | `docs/storyboard/<도메인>.md` (해당 화면 절만) |
@@ -27,6 +27,7 @@
 | 권한·훅 설정, 작업이 권한에 막힘 | `docs/HARNESS.md` |
 
 ## 항상 지킬 규칙
+- IMPORTANT: 결과물은 개발에 넘기는 퍼블 파일이다. 화면 이동·서버 호출 같은 개발 몫은 구현하지 않는다. (`docs/ARCHITECTURE.md` 1번)
 - IMPORTANT: 필요한 문서만 읽는다. 전체 docs를 한꺼번에 읽지 않는다.
 - IMPORTANT: 색상·간격·폰트는 토큰만 사용한다. 하드코딩 금지.
 - 코드 토큰 파일은 직접 고치지 않는다. `token-sync`로만 갱신한다.
@@ -45,6 +46,6 @@
 - `project-init` — 새 프로젝트 시작 시 `docs/PROJECT.md` 채우기
 - `write-flow` — 기획 설계서 분석 + 도메인 플로우 작성 (화면 목록·ID·흐름도·예외 흐름)
 - `write-screen-spec` — 화면 명세 작성, "확정" 점검
-- `implement-screen` — 화면 명세 → Figma 조회 → 구현 → 검증
-- `token-sync` — Figma 변수 → 코드 토큰 파일(tokens.css·tokens.ts) 생성·갱신
+- `implement-screen` — 화면 명세 → Figma 조회 → 퍼블 → 검증 → 개발 전달 보고
+- `token-sync` — Figma 변수 → 코드 토큰 파일(tokens.css, React·Vue는 참조 파일 포함) 생성·갱신
 - `ds-check` — 디자인 시스템 위반 검출

@@ -44,7 +44,7 @@ function main() {
 
   // 점검 대상: src/ 아래 스타일·컴포넌트 파일. 테스트·스토리는 제외.
   if (!rel.startsWith('src/')) return 0;
-  if (!/\.(tsx?|jsx?|css|scss)$/.test(rel)) return 0;
+  if (!/\.(html|vue|tsx?|jsx?|css|scss)$/.test(rel)) return 0;
   if (/\.(stories|test|spec)\./.test(rel)) return 0;
 
   // 토큰 정의 파일(또는 폴더)은 제외.
@@ -55,7 +55,7 @@ function main() {
   const lines = readFileSync(filePath, 'utf8').split(/\r?\n/);
   lines.forEach((line, i) => {
     const trimmed = line.trim();
-    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) return;
+    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*') || trimmed.startsWith('<!--')) return;
     for (const rule of RULES) {
       for (const match of line.matchAll(rule.re)) {
         findings.push(`${rel}:${i + 1} ${rule.name} \`${match[0].replace(/\($/, '(...)')}\``);
