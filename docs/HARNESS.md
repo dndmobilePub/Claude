@@ -40,15 +40,28 @@
 | 훅 | 시점 | 하는 일 |
 |---|---|---|
 | `check-hardcoded.mjs` | 파일 수정 직후 (Edit·Write) | `src/`의 스타일·컴포넌트 파일에서 HEX·rgb/hsl 색상, 2px 이상 px 값을 찾아 Claude에게 알린다. 최대 10건만 보여준다 |
-| `build-index.mjs` | 파일 수정 직후 (Edit·Write) | `docs/ui-flow/`·`docs/screens/`·`docs/components/` 파일이 바뀌면 두 `_index.md`의 AUTO 블록(현황 표)을 다시 만든다. ID 중복·허용되지 않은 상태 값 등 불일치를 Claude에게 알린다 |
+| `build-index.mjs` | 파일 수정 직후 (Edit·Write) | `docs/ia/`·`docs/ui-flow/`·`docs/screens/`·`docs/components/`·`docs/PROJECT.md`가 바뀌면 두 `_index.md`의 AUTO 블록(현황 표)을 다시 만든다. ID 중복·형식 오류, IA와 플로우의 화면명·도메인 차이, 허용되지 않은 상태 값 등 불일치를 Claude에게 알린다 |
 | `session-reminder.mjs` | 대화 압축 직후 | 승인·토큰·디자인 핵심 규칙, 현재 브랜치, 커밋되지 않은 변경을 다시 알려준다 |
 
-- `build-index`의 원본: 화면 ID·화면명은 플로우 문서 "2. 화면 목록" 표, 상태·Figma는 각 명세의 frontmatter. frontmatter는 한 줄짜리 `키: 값`만 읽는다.
+- `build-index`의 원본: 화면 ID·화면명·예정일은 IA 사본 `docs/ia/screen-list.md` (없으면 플로우 문서 "2. 화면 목록" 표), 화면 ID 형식은 `docs/PROJECT.md` "화면 ID 형식", 상태·Figma는 각 명세의 frontmatter. frontmatter는 한 줄짜리 `키: 값`만 읽고, 표는 머리글 이름으로 읽는다.
 - `build-index`가 고치는 `_index.md` 변경은 승인받은 원본 수정의 결과이므로 별도 승인을 받지 않는다. 커밋할 때는 원본과 함께 포함한다.
 - 에디터에서 직접 문서를 고쳤으면 `node .claude/hooks/build-index.mjs`로 수동 실행한다. (경고가 있으면 종료 코드 1)
 - `check-hardcoded`는 빠른 1차 경고다. 전체 점검(스타일 작성 방식·컴포넌트)은 `ds-check` 스킬이 맡는다.
 - 제외 대상: 테스트·스토리 파일, `docs/PROJECT.md`의 "코드 토큰 위치"에 적힌 파일·폴더. 이 값이 [TODO]면 토큰 파일도 점검되므로 먼저 채운다.
 - 훅 스크립트에 오류가 나면 작업을 막지 않고 통과시킨다.
+
+### 입력 원본 읽기 스크립트
+훅이 아니라 스킬이 필요할 때 `node`로 실행한다. 모두 읽기 전용이고 외부 패키지가 필요 없다. (`.claude/scripts/office-zip.mjs`를 함께 쓴다)
+
+| 스크립트 | 스킬 | 읽는 것 |
+|---|---|---|
+| `.claude/skills/ia-sync/read-ia.mjs` | `ia-sync` | IA 엑셀(.xlsx·.csv)의 시트 목록, 셀 값(병합·숨김·취소선·날짜 처리), 색칠된 칸(WBS) |
+| `.claude/skills/write-flow/read-ppt.mjs` | `write-flow` | 기획서 PPT(.pptx)의 슬라이드 목록, 슬라이드별 텍스트·표·발표자 노트 |
+| `.claude/skills/write-flow/read-storyboard.js` | `write-flow` | Figma 기획 설계서 (Figma `use_figma`로 실행) |
+| `.claude/skills/token-sync/read-variables.js` | `token-sync` | Figma 변수 (Figma `use_figma`로 실행) |
+
+- 옛 형식(.xls·.ppt)은 읽지 못한다. 새 형식으로 다시 저장해서 쓴다.
+- 출력은 한 번에 100행·20장까지만 나온다. 마지막 줄의 `# 다음:` 값으로 이어 읽는다. (토큰 절감)
 
 ## 4. 토큰 절감 작업 습관
 | 습관 | 이유 |
@@ -57,7 +70,7 @@
 | 대화가 길어지면 `/compact` | 압축 후 `session-reminder` 훅이 핵심 규칙을 복원한다 |
 | 화면 명세·플로우를 잘게 나누고, 템플릿 주석은 작성 후 지운다 | 읽는 양 자체를 줄인다 |
 | Figma는 명세에 적힌 노드만 조회 | 파일 전체 조회는 결과가 매우 크다 |
-| 기획 설계서는 한 번 분석해 `docs/storyboard/`에 md로 남기고, 이후에는 md의 해당 화면 절만 읽는다 | 같은 설계서를 화면마다 다시 조회하지 않는다 |
+| IA·기획서는 한 번 분석해 `docs/ia/`·`docs/storyboard/`에 md로 남기고, 이후에는 md의 해당 행·화면 절만 검색해 읽는다 | 같은 원본 파일을 화면마다 다시 읽지 않는다 |
 | 넓은 코드 검색은 서브에이전트에 맡긴다 | 검색 결과 대신 결론만 대화에 남는다 |
 | 같은 문서를 반복해서 붙여 넣지 않는다 | 파일 경로만 알려주면 필요한 부분만 읽는다 |
 

@@ -12,13 +12,14 @@
 |---|---|
 | `feat/TRF-010-amount-input` | 화면 퍼블 |
 | `feat/component-amount-input` | 컴포넌트 신규·확장 |
+| `docs/ia-sync` | IA 사본 동기화 |
 | `docs/flow-transfer` | 플로우·화면 명세 작성 |
 | `fix/TRF-010-mask-error` | 버그 수정 |
 | `chore/token-sync` | 설정·토큰 반영 등 |
 
 ## 2. 커밋 메시지
 - 형식: `<타입>(<범위>): <요약>` — 요약은 한국어, 50자 이내, 마침표 없음.
-- 범위: 화면 ID, 컴포넌트명, 도메인 중 하나. 토큰 동기화는 `tokens`.
+- 범위: 화면 ID, 컴포넌트명, 도메인 중 하나. 토큰 동기화는 `tokens`, IA 동기화는 `ia`.
 
 | 타입 | 쓰는 경우 |
 |---|---|
