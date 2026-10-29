@@ -17,6 +17,7 @@
 - 기획서 PPT: [TODO: 경로. .pptx. 여러 개면 모두. 없으면 "없음"]
 - Figma 라이브러리: [TODO: URL]
 - Figma 변수 파일: [TODO: URL. 라이브러리와 같으면 "라이브러리와 같음"]
+- Figma 스타일 파일: [TODO: URL. 텍스트·효과 스타일이 있는 파일. 변수 파일과 같으면 "변수 파일과 같음"]
 - Code Connect 사용: [TODO: 사용 / 미사용. 기본 미사용. 사용하면 컴포넌트 명세 내용을 Figma에 등록한다 (`src/components/CLAUDE.md` 7번)]
 
 ## 뷰포트

@@ -29,7 +29,7 @@
 ### ask — 실행 전 항상 확인
 - `git commit`, `git push`, `git merge`, `git rebase`, `gh pr create`, `gh pr merge`
 - 패키지 추가: `npm install`, `npm i`, `pnpm add`, `yarn add` (새 의존성 임의 추가 방지)
-- Figma `use_figma`: Figma 파일을 고칠 수도 있는 도구라 실행할 때마다 코드를 보고 확인한다. 이 지침에서는 `token-sync`·`write-flow`의 읽기 전용 조회 스크립트에만 쓴다
+- Figma `use_figma`: Figma 파일을 고칠 수도 있는 도구라 실행할 때마다 코드를 보고 확인한다. 이 지침에서는 `token-sync`·`write-flow`의 읽기 전용 조회 스크립트(`read-variables.js`, `read-styles.js`, `read-storyboard.js`)에만 쓴다
 
 ### 주의
 - 명령 규칙은 Claude가 보통 쓰는 형태를 막는 장치이지 완전한 보안 경계가 아니다. 다른 형태로 같은 명령을 쓸 수 있으므로 문서 규칙과 함께 둔다.
@@ -59,6 +59,7 @@
 | `.claude/skills/write-flow/read-ppt.mjs` | `write-flow` | 기획서 PPT(.pptx)의 슬라이드 목록, 슬라이드별 텍스트·표·발표자 노트 |
 | `.claude/skills/write-flow/read-storyboard.js` | `write-flow` | Figma 기획 설계서 (Figma `use_figma`로 실행) |
 | `.claude/skills/token-sync/read-variables.js` | `token-sync` | Figma 변수 (Figma `use_figma`로 실행) |
+| `.claude/skills/token-sync/read-styles.js` | `token-sync` | Figma 텍스트 스타일·효과 스타일 (Figma `use_figma`로 실행) |
 | `.claude/skills/version-update/bump-ver.mjs` | `version-update` | 화면 명세 frontmatter의 기준 버전 한 줄만 고친다 (유일하게 쓰기를 하는 스크립트. `--write` 없으면 목록만 보여준다) |
 
 - 옛 형식(.xls·.ppt)은 읽지 못한다. 새 형식으로 다시 저장해서 쓴다.

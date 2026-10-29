@@ -59,7 +59,7 @@ docs/
     write-flow/               #   기획서(Figma·PPT) 분석 + 도메인 플로우 작성, 읽기 스크립트(read-storyboard.js·read-ppt.mjs) 포함
     write-screen-spec/        #   화면 명세 작성·확정 점검
     implement-screen/         #   화면 명세 → Figma 조회 → 퍼블 → 검증 → 개발 전달 보고
-    token-sync/               #   Figma 변수 → 코드 토큰 파일(tokens.css, React·Vue는 참조 파일 포함), 읽기 전용 조회 스크립트 포함
+    token-sync/               #   Figma 변수·텍스트 스타일·그림자 → 코드 토큰 파일(tokens.css, text-styles.css, React·Vue는 참조 파일 포함), 읽기 전용 조회 스크립트 2개 포함
     ds-check/                 #   디자인 시스템 위반 검출
     plan-batch/               #   명세 확정 화면 → 작업 묶음(순서·선행 조건)
     version-update/           #   입력 원본 새 버전 → 변경 기록·영향 문서 수정필요·기준 버전 갱신 (bump-ver.mjs 포함)

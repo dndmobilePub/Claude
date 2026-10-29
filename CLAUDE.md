@@ -25,7 +25,7 @@
 | 새 플로우 작성 | `write-flow` 스킬 (양식 `templates/flow.md`) |
 | 새 화면 명세 작성 | `write-screen-spec` 스킬 (양식 `templates/screen-spec.md`) |
 | 새 컴포넌트 작성 | `templates/component-spec.md` → `docs/components/<컴포넌트명>.md`에 저장 |
-| Figma 변수 → 코드 토큰 반영 | `token-sync` 스킬 |
+| Figma 변수·텍스트 스타일·그림자 → 코드 토큰 반영 | `token-sync` 스킬 |
 | 입력 원본(IA·기획서·디자인)의 새 버전 반영 | `version-update` 스킬 (규칙 `docs/changes/_index.md`) |
 | 무엇이 바뀌었는지·수정필요 목록 확인 | `docs/changes/_index.md` 현황 → 해당 변경 기록 (대상 행만 검색) |
 | 컴포넌트 명세·Figma 연결 확인 | `docs/components/_index.md` 연결 목록 → 해당 명세 |
@@ -62,6 +62,6 @@
 - `write-screen-spec` — 화면 명세 작성, "확정" 점검
 - `plan-batch` — 명세가 확정된 화면을 작업 묶음(순서·선행 조건)으로 묶기
 - `implement-screen` — 화면 또는 묶음 → Figma 조회 → 퍼블 → 검수(`docs/QA.md`) → 보고 파일·개발 전달
-- `token-sync` — Figma 변수 → 코드 토큰 파일(tokens.css, React·Vue는 참조 파일 포함) 생성·갱신
+- `token-sync` — Figma 변수·텍스트 스타일·그림자 → 코드 토큰 파일(tokens.css, text-styles.css, React·Vue는 참조 파일 포함) 생성·갱신
 - `version-update` — 입력 원본 새 버전 → 다시 분석·변경 기록·영향 문서 "수정필요"·기준 버전 갱신
 - `ds-check` — 디자인 시스템 위반 검출

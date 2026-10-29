@@ -30,6 +30,8 @@
 - Figma 변수명과 코드 토큰명은 3-2 이름 규칙으로 대응시켜 찾는다. 대응하는 토큰이 없으면 임의로 만들지 않고 묻는다.
 - Figma 변수에는 있는데 코드 토큰 파일에 없으면 토큰 파일이 오래된 것이다. 토큰 파일을 고치지 않고 `token-sync`를 안내한다.
 - 비슷한 값이 있다고 다른 용도의 토큰을 빌려 쓰지 않는다. (예: 에러 색을 경고에 사용 금지)
+- 글자: Figma 텍스트 레이어에 텍스트 스타일이 붙어 있으면 그 스타일의 토큰을 쓴다. 글자 크기·굵기 변수를 하나씩 골라 쓰지 않는다. (화면·마크업은 묶음 클래스, 컴포넌트 스타일 안에서는 속성별 변수 — 3-3)
+- 그림자: 효과 스타일 토큰(`--shadow-*`)만 쓴다. 대응 토큰이 없으면 8번 절차를 따른다.
 
 ### 3-2. Figma 변수 → 코드 토큰 변환
 > `token-sync` 스킬이 이 규칙대로 토큰 파일을 만든다. 같은 Figma 변수는 언제 변환해도 같은 결과가 나와야 한다.
@@ -83,6 +85,7 @@
 | React·Vue, TypeScript 미사용 | `tokens.css` + `tokens.js` (`as const` 없이 같은 객체) |
 
 - `tokens.css`는 CSS 변수 정의, 참조 파일은 같은 토큰의 `var()` 참조 객체다.
+- 텍스트 스타일이 있으면 모든 퍼블 언어에서 `text-styles.css`를 추가로 만든다. (3-3)
 - 모든 파일 맨 위에 자동 생성 표시를 넣는다.
 
 ```css
@@ -109,6 +112,58 @@ export const tokens = {
   color: { text: { primary: 'var(--color-text-primary)' } },
 } as const;
 ```
+
+### 3-3. Figma 스타일 → 코드 토큰 변환
+> `token-sync` 스킬이 3-2 변수 토큰과 함께 만든다. 조회는 `read-styles.js`(읽기 전용)로 한다.
+
+**대상**
+- `docs/PROJECT.md` "Figma 스타일 파일"의 로컬 **텍스트 스타일**과 **효과 스타일 중 그림자**(드롭 섀도·안쪽 그림자)
+- 제외하고 목록으로 보고: 블러 효과(레이어·배경 블러), 9번에 적은 제외 스타일
+- 색 스타일은 옮기지 않는다. 색의 원본은 변수다. 색 스타일만 있는 디자인 시스템이면 변수로 바꿔 달라고 DS 변경 요청을 만든다. (`docs/ds-requests/`)
+
+**이름**
+- 3-2 이름 규칙으로 바꾼 뒤 종류별 앞머리를 붙인다. 텍스트 `text-`, 그림자 `shadow-` (9번에서 바꿀 수 있다)
+- Figma 이름의 첫 단계가 앞머리와 같으면 다시 붙이지 않는다. (예: `Shadow/Card` → `shadow-card`)
+- 변수 토큰 이름과 겹치면 변환하지 않고 멈춘다.
+
+| Figma 스타일 | CSS 변수 | 묶음 클래스 | 참조 파일 |
+|---|---|---|---|
+| 텍스트 `Body/M` | `--text-body-m-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` (+ 필요하면 `-font-style`, `-text-transform`) | `.text-body-m` | `tokens.text.body.m.fontSize` |
+| 효과 `Shadow/Card` | `--shadow-card` | 없음 | `tokens.shadow.card` |
+
+**텍스트 스타일 값**
+| 항목 | 출력 |
+|---|---|
+| 글꼴 | 따옴표로 감싼다. 대체 글꼴은 9번 |
+| 크기 | px (9번에서 rem으로 바꿀 수 있음) |
+| 굵기 | 글꼴 스타일 이름을 3-2 굵기 이름 표로 바꾼다. 이름에 Italic이 있으면 `-font-style: italic`도 만든다 |
+| 행간 | 픽셀 → px / 퍼센트 → 단위 없는 비율 (150% → `1.5`) / 자동 → `normal` |
+| 자간 | 픽셀 → px / 퍼센트 → em (-2% → `-0.02em`) |
+| 대소문자 | 원래대로가 아닐 때만 `-text-transform` (대문자 `uppercase`, 소문자 `lowercase`, 첫 글자 `capitalize`) |
+
+**그림자 값**
+- 그림자 하나는 `<x> <y> <흐림> <퍼짐> <색>` 순서의 `box-shadow` 값이다. 숫자는 px, 색은 3-2 색 규칙.
+- 안쪽 그림자는 앞에 `inset`을 붙인다. 여러 겹이면 Figma 순서대로 쉼표로 잇는다. 숨긴 효과는 뺀다.
+
+**변수 연결**
+- 스타일 값에 변수가 연결돼 있으면 값 대신 `var(--변수 토큰)`을 쓴다. (3-2 별칭과 같다) 연결 대상이 동기화 범위 밖이면 멈춘다.
+
+**파일**
+- CSS 변수는 `tokens.css`에 변수 토큰 다음에 쓴다. (스타일이 변수를 가리키므로) 텍스트 → 그림자 순, 각각 이름순.
+- 묶음 클래스는 `text-styles.css`에 쓴다. 클래스는 위 CSS 변수만 쓴다. 파일 위치는 다른 토큰 파일과 같은 폴더(`docs/PROJECT.md` "코드 토큰 위치")다.
+
+```css
+/* text-styles.css — 자동 생성 — 직접 고치지 마세요. token-sync 스킬로 갱신합니다. */
+.text-body-m {
+  font-family: var(--text-body-m-font-family);
+  font-size: var(--text-body-m-font-size);
+  font-weight: var(--text-body-m-font-weight);
+  line-height: var(--text-body-m-line-height);
+  letter-spacing: var(--text-body-m-letter-spacing);
+}
+```
+
+- 참조 파일(`tokens.ts`·`tokens.js`)에는 `text`·`shadow` 단계로 같은 토큰의 `var()`를 넣는다. 클래스 이름은 넣지 않는다.
 
 ## 4. 컴포넌트 사용 규칙
 - IMPORTANT: 순서는 ① 연결 목록 확인 → ② 코드에서 기존 컴포넌트 검색 → ③ 없을 때만 새로 만든다.
@@ -163,5 +218,7 @@ export const tokens = {
 - 모드 속성: [TODO: 기본 `data-theme`. 모드 컬렉션이 여럿이면 컬렉션별 속성 이름]
 - 대체 글꼴: [TODO: 예) "Pretendard", system-ui, sans-serif]
 - 동기화 제외 컬렉션: [TODO: 없으면 "없음"]
+- 스타일 토큰 앞머리: [TODO: 기본 텍스트 text-, 그림자 shadow-]
+- 동기화 제외 스타일: [TODO: 없으면 "없음"]
 - 뷰포트 예외: [TODO: 6-2와 다르게 처리하는 화면·요소. 예) 이미지 배너는 폭에 비례해 높이도 변함. 없으면 "없음"]
 - 기타: [TODO]

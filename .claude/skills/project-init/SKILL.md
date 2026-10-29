@@ -17,7 +17,7 @@ description: 새 프로젝트를 시작할 때 docs/PROJECT.md의 프로젝트�
    - IA 파일 경로 (없으면 "없음") / 화면 ID 형식 (IA의 화면 ID 몇 개를 보고 정규식을 제안하고 확인받는다)
    - 공통 화면 도메인 키 (기본 common) / 공통 화면 임시 ID 약어 (IA에 공통 화면이 없을 때만. 화면 ID 형식에 맞는지 확인)
    - Figma 기획 설계서 URL (없으면 "없음") / 기획서 PPT 경로 (없으면 "없음")
-   - Figma 라이브러리 URL / Figma 변수 파일 URL (라이브러리와 같으면 "라이브러리와 같음") / Code Connect 사용 여부 (사용이면 `docs/HARNESS.md` 5번 권한 변경 안내)
+   - Figma 라이브러리 URL / Figma 변수 파일 URL (라이브러리와 같으면 "라이브러리와 같음") / Figma 스타일 파일 URL (변수 파일과 같으면 "변수 파일과 같음") / Code Connect 사용 여부 (사용이면 `docs/HARNESS.md` 5번 권한 변경 안내)
    - 뷰포트: 디바이스(모바일 전용인지, PC도 있는지) / 디자인 프레임 크기 / 구현 기준 폭 / 최소 폭. 디자인 화면 URL을 받으면 `get_metadata`로 프레임 크기를 읽어 제안한다
    - 퍼블 언어 / TypeScript / 빌드 도구 / 스타일링 / 스토리북 / 기타 주요 라이브러리
    - 코드 토큰 위치 (기본 `src/styles/tokens/`)
