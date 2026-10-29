@@ -21,6 +21,9 @@
 //   docs/questions/ia.md에 그 화면 ID가 대상인 열린 질문이 있으면 "IA 추가 요청 중"으로 표시하고 경고하지 않는다
 // - 작업 묶음(docs/batches/<묶음 ID>.md)의 "## 2. 대상 화면과 순서" 표 + 화면 상태·검수 결과
 //   → 각 묶음 파일과 docs/batches/_index.md 의 AUTO 블록 (진행·완료, 묶음 밖 퍼블 대상)
+// - DS 변경 요청(docs/ds-requests/<요청 ID>-<이름>.md) frontmatter → docs/ds-requests/_index.md 의 AUTO 블록
+//   열린 요청(요청·디자이너 검토)의 screens에 있는 화면이 확정·구현완료면 경고
+// - 컴포넌트 명세 frontmatter figma_name → docs/components/_index.md 의 연결 목록 (같은 이름 중복, 구현완료인데 path 없음 경고)
 // - 화면 ID 형식: docs/PROJECT.md "화면 ID 형식"의 정규식 (비어 있으면 기본값)
 //
 // 불일치(ID 중복, IA와 플로우의 차이, 허용되지 않은 상태 값 등)는 훅 모드에서 exit 2 + stderr로 Claude에게 알린다.
@@ -430,6 +433,7 @@ function buildScreens(root, warn, questions = []) {
 function buildComponents(root, warn) {
   const dir = join(root, 'docs/components');
   const rows = [];
+  const byFigma = new Map();
   for (const file of mdFiles(dir)) {
     const text = read(join(dir, file));
     const fm = text && frontmatter(text);
@@ -443,7 +447,16 @@ function buildComponents(root, warn) {
     if (!STATUS.component.includes(fm.status)) {
       warn(`${where}: status "${fm.status ?? ''}"는 허용 값이 아닙니다 (${STATUS.component.join(' | ')}).`);
     }
-    rows.push({ name, file, ...fm });
+    if (fm.layer === '기본' && !fm.figma_name) warn(`${where}: 기본 계층인데 figma_name(연결할 Figma 컴포넌트 이름)이 비어 있습니다.`);
+    if (fm.figma_name) {
+      if (byFigma.has(fm.figma_name)) warn(`${where}: Figma 컴포넌트 "${fm.figma_name}"이 ${byFigma.get(fm.figma_name)}에도 연결돼 있습니다.`);
+      else byFigma.set(fm.figma_name, where);
+    }
+    const path = (fm.path || '').replace(/`/g, '').trim();
+    if (fm.status === '구현완료' && path && !path.endsWith('...') && !existsSync(join(root, path))) {
+      warn(`${where}: 구현완료인데 path ${path}가 없습니다.`);
+    }
+    rows.push({ name, file, ...fm, path });
     if (fm.status === NEEDS_FIX) needsFix.push({ kind: '컴포넌트', name, link: `../components/${file}` });
   }
 
@@ -451,12 +464,66 @@ function buildComponents(root, warn) {
   if (rows.length === 0) {
     out.push('아직 등록된 컴포넌트 명세가 없다.');
   } else {
-    const count = STATUS.component.map((s) => `${s} ${rows.filter((r) => r.status === s).length}`).join(' · ');
+    const count = STATUS.component.map((st) => `${st} ${rows.filter((r) => r.status === st).length}`).join(' · ');
     out.push(`전체 ${rows.length} · ${count}`, '');
-    out.push('| 컴포넌트 | 계층 | 구분 | 상태 | Code Connect | 명세 |', '|---|---|---|---|---|---|');
-    for (const r of rows) {
-      out.push(`| ${esc(r.name)} | ${esc(r.layer)} | ${esc(r.kind)} | ${esc(r.status)} | ${esc(r.code_connect)} | [보기](${r.file}) |`);
+    out.push('### 연결 목록 (Figma 컴포넌트 → 코드 컴포넌트)');
+    const linked = rows.filter((r) => r.figma_name).sort((a, b) => a.figma_name.localeCompare(b.figma_name));
+    if (linked.length === 0) out.push('연결된 컴포넌트가 없다.');
+    else {
+      out.push('| Figma 이름 | 코드 컴포넌트 | 경로 | 상태 | Code Connect |', '|---|---|---|---|---|');
+      for (const r of linked) out.push(`| ${esc(r.figma_name)} | [${esc(r.name)}](${r.file}) | ${esc(r.path)} | ${esc(r.status)} | ${esc(r.code_connect)} |`);
     }
+    out.push('', '### 전체 명세', '| 컴포넌트 | 계층 | 구분 | 상태 | 명세 |', '|---|---|---|---|---|');
+    for (const r of rows) out.push(`| ${esc(r.name)} | ${esc(r.layer)} | ${esc(r.kind)} | ${esc(r.status)} | [보기](${r.file}) |`);
+  }
+  out.push('', END);
+  return out.join('\n');
+}
+
+// ---------- DS 변경 요청 ----------
+
+const DS_STATUS = ['요청', '디자이너 검토', '반영', '대체', '기각'];
+const DS_OPEN = ['요청', '디자이너 검토'];
+const DS_KIND = ['토큰', '컴포넌트', '변형', '아이콘', '기타'];
+
+function buildDsRequests(root, warn) {
+  const dir = join(root, 'docs/ds-requests');
+  const list = [];
+  const ids = new Map();
+  for (const file of mdFiles(dir)) {
+    const text = read(join(dir, file)) || '';
+    const where = `docs/ds-requests/${file}`;
+    const fm = frontmatter(text) || {};
+    const id = fm.id || '';
+    if (!/^DS-\d{3}$/.test(id)) warn(`${where}: id "${id}"가 "DS-<3자리 번호>" 형식이 아닙니다.`);
+    else if (!file.startsWith(`${id}-`) && file !== `${id}.md`) warn(`${where}: 파일 이름이 id(${id})로 시작하지 않습니다.`);
+    if (ids.has(id)) warn(`${where}: id ${id}가 ${ids.get(id)}에도 있습니다.`);
+    else ids.set(id, where);
+    if (!DS_STATUS.includes(fm.status)) warn(`${where}: status "${fm.status ?? ''}"는 허용 값이 아닙니다 (${DS_STATUS.join(' | ')}).`);
+    if (fm.kind && !DS_KIND.includes(fm.kind)) warn(`${where}: kind "${fm.kind}"는 허용 값이 아닙니다 (${DS_KIND.join(' | ')}).`);
+    if (!DS_OPEN.includes(fm.status) && DS_STATUS.includes(fm.status) && !fm.decided) warn(`${where}: ${fm.status}인데 decided(결정일)가 비어 있습니다.`);
+    const screens = (fm.screens || '').split(',').map((x) => x.trim()).filter(Boolean);
+    for (const sid of screens) {
+      if (!knownIds.has(sid)) warn(`${where}: screens의 ${sid}가 화면 목록에 없습니다.`);
+      const sp = allSpecs.get(sid);
+      if (DS_OPEN.includes(fm.status) && ['확정', '구현완료'].includes(sp?.status)) {
+        warn(`docs/screens/${sid}.md: 열린 DS 변경 요청 ${id}가 있는데 상태가 ${sp.status}입니다.`);
+      }
+    }
+    list.push({ file, id, kind: fm.kind || '', status: fm.status || '', screens, created: fm.created || '', title: h1(text).replace(id, '').trim() });
+  }
+  const open = list.filter((x) => DS_OPEN.includes(x.status));
+  const out = [START_LINE, ''];
+  if (list.length === 0) out.push('아직 요청이 없다.');
+  else {
+    out.push(`전체 ${list.length} · ${DS_STATUS.map((st) => `${st} ${list.filter((x) => x.status === st).length}`).join(' · ')}`, '');
+    out.push('### 열린 요청');
+    if (open.length === 0) out.push('열린 요청이 없다.');
+    else {
+      out.push('| ID | 내용 | 종류 | 상태 | 멈춘 화면 | 만든 날 |', '|---|---|---|---|---|---|');
+      for (const x of open) out.push(`| [${x.id}](${x.file}) | ${esc(x.title)} | ${esc(x.kind)} | ${esc(x.status)} | ${esc(x.screens.join(', '))} | ${esc(x.created)} |`);
+    }
+    out.push('', '- 닫힌 요청(반영·대체·기각)은 파일에서 ID로 검색한다.');
   }
   out.push('', END);
   return out.join('\n');
@@ -671,7 +738,7 @@ function main() {
 
   if (hookMode) {
     const rel = relative(root, input.tool_input.file_path || '').replace(/\\/g, '/');
-    if (!/^docs\/(ia|ui-flow|screens|components|questions|changes|storyboard|reports|batches)\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
+    if (!/^docs\/(ia|ui-flow|screens|components|questions|changes|storyboard|reports|batches|ds-requests)\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
     if (basename(rel) === '_index.md' && rel !== 'docs/changes/_index.md') return 0;
   }
 
@@ -686,6 +753,7 @@ function main() {
   checkSpecVersions(cur, warn);
   replaceBlock(root, 'docs/changes/_index.md', buildChanges(cur, readChanges(root, warn)), warn);
   if (existsSync(join(root, 'docs/batches/_index.md'))) replaceBlock(root, 'docs/batches/_index.md', buildBatches(root, warn), warn);
+  if (existsSync(join(root, 'docs/ds-requests/_index.md'))) replaceBlock(root, 'docs/ds-requests/_index.md', buildDsRequests(root, warn), warn);
 
   if (!hookMode) {
     process.stdout.write(`인덱스를 다시 만들었습니다. 경고 ${warnings.length}건\n`);
@@ -698,7 +766,7 @@ function main() {
       `[인덱스 경고] 인덱스는 다시 만들었지만 원본 문서에서 불일치 ${warnings.length}건을 찾았습니다.`,
       ...warnings.slice(0, 10).map((w) => `- ${w}`),
       ...(warnings.length > 10 ? [`- 외 ${warnings.length - 10}건`] : []),
-      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일, 변경 기록, 검수 보고, 작업 묶음)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
+      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일, 변경 기록, 검수 보고, 작업 묶음, DS 변경 요청)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
     ].join('\n') + '\n',
   );
   return 2;

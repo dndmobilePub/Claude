@@ -12,7 +12,7 @@
 |---|---|---|---|
 | `ia.md` | ia | Q-IA | IA를 읽다 생긴 것: 빈·중복 화면 ID, 형식이 다른 ID, 도메인 대응이 없는 값, 해석할 수 없는 일정 표시 |
 | `plan.md` | plan | Q-PL | 기획서(Figma 설계서·PPT) 내용: 정책·문구·데이터가 없거나 해석이 필요한 것, Figma 설계서와 PPT가 다른 것 |
-| `design.md` | design | Q-DS | Figma 디자인: 상태 디자인 없음, 대응 토큰·컴포넌트 없음, 변수 이름 문제, 프레임 크기 |
+| `design.md` | design | Q-DS | Figma 디자인이 무엇을 뜻하는지 확인: 상태 디자인 없음, 화면끼리 다름, 변수 이름 문제, 프레임 크기. (디자인 시스템에 추가·변경이 필요한 것은 질문이 아니라 DS 변경 요청 `docs/ds-requests/`) |
 | `spec.md` | spec | Q-SP | 플로우·명세·퍼블 작업 중 생긴 것 가운데 위 셋에 속하지 않는 것, 원본끼리 다른 것(IA와 기획서, 기획서와 디자인) |
 
 - 파일이 없으면 첫 질문이 생길 때 `templates/questions.md`로 만든다. (frontmatter `source`·`prefix`를 위 표대로)

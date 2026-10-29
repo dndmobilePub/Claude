@@ -28,7 +28,8 @@
 | Figma 변수 → 코드 토큰 반영 | `token-sync` 스킬 |
 | 입력 원본(IA·기획서·디자인)의 새 버전 반영 | `version-update` 스킬 (규칙 `docs/changes/_index.md`) |
 | 무엇이 바뀌었는지·수정필요 목록 확인 | `docs/changes/_index.md` 현황 → 해당 변경 기록 (대상 행만 검색) |
-| 컴포넌트 명세 확인 | `docs/components/_index.md` → 해당 명세 |
+| 컴포넌트 명세·Figma 연결 확인 | `docs/components/_index.md` 연결 목록 → 해당 명세 |
+| 디자인 시스템에 없는 것 (토큰·컴포넌트·변형 추가 요청) | `docs/ds-requests/_index.md` → 요청 파일 (양식 `templates/ds-request.md`) |
 | 질문 남기기·답 반영 (자료에 없음·해석 필요·원본끼리 다름) | `docs/questions/_index.md` 1~3번 → 해당 질문 파일 |
 | 열린 질문 확인 | `docs/questions/_index.md` 현황 (대상·확인 대상 행만 검색) |
 | 설계 결정 확인 | `docs/decisions/` |

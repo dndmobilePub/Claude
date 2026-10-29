@@ -1,11 +1,12 @@
 ---
 name: ComponentName
 layer: 기본            # 기본 | 조합
-kind: 신규             # 신규 | 기존 확장
+kind: 신규             # 신규 | 기존 확장 | 기존 (이미 코드에 있고 연결만 등록)
 status: 초안           # 초안 | 승인 | 구현완료 | 수정필요
+figma_name:            # 연결할 Figma 컴포넌트 세트 이름 (Figma 그대로). 연결 목록의 원본. 기본 계층은 필수
 figma:                 # 컴포넌트 세트 노드 URL. 조합 계층은 없으면 비워 둔다
 path: src/components/...
-code_connect: 해당 없음  # 매핑 있음 | 추가 필요 | 해당 없음
+code_connect: 해당 없음  # 매핑 있음 | 추가 필요 | 해당 없음 (PROJECT.md "Code Connect 사용"이 미사용이면 해당 없음)
 ---
 
 # [컴포넌트명]
@@ -13,6 +14,8 @@ code_connect: 해당 없음  # 매핑 있음 | 추가 필요 | 해당 없음
 <!--
 작성 가이드
 - 새 컴포넌트를 만들거나 기존 컴포넌트를 크게 바꾸기 전에 작성하고 승인받는다.
+- 이미 코드에 있는 컴포넌트(kind: 기존)는 연결만 등록하는 짧은 명세로 쓴다. frontmatter, 4번 속성(Figma 속성 칸), 5번 Variant만 채우고 나머지는 "해당 없음".
+- figma_name은 화면 명세를 쓸 때 Figma 인스턴스 이름과 대조하는 기준이다. Figma에서 이름이 바뀌면 디자인 버전 변경으로 처리한다. (version-update)
 - 저장 위치: docs/components/<컴포넌트명>.md (컴포넌트 하나 = 파일 하나)
 - 맨 위 frontmatter가 원본이다. 상태는 여기서만 고친다. (_index.md는 자동 생성) 한 줄짜리 `키: 값`만 쓴다.
 - 규칙 원본: src/components/CLAUDE.md (계층·네이밍·Props), docs/DESIGN.md (토큰·상태)

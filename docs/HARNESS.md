@@ -86,6 +86,7 @@
 | Figma MCP 서버 이름이 `figma`가 아님 | ask 목록의 `mcp__figma__use_figma`와 deny 목록의 Figma 쓰기 도구를 `mcp__<서버 이름>__<도구>`로 수정 (`/mcp`에서 이름 확인) |
 | Figma MCP 도구 이름이 다름·쓰기 도구가 추가됨 | `/mcp`에서 도구 목록을 확인하고 deny 목록의 Figma 쓰기 도구를 맞춘다 |
 | 하드코딩 점검 범위 조정 | `check-hardcoded.mjs`의 `RULES`·대상 경로 수정 |
+| Code Connect를 쓴다 (`docs/PROJECT.md`) | deny 목록의 Code Connect 쓰기 도구(`add_code_connect_map`, `send_code_connect_mappings`)를 ask 목록으로 옮긴다. 다른 Figma 쓰기 도구는 그대로 둔다 |
 
 - 설정을 바꾸면 Claude Code를 다시 시작해야 반영된다.
 - 이 설정은 JSON이라 주석을 달 수 없으므로, 바꾼 이유는 이 문서나 ADR에 남긴다.

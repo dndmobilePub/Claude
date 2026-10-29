@@ -17,6 +17,7 @@
 - 기획서 PPT: [TODO: 경로. .pptx. 여러 개면 모두. 없으면 "없음"]
 - Figma 라이브러리: [TODO: URL]
 - Figma 변수 파일: [TODO: URL. 라이브러리와 같으면 "라이브러리와 같음"]
+- Code Connect 사용: [TODO: 사용 / 미사용. 기본 미사용. 사용하면 컴포넌트 명세 내용을 Figma에 등록한다 (`src/components/CLAUDE.md` 7번)]
 
 ## 뷰포트
 > 화면 폭 규칙은 `docs/DESIGN.md` 6-2를 따른다. 가로 폭만 유동이고, 여백·간격·글자 크기는 그대로다.

@@ -48,7 +48,7 @@
 - 외부에서 스타일을 덮어쓰는 방법(`className`, `class`, `style`) 허용 범위는 프로젝트 예외를 따른다.
 
 ## 5. 작성 규칙
-- 새 컴포넌트는 `templates/component-spec.md`로 명세를 먼저 쓰고 승인받는다.
+- 새 컴포넌트는 `templates/component-spec.md`로 명세를 먼저 쓰고 승인받는다. 명세 `figma_name`에 연결할 Figma 컴포넌트 세트 이름을 적는다. (기본 계층은 필수)
 - 기본·조합 계층은 데이터를 직접 가져오지 않는다. 값과 상태는 바깥에서 받는다. (React·Vue: props / JS: 마크업에 채운 값)
 - 해당하는 상태(로딩·비활성·에러)를 변형으로 지원한다.
 - 금액·마스킹 표시는 공통 유틸 함수를 쓴다. (`finance-ui.md`)
@@ -59,8 +59,9 @@
 - props·클래스 이름 변경·삭제처럼 기존 사용처가 깨지는 변경은 승인받은 뒤 진행한다.
 - 변형이 필요하면 복사하지 말고 변형을 추가한다. (DESIGN.md 4번)
 
-## 7. Code Connect
-- 새 기본 컴포넌트를 만들면 Figma Code Connect 매핑 추가를 제안한다. (추가는 승인 후)
+## 7. Figma 연결과 Code Connect
+- Figma 컴포넌트와 코드 컴포넌트의 연결 원본은 컴포넌트 명세(`figma_name`, 4·5번 표)다. 연결 목록은 `docs/components/_index.md`에 자동으로 모인다.
+- `docs/PROJECT.md` "Code Connect 사용"이 "사용"일 때만: 컴포넌트가 구현완료되면 명세 내용대로 Figma Code Connect 등록을 제안한다. Figma에 쓰는 작업이라 반드시 승인받은 뒤 한다. 권한 설정은 `docs/HARNESS.md` 5번.
 
 ## 8. 프로젝트별 예외 (선택)
 - 계층별 실제 폴더: [TODO: 예) src/components/ui, src/components/patterns]

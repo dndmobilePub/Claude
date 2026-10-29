@@ -29,8 +29,8 @@ docs/
   ui-flow/_index.md           # 화면 ID 체계·공통 화면·상태 정의 + 현황 표(자동 생성)
   ui-flow/<도메인>.md          # 도메인별 플로우 (화면 목록은 IA를 따름. IA가 없으면 이 표가 원본)
   screens/<화면ID>.md          # 화면 명세 (화면당 1파일, frontmatter가 상태의 원본)
-  components/_index.md        # 컴포넌트 명세 현황 표(자동 생성)
-  components/<컴포넌트명>.md    # 컴포넌트 명세 (신규·확장·조합만)
+  components/_index.md        # Figma ↔ 코드 컴포넌트 연결 목록 + 명세 현황 표(자동 생성)
+  components/<컴포넌트명>.md    # 컴포넌트 명세 (화면에서 쓰는 컴포넌트 모두. 기존 컴포넌트는 연결만 담은 짧은 명세)
   questions/_index.md         # 질문 기록 규칙 + 열린 질문 현황(자동 생성)
   questions/<원본>.md          # 질문 원본: ia·plan(기획서)·design(디자인)·spec(작업 중·원본끼리 다름)
   changes/_index.md           # 기준 버전·변경 기록 규칙 + 현재 버전·수정필요 현황(자동 생성)
@@ -38,6 +38,8 @@ docs/
   reports/<화면ID>.md          # 검수 보고 (화면당 1파일, 최신본만, implement-screen이 생성)
   batches/_index.md           # 작업 묶음 규칙 + 묶음 현황(자동 생성)
   batches/<묶음 ID>.md         # 작업 묶음: 대상 화면·순서·선행 조건 (plan-batch가 생성)
+  ds-requests/_index.md       # DS 변경 요청 규칙(질문·요청·ADR 구분) + 열린 요청 현황(자동 생성)
+  ds-requests/<요청 ID>-<이름>.md  # 디자인 시스템 추가·변경 요청과 결정·후속 작업
   decisions/<번호>-<제목>.md    # 설계 결정 기록 (ADR)
 .claude/
   settings.json               # 권한(읽기 금지·명령 차단·확인) + 훅 등록
@@ -75,6 +77,7 @@ templates/                    # 양식
   change.md                   #   변경 기록 (버전 변경)
   report.md                   #   검수 보고
   batch.md                    #   작업 묶음
+  ds-request.md               #   DS 변경 요청
 src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·Props)
 .github/pull_request_template.md  # PR 본문 양식
 ```
@@ -133,13 +136,14 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 
 - 괄호 안의 상태는 화면 명세 frontmatter의 `status`에만 적습니다. `_index.md` 현황 표는 훅이 자동으로 다시 만듭니다.
 - 새 컴포넌트가 필요하면 구현 전에 `templates/component-spec.md`로 명세를 쓰고 승인받습니다.
-- 디자인 시스템에 없는 것이 나오면 멈추고 선택지를 받은 뒤 `templates/adr.md`로 기록합니다.
+- 디자인 시스템에 없는 것이 나오면 멈추고 DS 변경 요청(`docs/ds-requests/`)을 만들어 반영·대체·기각 결정을 받습니다. 결정 전에는 그 화면을 확정·퍼블하지 않습니다.
+- Figma 컴포넌트는 연결 목록(`docs/components/_index.md`)으로 코드 컴포넌트와 맞춥니다. 연결 없는 라이브러리 컴포넌트를 만나면 멈춥니다.
 - 어느 단계에서든 자료에 없는 것은 지어내지 않고 `docs/questions/`에 질문으로 남깁니다. 차단 질문이 열려 있으면 명세 확정·퍼블을 시작하지 않습니다. 열린 질문 수는 화면 맵과 `docs/questions/_index.md`에 자동으로 모입니다.
 
 ## 5. 운영 원칙
 
 - **승인**: 파일 생성·수정·커밋 전에 항상 승인을 받습니다. 단계를 건너뛰지 않습니다.
 - **입력 원본은 읽기만**: IA·기획서·디자인은 사람이 만듭니다. AI는 새로 그리거나 고치지 않고, 읽어서 분석한 뒤 md로 옮깁니다. (Figma 쓰기 도구는 권한 설정으로 막아 두었습니다)
-- **원본은 하나**: 디자인 값은 Figma(코드 토큰 파일은 `token-sync`가 만드는 사본), 화면 ID·화면명·일정은 IA(`docs/ia/`는 `ia-sync`가 만드는 사본, IA가 없으면 플로우 문서), 기획 내용은 기획서(`docs/storyboard/`는 `write-flow`가 만드는 사본), 프로젝트 설정은 `PROJECT.md`, 결정은 ADR, 질문과 답은 `docs/questions/`의 질문 줄, 화면·컴포넌트 상태는 각 명세의 frontmatter. 같은 내용을 여러 곳에 복사하지 않습니다.
+- **원본은 하나**: 디자인 값은 Figma(코드 토큰 파일은 `token-sync`가 만드는 사본), 화면 ID·화면명·일정은 IA(`docs/ia/`는 `ia-sync`가 만드는 사본, IA가 없으면 플로우 문서), 기획 내용은 기획서(`docs/storyboard/`는 `write-flow`가 만드는 사본), 프로젝트 설정은 `PROJECT.md`, 구조·규칙 결정은 ADR, 디자인 시스템에 없는 것의 결정은 DS 변경 요청, Figma ↔ 코드 컴포넌트 연결은 컴포넌트 명세, 질문과 답은 `docs/questions/`의 질문 줄, 화면·컴포넌트 상태는 각 명세의 frontmatter. 같은 내용을 여러 곳에 복사하지 않습니다.
 - **토큰 절감**: 작업에 필요한 문서·Figma 노드만 읽습니다. 명세·플로우는 파일을 잘게 나누고, 템플릿 주석은 작성 후 지웁니다. 빌드 결과·잠금 파일은 권한 설정으로 읽기를 막아 두었습니다. (`docs/HARNESS.md`)
 - **역할 분리**: 하드코딩 값은 `ds-check`, 명세·접근성·금융 규칙 검토는 `design-system-reviewer`가 맡습니다. 검수 기준은 `docs/QA.md` 하나에 두고, 결과는 화면마다 `docs/reports/<화면ID>.md` 하나에 남깁니다.
