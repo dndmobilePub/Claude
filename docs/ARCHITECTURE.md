@@ -40,6 +40,7 @@ src/
   lib/                              # 공통 유틸 (단위 테스트를 함께 둔다 — 아래)
   styles/                           # 토큰·공통 스타일
 ```
+- `src/`는 `docs/PROJECT.md` "퍼블 소스 폴더"의 기본값이다. 다른 폴더를 쓰면 이 문서와 다른 지침의 `src/`를 그 폴더로 읽는다. 바꿀 때 손으로 맞출 곳은 `docs/HARNESS.md` 5번.
 - 스토리북을 쓰면 스토리 파일 위치는 `src/components/AGENTS.md` 예외 섹션을 따른다.
 - 공통 유틸(`lib/`)은 만들거나 고칠 때 단위 테스트를 함께 만든다. 테스트 파일은 유틸 옆에 `<이름>.test.<확장자>`로 둔다. 실행은 `docs/PROJECT.md` "린트/테스트" 명령을 따르고, 테스트 도구가 없는 프로젝트는 Node 내장 테스트(`node --test`, 패키지 설치 없음)로 돌린다. 업종별 필수 테스트 항목은 해당 규칙 문서(`.claude/rules/`)에 있다.
 - `<도메인>` 폴더 이름은 플로우 문서 파일 이름과 같게 한다. (예: `ui-flow/transfer.md` → `screens/transfer/`)
@@ -104,7 +105,7 @@ src/dummy/transfer.js
   - 상태 확인 방법
 
 ## 11. 프로젝트별 예외 (선택)
-- 3번과 다른 실제 경로: [TODO]
+- 3번과 다른 실제 경로: [TODO: 퍼블 소스 폴더 안쪽 폴더(screens·components·dummy·lib·styles)가 다를 때만. 최상위 폴더는 `docs/PROJECT.md` "퍼블 소스 폴더"]
 - 화면 하나를 따로 여는 방법: [TODO: 예) 화면별 HTML 파일 / 확인용 화면 목록 페이지 / 스토리북]
 - 상태를 바꿔 보는 방법: [TODO: 예) 주소 뒤 ?state=empty / 확인용 선택 상자]
 - 기타: [TODO]

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 인덱스 자동 생성 훅
-// - PostToolUse(Edit|Write): docs/ia/, docs/ui-flow/, docs/screens/, docs/components/, docs/questions/ 파일을 고친 직후 실행된다.
+// - PostToolUse(Edit|Write): docs/ia/, docs/ui-flow/, docs/screens/, docs/components/, docs/questions/ 등의 문서, docs/PROJECT.md, .claude/rules/ 파일을 고친 직후 실행된다.
 // - 수동 실행: node .claude/hooks/build-index.mjs (에디터에서 직접 고쳤을 때)
 //
 // 원본 → 생성 결과
@@ -25,6 +25,8 @@
 //   열린 요청(요청·디자이너 검토)의 screens에 있는 화면이 확정·구현완료면 경고
 // - 컴포넌트 명세 frontmatter figma_name → docs/components/_index.md 의 연결 목록 (같은 이름 중복, 구현완료인데 path 없음 경고)
 // - 화면 ID 형식: docs/PROJECT.md "화면 ID 형식"의 정규식 (비어 있으면 기본값)
+// - 퍼블 소스 폴더: docs/PROJECT.md "퍼블 소스 폴더"(기본 src/)를 바꿨는데 .claude/rules/의 paths나
+//   src/components/AGENTS.md가 그대로면 경고 (.claude/scripts/project-values.mjs, docs/HARNESS.md 5번)
 //
 // 불일치(ID 중복, IA와 플로우의 차이, 허용되지 않은 상태 값 등)는 훅 모드에서 exit 2 + stderr로 Claude에게 알린다.
 // 훅 오류로 작업이 막히지 않도록, 예외가 나면 그냥 통과시킨다.
@@ -32,6 +34,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { pubDir, checkPubDirSetup } from '../scripts/project-values.mjs';
 
 const STATUS = {
   screen: ['초안', '검토', '확정', '구현완료', '수정필요'],
@@ -216,7 +219,7 @@ function readQuestions(root, warn) {
       if (q.status === '가정' && q.block === '예') warn(`${at}: 차단 질문은 가정으로 진행할 수 없습니다.`);
       if (q.status === '확정' && (!q.answer || !q.applied)) warn(`${at}: 확정인데 답 또는 반영 위치가 비어 있습니다.`);
       const path = q.applied.replace(/`/g, '').split('#')[0].trim();
-      if (/^(docs|src)\//.test(path) && !existsSync(join(root, path))) warn(`${at}: 반영 위치 ${path} 파일이 없습니다.`);
+      if ((path.startsWith('docs/') || path.startsWith(pubDir(root))) && !existsSync(join(root, path))) warn(`${at}: 반영 위치 ${path} 파일이 없습니다.`);
       list.push(q);
     }
   }
@@ -738,12 +741,13 @@ function main() {
 
   if (hookMode) {
     const rel = relative(root, input.tool_input.file_path || '').replace(/\\/g, '/');
-    if (!/^docs\/(ia|ui-flow|screens|components|questions|changes|storyboard|reports|batches|ds-requests)\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
+    if (!/^docs\/(ia|ui-flow|screens|components|questions|changes|storyboard|reports|batches|ds-requests)\/[^/]+\.md$/.test(rel) && !/^\.claude\/rules\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
     if (basename(rel) === '_index.md' && rel !== 'docs/changes/_index.md') return 0;
   }
 
   const warnings = [];
   const warn = (m) => warnings.push(m);
+  checkPubDirSetup(root).forEach(warn);
   const questions = readQuestions(root, warn);
   questionsCache = questions;
   replaceBlock(root, 'docs/ui-flow/_index.md', buildScreens(root, warn, questions), warn);
@@ -766,7 +770,7 @@ function main() {
       `[인덱스 경고] 인덱스는 다시 만들었지만 원본 문서에서 불일치 ${warnings.length}건을 찾았습니다.`,
       ...warnings.slice(0, 10).map((w) => `- ${w}`),
       ...(warnings.length > 10 ? [`- 외 ${warnings.length - 10}건`] : []),
-      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일, 변경 기록, 검수 보고, 작업 묶음, DS 변경 요청)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
+      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일, 변경 기록, 검수 보고, 작업 묶음, DS 변경 요청, 퍼블 소스 폴더 설정)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
     ].join('\n') + '\n',
   );
   return 2;

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-// PostToolUse(Edit|Write) 훅: src/ 파일을 고친 직후 하드코딩된 디자인 값을 빠르게 찾아 Claude에게 알린다.
+// PostToolUse(Edit|Write) 훅: 퍼블 소스 폴더(docs/PROJECT.md, 기본 src/)의 파일을 고친 직후 하드코딩된 디자인 값을 빠르게 찾아 Claude에게 알린다.
 // - 전체 점검은 ds-check 스킬이 맡는다. 이 훅은 색상·px 값만 가볍게 본다.
 // - 위반이 있으면 exit 2 + stderr로 Claude에게 전달하고, 없으면 조용히 끝낸다.
 // - 훅 오류로 작업이 막히지 않도록, 예외가 나면 그냥 통과시킨다.
 
 import { readFileSync, existsSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { relative } from 'node:path';
+import { pubDir, tokenDir } from '../scripts/project-values.mjs';
 
 const MAX_FINDINGS = 10;
 
@@ -23,17 +24,6 @@ function readInput() {
   }
 }
 
-// docs/PROJECT.md의 "코드 토큰 위치" 값을 읽는다. [TODO]면 null.
-function readTokenPath(root) {
-  try {
-    const text = readFileSync(join(root, 'docs/PROJECT.md'), 'utf8');
-    const m = text.match(/코드 토큰 위치:\s*`?([^`\s[]+)/);
-    return m ? m[1].replace(/\\/g, '/').replace(/^\.\//, '') : null;
-  } catch {
-    return null;
-  }
-}
-
 function main() {
   const input = readInput();
   const filePath = input.tool_input?.file_path;
@@ -42,14 +32,14 @@ function main() {
   const root = process.env.CLAUDE_PROJECT_DIR || input.cwd || process.cwd();
   const rel = relative(root, filePath).replace(/\\/g, '/');
 
-  // 점검 대상: src/ 아래 스타일·컴포넌트 파일. 테스트·스토리는 제외.
-  if (!rel.startsWith('src/')) return 0;
+  // 점검 대상: 퍼블 소스 폴더 아래 스타일·컴포넌트 파일. 테스트·스토리는 제외.
+  if (!rel.startsWith(pubDir(root))) return 0;
   if (!/\.(html|vue|tsx?|jsx?|css|scss)$/.test(rel)) return 0;
   if (/\.(stories|test|spec)\./.test(rel)) return 0;
 
   // 토큰 정의 파일(또는 폴더)은 제외.
-  const tokenPath = readTokenPath(root);
-  if (tokenPath && (rel === tokenPath || rel.startsWith(tokenPath.replace(/\/?$/, '/')))) return 0;
+  const tokens = tokenDir(root);
+  if (rel === tokens.replace(/\/$/, '') || rel.startsWith(tokens)) return 0;
 
   const findings = [];
   const lines = readFileSync(filePath, 'utf8').split(/\r?\n/);

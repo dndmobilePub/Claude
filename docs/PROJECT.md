@@ -39,7 +39,8 @@
 - 스타일링: [TODO: 예) CSS / SCSS / CSS Modules / Tailwind]
 - 스토리북: [TODO: 사용 / 미사용]
 - 기타 주요 라이브러리: [TODO: 없으면 "없음"]
-- 코드 토큰 위치: [TODO: 기본 src/styles/tokens/ (token-sync가 토큰 파일을 만드는 폴더)]
+- 퍼블 소스 폴더: [TODO: 기본 src/. 퍼블 파일을 두는 최상위 폴더. 훅·점검 스크립트가 이 폴더를 본다. 바꾸면 `docs/HARNESS.md` 5번의 손으로 바꿀 곳도 함께 바꾼다]
+- 코드 토큰 위치: [TODO: 기본 <퍼블 소스 폴더>/styles/tokens/ (token-sync가 토큰 파일을 만드는 폴더)]
 
 ## 명령어
 - 개발 서버: `[TODO]`

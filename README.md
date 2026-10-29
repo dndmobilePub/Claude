@@ -50,7 +50,8 @@ docs/
   scripts/
     office-zip.mjs            #   xlsx·pptx 공용 읽기 모듈 (외부 패키지 없음)
     check-pub.mjs             #   퍼블 점검 스크립트 P1~P6 (ds-check가 먼저 실행)
-  rules/                      # src/ 작업 시 자동 적용되는 규칙
+    project-values.mjs        #   PROJECT.md의 퍼블 소스 폴더·코드 토큰 위치 읽기 (훅·스크립트 공용)
+  rules/                      # 퍼블 소스 폴더(기본 src/) 작업 시 자동 적용되는 규칙
     figma-design-system.md    #   Figma → 코드 구현 절차
     a11y.md                   #   접근성
     finance-ui.md             #   금융 UI
@@ -79,7 +80,7 @@ templates/                    # 양식
   report.md                   #   검수 보고
   batch.md                    #   작업 묶음
   ds-request.md               #   DS 변경 요청
-src/components/AGENTS.md      # 컴포넌트 폴더 규칙 (계층·네이밍·Props)
+src/components/AGENTS.md      # 컴포넌트 폴더 규칙 (계층·네이밍·Props). 퍼블 소스 폴더가 다르면 그 폴더로 옮김
 .github/pull_request_template.md  # PR 본문 양식
 ```
 

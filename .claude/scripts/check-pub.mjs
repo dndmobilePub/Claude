@@ -3,7 +3,7 @@
 // 외부 패키지 없이 Node만으로 동작한다. 읽기만 하고 파일을 고치지 않는다.
 //
 // 사용
-//   node .claude/scripts/check-pub.mjs              바뀐 파일만 (git의 변경·새 파일 중 src/ 아래)
+//   node .claude/scripts/check-pub.mjs              바뀐 파일만 (git의 변경·새 파일 중 퍼블 소스 폴더 아래. docs/PROJECT.md, 기본 src/)
 //   node .claude/scripts/check-pub.mjs <경로...>    지정한 파일·폴더만
 //
 // 점검 (근거 문서)
@@ -21,6 +21,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { pubDir as readPubDir, tokenDir as readTokenDir } from './project-values.mjs';
 
 const root = process.env.CLAUDE_PROJECT_DIR || fileURLToPath(new URL('../..', import.meta.url));
 const EXT = /\.(html|vue|jsx?|tsx?|css|scss)$/;
@@ -50,10 +51,8 @@ function walk(dir, out = []) {
 // ---------- 프로젝트 값 ----------
 
 const project = read(join(root, 'docs/PROJECT.md')) || '';
-const tokenDir = (() => {
-  const m = project.match(/코드 토큰 위치:\s*`?([^`\s[]+)/);
-  return (m ? m[1] : 'src/styles/tokens/').replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/?$/, '/');
-})();
+const pubDir = readPubDir(root);
+const tokenDir = readTokenDir(root);
 
 // 뷰포트 표의 디자인 프레임 폭 (예: 402×874 → 402)
 const frameWidths = [...project.matchAll(/\|\s*[^|\n]+\|\s*(\d{3,4})\s*[×x]\s*\d{3,4}\s*\|/g)].map((m) => m[1]);
@@ -95,7 +94,7 @@ function targets() {
       }
     };
     files = [...new Set([...run('git diff --name-only HEAD'), ...run('git ls-files --others --exclude-standard')])]
-      .filter((f) => f.startsWith('src/'))
+      .filter((f) => f.startsWith(pubDir))
       .map((f) => join(root, f))
       .filter((p) => existsSync(p));
   }
@@ -105,9 +104,9 @@ function targets() {
 // ---------- 점검 ----------
 
 const files = targets();
-const allSrc = walk(join(root, 'src'));
+const allSrc = walk(join(root, pubDir));
 
-// 정의된 CSS 변수: src 전체(토큰 파일 포함)의 "--이름:" 정의
+// 정의된 CSS 변수: 퍼블 소스 폴더 전체(토큰 파일 포함)의 "--이름:" 정의
 const defined = new Set();
 for (const p of allSrc) for (const m of (read(p) || '').matchAll(/(--[\w-]+)\s*:/g)) defined.add(m[1]);
 const hasTokens = existsSync(join(root, tokenDir));
