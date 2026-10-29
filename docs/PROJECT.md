@@ -6,6 +6,7 @@
 
 ## 기본 정보
 - 서비스명: [TODO]
+- 업종 규칙: [TODO: 쓰는 `.claude/rules/` 업종 규칙 파일. 여럿이면 쉼표로. 예) finance-ui.md / 없음. 쓰지 않는 업종 규칙 파일은 지운다 — 지운 파일은 공통 지침 업데이트 때 되살아나지 않는다 (`docs/HARNESS.md` 5번)]
 
 ## 입력 원본
 > 원본 파일은 저장소 안에 두기를 권장한다. 버전 이력을 Git으로 추적할 수 있다. (예: `docs/ia/source/`, `docs/storyboard/source/`)

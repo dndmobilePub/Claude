@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // 공통 지침(프레임워크) 업데이트 스크립트. 외부 패키지 없이 Node만으로 동작한다.
-// 분류의 원본은 .claude/framework.json "files" (교체 / 병합 / 설정 / 프로젝트).
+// 분류의 원본은 .claude/framework.json "files" (교체 / 병합 / 선택 / 설정 / 프로젝트).
 //
 // 사용
 //   node .claude/scripts/framework-update.mjs lint
-//       프레임워크 저장소용. git이 추적하는 파일이 네 분류 중 정확히 하나에 들어가는지 확인한다.
+//       프레임워크 저장소용. git이 추적하는 파일이 다섯 분류 중 정확히 하나에 들어가는지 확인한다.
 //   node .claude/scripts/framework-update.mjs check --from <지금 버전 폴더> --to <새 버전 폴더>
 //       프로젝트에 무엇이 어떻게 바뀌는지 보고만 한다. (파일을 고치지 않는다)
 //   node .claude/scripts/framework-update.mjs apply --from <지금 버전 폴더> --to <새 버전 폴더> [--keep-conflicts]
@@ -16,6 +16,8 @@
 //   교체: 프로젝트 파일이 지금 버전과 같으면 새 버전으로 바꾼다. 다르면 "충돌"(프로젝트가 직접 고침)
 //   병합: "프로젝트별 예외" 섹션 본문, AUTO 블록, 맨 위 frontmatter는 프로젝트 것을 두고 나머지를 새 버전으로 바꾼다.
 //         그 나머지가 지금 버전과 다르면 "충돌". frontmatter가 버전 사이에 바뀌었으면 "설정 확인"에 차이를 보인다
+//   선택: 프로젝트가 고르는 파일(업종 규칙 등, docs/PROJECT.md "업종 규칙"). 프로젝트에 있으면 병합과 같다.
+//         프로젝트에 없으면 일부러 뺀 것으로 보고 건너뛴다. 새 버전이 새로 만든 파일이면 "선택 확인"으로 알리기만 한다
 //   설정: 고치지 않는다. 지금 버전 → 새 버전 사이의 차이를 보여주고 사람이 반영한다
 //   프로젝트: 건드리지 않는다
 //   지금 버전에 있고 새 버전에 없는 파일: 프로젝트 파일이 지금 버전과 같으면 지운다. 다르면 "충돌"
@@ -30,7 +32,7 @@ import { pubDir } from './project-values.mjs';
 
 const root = process.env.CLAUDE_PROJECT_DIR || fileURLToPath(new URL('../..', import.meta.url));
 const MANIFEST = '.claude/framework.json';
-const KINDS = ['교체', '병합', '설정', '프로젝트'];
+const KINDS = ['교체', '병합', '선택', '설정', '프로젝트'];
 const EXC = /^##\s+[\d.-]*\s*프로젝트별 예외/;
 const AUTO_START = '<!-- AUTO:START';
 const AUTO_END = '<!-- AUTO:END -->';
@@ -199,8 +201,12 @@ function plan(fromDir, toDir) {
     }
     if (newText === null) {
       if (projText === null) continue;
-      const same = kind === '병합' ? split(projText).owned === split(oldText).owned : projText === oldText;
+      const same = kind !== '교체' ? split(projText).owned === split(oldText).owned : projText === oldText;
       items.push({ ...item, action: same ? '삭제' : '충돌', note: same ? '' : '새 버전에서 빠진 파일인데 프로젝트에서 고쳤습니다' });
+      continue;
+    }
+    if (projText === null && kind === '선택') {
+      if (oldText === null) items.push({ ...item, action: '선택 확인', note: '새 버전에 새 선택 파일(업종 규칙 등)이 생겼습니다. 쓰려면 docs/PROJECT.md "업종 규칙"에 적고 새 버전 폴더에서 가져옵니다' });
       continue;
     }
     if (projText === null) {
@@ -215,7 +221,7 @@ function plan(fromDir, toDir) {
       else items.push({ ...item, action: '교체', content: newText });
       continue;
     }
-    // 병합
+    // 병합·선택
     const projOwned = split(projText).owned;
     if (oldText !== null && projOwned !== split(oldText).owned) {
       items.push({ ...item, action: '충돌', note: '예외 섹션·AUTO 블록 밖을 프로젝트에서 직접 고쳤습니다. 고친 내용은 예외 섹션으로 옮깁니다' });
@@ -236,7 +242,7 @@ function plan(fromDir, toDir) {
 
 // ---------- 출력 ----------
 
-const ORDER = ['충돌', '설정 확인', '위치 확인', '교체', '병합', '추가', '삭제'];
+const ORDER = ['충돌', '설정 확인', '위치 확인', '선택 확인', '교체', '병합', '추가', '삭제'];
 
 function report({ items, from, to }, applied) {
   const count = (a) => items.filter((x) => x.action === a).length;
@@ -250,7 +256,7 @@ function report({ items, from, to }, applied) {
   for (const x of items.filter((i) => i.detail)) {
     out.push('', `### ${x.target} (${x.action}) — 지금 버전 → 새 버전`, '```diff', ...x.detail, '```');
   }
-  if (applied) out.push('', `- 반영: 교체·병합·추가·삭제 ${['교체', '병합', '추가', '삭제'].map(count).reduce((s, v) => s + v, 0)}건, ${MANIFEST}를 v${to}로 바꿈`, '- 충돌·설정 확인·위치 확인은 고치지 않았습니다. 하나씩 사람과 정합니다.');
+  if (applied) out.push('', `- 반영: 교체·병합·추가·삭제 ${['교체', '병합', '추가', '삭제'].map(count).reduce((s, v) => s + v, 0)}건, ${MANIFEST}를 v${to}로 바꿈`, '- 충돌·설정 확인·위치 확인·선택 확인은 고치지 않았습니다. 하나씩 사람과 정합니다.');
   process.stdout.write(out.join('\n') + '\n');
   return count('충돌') ? 1 : 0;
 }

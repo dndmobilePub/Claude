@@ -43,7 +43,7 @@ docs/
   ds-requests/<요청 ID>-<이름>.md  # 디자인 시스템 추가·변경 요청과 결정·후속 작업
   decisions/<번호>-<제목>.md    # 설계 결정 기록 (ADR)
 .claude/
-  framework.json              # 공통 지침 버전 + 파일 분류(교체·병합·설정·프로젝트) — 업데이트의 기준
+  framework.json              # 공통 지침 버전 + 파일 분류(교체·병합·선택·설정·프로젝트) — 업데이트의 기준
   settings.json               # 권한(읽기 금지·명령 차단·확인) + 훅 등록
   hooks/
     check-hardcoded.mjs       #   파일 수정 직후 하드코딩 색상·px 경고
@@ -57,7 +57,7 @@ docs/
   rules/                      # 퍼블 소스 폴더(기본 src/) 작업 시 자동 적용되는 규칙
     figma-design-system.md    #   Figma → 코드 구현 절차
     a11y.md                   #   접근성
-    finance-ui.md             #   금융 UI
+    finance-ui.md             #   업종 규칙 예: 금융 UI (쓰지 않는 프로젝트는 지움, docs/PROJECT.md "업종 규칙")
   skills/                     # 반복 절차
     project-init/             #   PROJECT.md 채우기
     ia-sync/                  #   IA 엑셀 → docs/ia/ 사본, 읽기 스크립트(read-ia.mjs) 포함
@@ -94,7 +94,8 @@ src/components/AGENTS.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 | 분류 | 파일 | 프로젝트에서 | 업데이트 때 |
 |---|---|---|---|
 | 교체 | `AGENTS.md`, `CHANGELOG.md`, `.claude/skills/`·`agents/`·`hooks/`·`scripts/`, `templates/`, PR 양식 | 그대로 사용 | 새 버전으로 바뀜 |
-| 병합 | `docs/DESIGN.md`·`ARCHITECTURE.md`·`PATTERNS.md`·`QA.md`·`GIT.md`·`HARNESS.md`, `docs/*/_index.md`, `.claude/rules/`, `src/components/AGENTS.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 (rules는 `paths`도) | 공통 부분만 바뀌고 예외 섹션·AUTO 블록·frontmatter는 유지 |
+| 병합 | `docs/DESIGN.md`·`ARCHITECTURE.md`·`PATTERNS.md`·`QA.md`·`GIT.md`·`HARNESS.md`, `docs/*/_index.md`, `.claude/rules/`의 공통 규칙(Figma 구현·접근성), `src/components/AGENTS.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 (rules는 `paths`도) | 공통 부분만 바뀌고 예외 섹션·AUTO 블록·frontmatter는 유지 |
+| 선택 | `.claude/rules/`의 업종 규칙 (예: `finance-ui.md`) | `docs/PROJECT.md` "업종 규칙"에 고른 것만 두고 나머지는 지움. 남긴 파일은 병합과 같음 | 남긴 파일은 병합과 같음. 지운 파일은 되살리지 않고, 새 업종 규칙은 알리기만 함 |
 | 설정 | `docs/PROJECT.md`, `.claude/settings.json`, `.gitignore`, `README.md` | 프로젝트 값으로 채우거나 고침 | 바뀐 줄만 보여주고 사람이 반영 |
 | 프로젝트 | `docs/PRODUCT.md`, 그 밖에 프로젝트가 만드는 문서(명세·플로우·질문·보고 등)와 퍼블 파일 | 새로 작성 | 건드리지 않음 |
 
@@ -114,7 +115,7 @@ src/components/AGENTS.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 | 구분 | 단계 | 할 일 | Claude Code에 요청하는 예 |
 |---|---|---|---|
 | 준비 | 1 | 프로젝트 설정 채우기 | `/project-init` |
-| 준비 | 2 | 예외 섹션 채우기 (DESIGN.md 9번, ARCHITECTURE.md 11번, QA.md 6번, GIT.md 7번, rules 3종, 컴포넌트 규칙 8번) | "finance-ui.md 예외 섹션 같이 채우자" |
+| 준비 | 2 | 예외 섹션 채우기 (DESIGN.md 9번, ARCHITECTURE.md 11번, QA.md 6번, GIT.md 7번, rules(공통 2종 + 고른 업종 규칙), 컴포넌트 규칙 8번) | "finance-ui.md 예외 섹션 같이 채우자" |
 | 디자인 | 3 | 코드 토큰 파일 만들기 | `/token-sync` |
 | 기획 | 4 | IA 분석 → 화면 목록·일정 사본 | `/ia-sync` |
 | 기획 | 5 | 기획 문서 작성 | "PRODUCT.md 작성 도와줘" |

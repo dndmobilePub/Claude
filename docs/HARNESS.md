@@ -45,9 +45,12 @@
 | 훅 | 시점 | 하는 일 |
 |---|---|---|
 | `check-hardcoded.mjs` | 파일 수정 직후 (Edit·Write) | 퍼블 소스 폴더(`docs/PROJECT.md`, 기본 `src/`)의 스타일·컴포넌트 파일에서 HEX·rgb/hsl 색상, 2px 이상 px 값을 찾아 Claude에게 알린다. 최대 10건만 보여준다 |
-| `build-index.mjs` | 파일 수정 직후 (Edit·Write) | `docs/ia/`·`docs/ui-flow/`·`docs/screens/`·`docs/components/`·`docs/questions/`·`docs/PROJECT.md`·`.claude/rules/`가 바뀌면 세 `_index.md`(화면·컴포넌트·질문)의 AUTO 블록을 다시 만든다. ID 중복·형식 오류, IA와 플로우의 화면명·도메인 차이, 허용되지 않은 상태 값, 질문 칸 누락(확정인데 반영 위치 없음, 차단 질문을 가정으로 진행 등), 퍼블 소스 폴더와 rules `paths`·컴포넌트 폴더 `AGENTS.md` 위치의 차이, 명세 `device`가 뷰포트 표와 맞지 않음 같은 불일치를 Claude에게 알린다 |
+| `build-index.mjs` | 파일 수정 직후 (Edit·Write) | 아래 문서가 바뀌면 AUTO 블록을 다시 만들고 불일치를 Claude에게 알린다 (아래 목록) |
 | `session-reminder.mjs` | 대화 압축 직후 | 승인·토큰·디자인 핵심 규칙, 현재 브랜치, 커밋되지 않은 변경을 다시 알려준다 |
 
+- `build-index`가 보는 문서: `docs/` 안의 `ia/`·`ui-flow/`·`screens/`·`components/`·`questions/`·`changes/`·`storyboard/`·`reports/`·`batches/`·`ds-requests/` 문서, `docs/PROJECT.md`, `docs/PATTERNS.md`, `.claude/rules/`
+- `build-index`가 만드는 AUTO 블록: `_index.md` 여섯 곳(`ui-flow`(화면 맵)·`components`(연결 목록)·`questions`·`changes`·`batches`·`ds-requests`)과 각 작업 묶음 파일
+- `build-index`가 알리는 불일치 (예): ID 중복·형식 오류, IA와 플로우·명세의 화면명·도메인 차이, 허용되지 않은 상태·패턴 값, 질문 칸 누락(확정인데 반영 위치 없음, 차단 질문을 가정으로 진행 등), 명세 기준 버전이 현재 버전과 다름, 검수 결과와 화면 상태가 맞지 않음, 묶음 두 곳에 같은 화면, 퍼블 소스 폴더와 rules `paths`·컴포넌트 폴더 `AGENTS.md` 위치의 차이, 업종 규칙 설정과 실제 파일의 차이, 명세 `device`가 뷰포트 표와 맞지 않음
 - `build-index`의 원본: 화면 ID·화면명·예정일은 IA 사본 `docs/ia/screen-list.md` (없으면 플로우 문서 "2. 화면 목록" 표), 화면 ID 형식은 `docs/PROJECT.md` "화면 ID 형식", 상태·Figma는 각 명세의 frontmatter. frontmatter는 한 줄짜리 `키: 값`만 읽고, 표는 머리글 이름으로 읽는다.
 - `build-index`가 고치는 `_index.md` 변경은 승인받은 원본 수정의 결과이므로 별도 승인을 받지 않는다. 커밋할 때는 원본과 함께 포함한다.
 - 에디터에서 직접 문서를 고쳤으면 `node .claude/hooks/build-index.mjs`로 수동 실행한다. (경고가 있으면 종료 코드 1)
@@ -94,7 +97,8 @@
 | 패키지 매니저가 다름 | ask 목록의 패키지 추가 명령 수정 |
 | Figma MCP 서버 이름이 `figma`가 아님 | ask 목록의 `mcp__figma__use_figma`와 deny 목록의 Figma 쓰기 도구를 `mcp__<서버 이름>__<도구>`로 수정 (`/mcp`에서 이름 확인) |
 | Figma MCP 도구 이름이 다름·쓰기 도구가 추가됨 | `/mcp`에서 도구 목록을 확인하고 deny 목록의 Figma 쓰기 도구를 맞춘다 |
-| 퍼블 소스 폴더가 `src/`가 아님 | ① `docs/PROJECT.md` "퍼블 소스 폴더"에 적는다 (훅·`check-pub`은 이 값을 읽는다) ② `.claude/rules/` 3종의 `paths` 앞부분을 그 폴더로 바꾼다 (규칙 파일은 설정 값을 읽지 못한다) ③ `src/components/AGENTS.md`를 실제 컴포넌트 폴더로 옮긴다. ②·③을 빠뜨리면 `build-index`가 경고한다. 안쪽 폴더 이름이 다르면 `docs/ARCHITECTURE.md` 11번 |
+| 퍼블 소스 폴더가 `src/`가 아님 | ① `docs/PROJECT.md` "퍼블 소스 폴더"에 적는다 (훅·`check-pub`은 이 값을 읽는다) ② `.claude/rules/`에 남은 규칙 파일 모두의 `paths` 앞부분을 그 폴더로 바꾼다 (규칙 파일은 설정 값을 읽지 못한다) ③ `src/components/AGENTS.md`를 실제 컴포넌트 폴더로 옮긴다. ②·③을 빠뜨리면 `build-index`가 경고한다. 안쪽 폴더 이름이 다르면 `docs/ARCHITECTURE.md` 11번 |
+| 업종 규칙을 고르거나 바꿈 | ① `docs/PROJECT.md` "업종 규칙"에 쓸 파일을 적는다 ② 쓰지 않는 업종 규칙 파일(`.claude/framework.json` "선택" 분류)은 지운다. 지운 파일은 공통 지침 업데이트 때 되살아나지 않는다 ③ 다시 쓰려면 지금 버전 태그의 공통 지침 저장소에서 그 파일을 가져온다. ①·②가 어긋나면 `build-index`가 경고한다 |
 | 하드코딩 점검 범위 조정 | `check-hardcoded.mjs`의 `RULES` 수정 (대상 폴더는 위 줄) |
 | Code Connect를 쓴다 (`docs/PROJECT.md`) | deny 목록의 Code Connect 쓰기 도구(`add_code_connect_map`, `send_code_connect_mappings`)를 ask 목록으로 옮긴다. 다른 Figma 쓰기 도구는 그대로 둔다 |
 

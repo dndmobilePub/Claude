@@ -14,7 +14,8 @@
       "templates/**"
     ],
     "병합": [
-      ".claude/rules/**",
+      ".claude/rules/a11y.md",
+      ".claude/rules/figma-design-system.md",
       "docs/ARCHITECTURE.md",
       "docs/DESIGN.md",
       "docs/GIT.md",
@@ -23,6 +24,9 @@
       "docs/QA.md",
       "docs/*/_index.md",
       "src/components/AGENTS.md"
+    ],
+    "선택": [
+      ".claude/rules/finance-ui.md"
     ],
     "설정": [
       ".claude/settings.json",

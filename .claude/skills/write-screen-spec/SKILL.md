@@ -5,7 +5,7 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 작성·수정하거�
 
 # 화면 명세 작성 절차
 
-> 양식: `templates/screen-spec.md`. 기준: `docs/DESIGN.md`, `.claude/rules/finance-ui.md`, `.claude/rules/a11y.md`.
+> 양식: `templates/screen-spec.md`. 기준: `docs/DESIGN.md`, `.claude/rules/a11y.md`, 업종 규칙(`docs/PROJECT.md` "업종 규칙"의 `.claude/rules/` 파일).
 > 질문 기록 규칙: `docs/questions/_index.md` (어느 파일에, 어떤 칸으로, 가정·확정 처리)
 > 이 명세는 `implement-screen` 스킬과 `design-system-reviewer`가 그대로 기준으로 쓴다.
 

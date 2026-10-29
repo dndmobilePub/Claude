@@ -55,7 +55,7 @@
 ## 경로별 규칙 (자동 적용)
 - `.claude/rules/figma-design-system.md`
 - `.claude/rules/a11y.md`
-- `.claude/rules/finance-ui.md`
+- 업종 규칙: `docs/PROJECT.md` "업종 규칙"에 적은 `.claude/rules/` 파일 (예: `finance-ui.md`)
 
 ## 반복 절차 (스킬)
 - `project-init` — 새 프로젝트 시작 시 `docs/PROJECT.md` 채우기

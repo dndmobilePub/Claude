@@ -6,5 +6,8 @@ CLAUDE.local.md
 node_modules/
 dist/
 build/
+.next/
+coverage/
 .env*
+!.env.example
 .DS_Store

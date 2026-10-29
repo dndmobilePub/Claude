@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 인덱스 자동 생성 훅
-// - PostToolUse(Edit|Write): docs/ia/, docs/ui-flow/, docs/screens/, docs/components/, docs/questions/ 등의 문서, docs/PROJECT.md, .claude/rules/ 파일을 고친 직후 실행된다.
+// - PostToolUse(Edit|Write): docs/ia/, docs/ui-flow/, docs/screens/, docs/components/, docs/questions/ 등의 문서, docs/PROJECT.md, docs/PATTERNS.md, .claude/rules/ 파일을 고친 직후 실행된다.
 // - 수동 실행: node .claude/hooks/build-index.mjs (에디터에서 직접 고쳤을 때)
 //
 // 원본 → 생성 결과
@@ -28,6 +28,7 @@
 // - 화면 명세 device: PROJECT.md "뷰포트" 표의 디바이스 중에서만. 표에 디바이스가 여럿이면 초안이 아닌 명세는 비워 두지 않는다
 // - 퍼블 소스 폴더: docs/PROJECT.md "퍼블 소스 폴더"(기본 src/)를 바꿨는데 .claude/rules/의 paths나
 //   src/components/AGENTS.md가 그대로면 경고 (.claude/scripts/project-values.mjs, docs/HARNESS.md 5번)
+// - 업종 규칙: docs/PROJECT.md "업종 규칙"과 .claude/rules/의 선택 파일(.claude/framework.json "선택")이 어긋나면 경고
 //
 // 불일치(ID 중복, IA와 플로우의 차이, 허용되지 않은 상태 값 등)는 훅 모드에서 exit 2 + stderr로 Claude에게 알린다.
 // 훅 오류로 작업이 막히지 않도록, 예외가 나면 그냥 통과시킨다.
@@ -35,7 +36,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { pubDir, checkPubDirSetup } from '../scripts/project-values.mjs';
+import { pubDir, checkPubDirSetup, checkRuleSetup } from '../scripts/project-values.mjs';
 
 const STATUS = {
   screen: ['초안', '검토', '확정', '구현완료', '수정필요'],
@@ -758,13 +759,14 @@ function main() {
 
   if (hookMode) {
     const rel = relative(root, input.tool_input.file_path || '').replace(/\\/g, '/');
-    if (!/^docs\/(ia|ui-flow|screens|components|questions|changes|storyboard|reports|batches|ds-requests)\/[^/]+\.md$/.test(rel) && !/^\.claude\/rules\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
+    if (!/^docs\/(ia|ui-flow|screens|components|questions|changes|storyboard|reports|batches|ds-requests)\/[^/]+\.md$/.test(rel) && !/^\.claude\/rules\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md' && rel !== 'docs/PATTERNS.md') return 0;
     if (basename(rel) === '_index.md' && rel !== 'docs/changes/_index.md') return 0;
   }
 
   const warnings = [];
   const warn = (m) => warnings.push(m);
   checkPubDirSetup(root).forEach(warn);
+  checkRuleSetup(root).forEach(warn);
   const questions = readQuestions(root, warn);
   questionsCache = questions;
   replaceBlock(root, 'docs/ui-flow/_index.md', buildScreens(root, warn, questions), warn);
@@ -787,7 +789,7 @@ function main() {
       `[인덱스 경고] 인덱스는 다시 만들었지만 원본 문서에서 불일치 ${warnings.length}건을 찾았습니다.`,
       ...warnings.slice(0, 10).map((w) => `- ${w}`),
       ...(warnings.length > 10 ? [`- 외 ${warnings.length - 10}건`] : []),
-      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일, 변경 기록, 검수 보고, 작업 묶음, DS 변경 요청, 퍼블 소스 폴더 설정)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
+      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일, 변경 기록, 검수 보고, 작업 묶음, DS 변경 요청, 퍼블 소스 폴더·업종 규칙 설정)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
     ].join('\n') + '\n',
   );
   return 2;

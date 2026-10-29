@@ -5,7 +5,7 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 기준으로 Figma를 
 
 # 화면 퍼블 절차
 
-> 규칙 원본: `docs/DESIGN.md`, `docs/ARCHITECTURE.md`(퍼블 파일 구조·퍼블과 개발의 경계), `docs/QA.md`(검수 기준·결과), `.claude/rules/` (figma-design-system · a11y · finance-ui).
+> 규칙 원본: `docs/DESIGN.md`, `docs/ARCHITECTURE.md`(퍼블 파일 구조·퍼블과 개발의 경계), `docs/QA.md`(검수 기준·결과), `.claude/rules/` (figma-design-system · a11y · `docs/PROJECT.md` "업종 규칙"의 파일).
 > 이 스킬은 규칙을 반복하지 않고 **작업 순서와 멈춤 지점**만 정한다.
 
 ## 입력
