@@ -18,6 +18,7 @@
 | `docs/flow-transfer` | 플로우·화면 명세 작성 |
 | `fix/TRF-010-mask-error` | 버그 수정 |
 | `chore/token-sync` | 설정·토큰 반영 등 |
+| `chore/framework-v0.2.0` | 공통 지침 새 버전 반영 (`framework-update`) |
 
 ## 2. 커밋 메시지
 - 형식: `<타입>(<범위>): <요약>` — 요약은 한국어, 50자 이내, 마침표 없음.
@@ -34,7 +35,7 @@
 | chore | 설정·의존성·토큰 반영 |
 
 - 본문(선택): 무엇을, 왜 바꿨는지. 화면 퍼블이면 개발에 넘길 항목(`ARCHITECTURE.md` 10번)을 요약해 적는다.
-- 예: `feat(TRF-010): 이체 금액 입력 화면 퍼블`, `docs(transfer): 이체 플로우 작성`, `chore(tokens): Figma 변수 동기화`, `docs(change): IA v1.3 반영`, `docs(batch): 03-account-list 작업 묶음`
+- 예: `feat(TRF-010): 이체 금액 입력 화면 퍼블`, `docs(transfer): 이체 플로우 작성`, `chore(tokens): Figma 변수 동기화`, `docs(change): IA v1.3 반영`, `docs(batch): 03-account-list 작업 묶음`, `chore(framework): v0.1.0 → v0.2.0 반영`
 
 ## 3. 커밋 단위
 - 하나의 논리적 변경 = 커밋 하나. 관련 없는 변경을 섞지 않는다.

@@ -1,0 +1,39 @@
+{
+  "name": "ui-pub-guide",
+  "version": "0.1.0",
+  "repository": "https://github.com/dndmobilePub/Claude",
+  "files": {
+    "교체": [
+      "AGENTS.md",
+      "CHANGELOG.md",
+      ".claude/agents/**",
+      ".claude/hooks/**",
+      ".claude/scripts/**",
+      ".claude/skills/**",
+      ".github/pull_request_template.md",
+      "templates/**"
+    ],
+    "병합": [
+      ".claude/rules/**",
+      "docs/ARCHITECTURE.md",
+      "docs/DESIGN.md",
+      "docs/GIT.md",
+      "docs/HARNESS.md",
+      "docs/PATTERNS.md",
+      "docs/QA.md",
+      "docs/*/_index.md",
+      "src/components/AGENTS.md"
+    ],
+    "설정": [
+      ".claude/settings.json",
+      ".gitignore",
+      "README.md",
+      "docs/PROJECT.md"
+    ],
+    "프로젝트": [
+      ".claude/framework.json",
+      "docs/PRODUCT.md",
+      "docs/*/.gitkeep"
+    ]
+  }
+}

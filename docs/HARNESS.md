@@ -56,7 +56,7 @@
 - 훅 스크립트에 오류가 나면 작업을 막지 않고 통과시킨다.
 
 ### 스크립트 (입력 원본 읽기·점검·버전 표기)
-훅이 아니라 스킬이 필요할 때 `node`로 실행한다. `bump-ver.mjs` 말고는 모두 읽기 전용이고, 외부 패키지가 필요 없다. (`.claude/scripts/office-zip.mjs`를 함께 쓴다. 퍼블 소스 폴더·코드 토큰 위치는 훅과 스크립트가 `.claude/scripts/project-values.mjs`로 함께 읽는다)
+훅이 아니라 스킬이 필요할 때 `node`로 실행한다. `bump-ver.mjs`와 `framework-update.mjs apply` 말고는 모두 읽기 전용이고, 외부 패키지가 필요 없다. (`.claude/scripts/office-zip.mjs`를 함께 쓴다. 퍼블 소스 폴더·코드 토큰 위치는 훅과 스크립트가 `.claude/scripts/project-values.mjs`로 함께 읽는다)
 
 | 스크립트 | 스킬 | 읽는 것 |
 |---|---|---|
@@ -66,7 +66,8 @@
 | `.claude/skills/token-sync/read-variables.js` | `token-sync` | Figma 변수 (Figma `use_figma`로 실행) |
 | `.claude/skills/token-sync/read-styles.js` | `token-sync` | Figma 텍스트 스타일·효과 스타일 (Figma `use_figma`로 실행) |
 | `.claude/scripts/check-pub.mjs` | `ds-check` | 퍼블 파일의 규칙 위반 P1~P7 (정의 안 된 토큰, 텍스트 스타일 조합, 화면 폭, 개발 몫 코드, 이동 대상 ID, 위험한 HTML·외부 스크립트, 스타일 위치). 읽기만 한다 |
-| `.claude/skills/version-update/bump-ver.mjs` | `version-update` | 화면 명세 frontmatter의 기준 버전 한 줄만 고친다 (유일하게 쓰기를 하는 스크립트. `--write` 없으면 목록만 보여준다) |
+| `.claude/skills/version-update/bump-ver.mjs` | `version-update` | 화면 명세 frontmatter의 기준 버전 한 줄만 고친다 (`--write` 없으면 목록만 보여준다) |
+| `.claude/scripts/framework-update.mjs` | `framework-update` | 공통 지침 두 버전과 프로젝트를 비교해 교체·병합·추가·삭제·충돌·설정 확인을 보고하고, `apply`면 충돌이 없을 때만 반영한다. `lint`는 원본 저장소에서 파일 분류(`.claude/framework.json`)를 점검한다 |
 
 - 옛 형식(.xls·.ppt)은 읽지 못한다. 새 형식으로 다시 저장해서 쓴다.
 - 출력은 한 번에 100행·20장까지만 나온다. 마지막 줄의 `# 다음:` 값으로 이어 읽는다. (토큰 절감)
@@ -87,7 +88,7 @@
 ## 5. 프로젝트에서 바꾸는 방법
 | 하고 싶은 것 | 방법 |
 |---|---|
-| 팀 전체 규칙 추가·변경 | `.claude/settings.json` 수정 → 원본 저장소에도 반영 검토 |
+| 팀 전체 규칙 추가·변경 | `.claude/settings.json` 수정 → 원본 저장소에도 반영 검토. 이 파일은 "설정" 분류라 공통 지침 업데이트 때 덮어쓰지 않고 바뀐 줄만 보여준다 |
 | 개인 설정 (예: 자주 쓰는 린트 명령 자동 허용) | `.claude/settings.local.json`에 작성 (git 제외 대상) |
 | 빌드 결과 폴더가 다름 | deny 목록의 폴더 경로 수정 |
 | 패키지 매니저가 다름 | ask 목록의 패키지 추가 명령 수정 |
