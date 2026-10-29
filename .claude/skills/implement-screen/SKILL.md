@@ -71,6 +71,7 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 기준으로 Figma를 
 - 명세에 적힌 상태를 모두 만들고, `ARCHITECTURE.md` 6번 방법으로 바꿔 볼 수 있게 한다.
 - 명세 4번 "퍼블" 담당 동작만 구현한다. 화면 사이 이동은 구현하지 않고 `data-screen-link`로 표시한다. (`ARCHITECTURE.md` 4번)
 - 더미 데이터는 명세 5번 필드 이름으로 `ARCHITECTURE.md` 5번 방식대로 넣는다.
+- 공통 유틸(`lib/`)을 만들거나 고치면 단위 테스트를 함께 만든다. (`ARCHITECTURE.md` 3번, 업종별 필수 항목은 `.claude/rules/`)
 
 ### 6. 검증
 `docs/QA.md` 1번 순서대로 한다. 결과는 대화에 길게 쓰지 않고 8단계 보고 파일에 모은다.

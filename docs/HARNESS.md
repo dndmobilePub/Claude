@@ -50,7 +50,7 @@
 - 제외 대상: 테스트·스토리 파일, `docs/PROJECT.md`의 "코드 토큰 위치"에 적힌 파일·폴더. 이 값이 [TODO]면 토큰 파일도 점검되므로 먼저 채운다.
 - 훅 스크립트에 오류가 나면 작업을 막지 않고 통과시킨다.
 
-### 입력 원본 읽기 스크립트
+### 스크립트 (입력 원본 읽기·점검·버전 표기)
 훅이 아니라 스킬이 필요할 때 `node`로 실행한다. `bump-ver.mjs` 말고는 모두 읽기 전용이고, 외부 패키지가 필요 없다. (`.claude/scripts/office-zip.mjs`를 함께 쓴다)
 
 | 스크립트 | 스킬 | 읽는 것 |
@@ -60,6 +60,7 @@
 | `.claude/skills/write-flow/read-storyboard.js` | `write-flow` | Figma 기획 설계서 (Figma `use_figma`로 실행) |
 | `.claude/skills/token-sync/read-variables.js` | `token-sync` | Figma 변수 (Figma `use_figma`로 실행) |
 | `.claude/skills/token-sync/read-styles.js` | `token-sync` | Figma 텍스트 스타일·효과 스타일 (Figma `use_figma`로 실행) |
+| `.claude/scripts/check-pub.mjs` | `ds-check` | 퍼블 파일의 규칙 위반 P1~P6 (정의 안 된 토큰, 텍스트 스타일 조합, 화면 폭, 개발 몫 코드, 이동 대상 ID, 위험한 HTML·외부 스크립트). 읽기만 한다 |
 | `.claude/skills/version-update/bump-ver.mjs` | `version-update` | 화면 명세 frontmatter의 기준 버전 한 줄만 고친다 (유일하게 쓰기를 하는 스크립트. `--write` 없으면 목록만 보여준다) |
 
 - 옛 형식(.xls·.ppt)은 읽지 못한다. 새 형식으로 다시 저장해서 쓴다.

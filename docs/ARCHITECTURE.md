@@ -15,6 +15,8 @@
 | 입력 검증 | 에러 표시 상태와 문구 | 검증 실행 (규칙 원본은 화면 명세 6번) |
 
 - IMPORTANT: 개발 몫의 일을 퍼블에서 임의로 구현하지 않는다. 필요해 보이면 묻는다.
+- IMPORTANT: 문자열을 HTML로 바로 넣지 않는다. (`innerHTML`·`outerHTML`·`insertAdjacentHTML`·`document.write`, React `dangerouslySetInnerHTML`, Vue `v-html`) 내용은 텍스트로 넣거나 마크업으로 만든다. 꼭 필요하면 묻는다.
+- IMPORTANT: 외부 스크립트(`<script src="https://...">`, CDN)나 새 패키지를 임의로 추가하지 않는다. 필요하면 이유와 함께 묻는다. (`docs/PROJECT.md` "기타 주요 라이브러리")
 - 개발이 그대로 가져다 쓰도록 만든다. 화면은 조립만 하고, 반복되는 것은 컴포넌트·공통으로 옮긴다.
 
 ## 2. 계층과 책임
@@ -35,10 +37,11 @@ src/
   screens/<도메인>/<화면ID>-<이름>/   # 화면
   components/                       # 컴포넌트
   dummy/<도메인>.<확장자>             # 더미 데이터 (5번)
-  lib/                              # 공통 유틸
+  lib/                              # 공통 유틸 (단위 테스트를 함께 둔다 — 아래)
   styles/                           # 토큰·공통 스타일
 ```
 - 스토리북을 쓰면 스토리 파일 위치는 `src/components/CLAUDE.md` 예외 섹션을 따른다.
+- 공통 유틸(`lib/`)은 만들거나 고칠 때 단위 테스트를 함께 만든다. 테스트 파일은 유틸 옆에 `<이름>.test.<확장자>`로 둔다. 실행은 `docs/PROJECT.md` "린트/테스트" 명령을 따르고, 테스트 도구가 없는 프로젝트는 Node 내장 테스트(`node --test`, 패키지 설치 없음)로 돌린다. 업종별 필수 테스트 항목은 해당 규칙 문서(`.claude/rules/`)에 있다.
 - `<도메인>` 폴더 이름은 플로우 문서 파일 이름과 같게 한다. (예: `ui-flow/transfer.md` → `screens/transfer/`)
 - 언어별 화면 폴더 안 파일은 9번 예시를 따른다.
 
