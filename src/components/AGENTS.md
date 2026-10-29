@@ -10,7 +10,7 @@
 |---|---|---|---|
 | 기본(ui) | Figma 디자인 시스템 컴포넌트와 1:1 대응 | Button, Input, Badge | 데이터·업무 로직 없음 |
 | 조합(patterns) | 기본 컴포넌트를 묶은 반복 패턴 | AccountCard, AmountInput | 표시 규칙은 가능, 데이터 가져오기 없음 |
-| 화면 전용 | 한 화면에서만 쓰는 조각 | (화면 폴더 안에 둠 — `docs/ARCHITECTURE.md` 4번) | 두 화면 이상에서 쓰이면 조합 계층으로 옮긴다 |
+| 화면 전용 | 한 화면에서만 쓰는 조각 | (화면 폴더 안, 종류별 폴더면 화면 HTML 안 — `docs/ARCHITECTURE.md` 4번) | 스타일을 따로 두지 않는다(ARCHITECTURE 8번). 두 화면 이상에서 쓰이면 조합 계층으로 옮긴다 |
 
 - 가져다 쓰는 방향은 한쪽만 허용한다: 화면 전용 → 조합 → 기본. 기본 컴포넌트는 조합 컴포넌트를 가져오지 않는다.
 
@@ -59,6 +59,7 @@
 - IMPORTANT: 고치기 전에 사용처를 검색하고 영향받는 화면 목록을 보고한다.
 - props·클래스 이름 변경·삭제처럼 기존 사용처가 깨지는 변경은 승인받은 뒤 진행한다.
 - 변형이 필요하면 복사하지 말고 변형을 추가한다. (DESIGN.md 4번)
+- 스타일은 컴포넌트 안에서 해결한다. 화면이 컴포넌트 스타일을 덮어써야 할 것 같으면 먼저 변형 추가를 검토한다. 정말 안 될 때만 `global.css` 예외 (ARCHITECTURE 8-1)
 
 ## 7. Figma 연결과 Code Connect
 - Figma 컴포넌트와 코드 컴포넌트의 연결 원본은 컴포넌트 명세(`figma_name`, 4·5번 표)다. 연결 목록은 `docs/components/_index.md`에 자동으로 모인다.
@@ -66,7 +67,7 @@
 
 ## 8. 프로젝트별 예외 (선택)
 - 계층별 실제 폴더: [TODO: 예) src/components/ui, src/components/patterns]
-- 폴더 안 파일 구성: [TODO: 예) JS: button.html, button.css / React: Button.jsx, Button.module.css, index.js / Vue: Button.vue, index.js]
+- 폴더 안 파일 구성: [TODO: 예) JS: button.html, button.css / JS 종류별 폴더: html/components/button.html, css/components/button.css, js/components/button.js / React: Button.jsx, Button.module.css, index.js / Vue: Button.vue, index.js]
 - 클래스 이름 규칙 (JS): [TODO: 예) BEM — block__element--modifier]
 - 스토리 파일 위치: [TODO: 예) 컴포넌트 폴더 안 / src/stories/]
 - 테스트 작성 여부: [TODO]

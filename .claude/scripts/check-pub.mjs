@@ -14,6 +14,10 @@
 //   P4 개발 몫 코드 의심: 서버 호출·화면 이동 (ARCHITECTURE.md 1번)                                확인 필요
 //   P5 data-screen-link 대상 화면 ID가 화면 목록에 없음 (ARCHITECTURE.md 4번)                       높음
 //   P6 위험한 HTML 삽입, 외부 스크립트 직접 추가 (ARCHITECTURE.md 1번)                              높음
+//   P7 스타일 위치 (ARCHITECTURE.md 8번)
+//      화면 전용 스타일: screens/ 안의 스타일 파일·Vue <style>·스타일 가져오기, 화면 ID 이름의 스타일 파일   높음
+//      global.css 예외: [data-screen="<화면ID>"] 범위가 아님, 바로 위 "/* 예외: <화면ID> — 이유 */" 없음   중간
+//      !important                                                                                 확인 필요
 //
 // 결과: 표를 출력한다. 높음·중간이 하나라도 있으면 종료 코드 1, 없으면 0.
 
@@ -118,8 +122,39 @@ const add = (file, line, code, level, msg) => findings.push({ file: rel(file), l
 
 const isComment = (t) => t.startsWith('//') || t.startsWith('*') || t.startsWith('/*') || t.startsWith('<!--');
 
+// P7 — 파일 단위: 화면 전용 스타일, global.css 예외 형식
+const STYLE = /\.(css|scss)$/;
+function checkStyle(file, lines) {
+  const r = rel(file);
+  const name = r.split('/').pop();
+  const base = name.replace(/\.[^.]+$/, '');
+  const inScreens = /(^|\/)screens\//.test(r);
+  if (STYLE.test(name) && (inScreens || ids.has(base))) add(file, 1, 'P7', '높음', '화면 전용 스타일 파일 — 스타일은 컴포넌트 안에서, 예외는 global.css (ARCHITECTURE.md 8번)');
+  if (inScreens && !STYLE.test(name)) {
+    lines.forEach((line, i) => {
+      if (/<style[\s>]/.test(line)) add(file, i + 1, 'P7', '높음', '화면 컴포넌트 안의 <style> — 스타일은 컴포넌트 안에서, 예외는 global.css');
+      if (/import\s+(?:[\w{},\s*]+\s+from\s+)?["'][^"']+\.(css|scss)["']/.test(line)) add(file, i + 1, 'P7', '높음', '화면 파일에서 스타일 파일을 가져옴 — 화면 전용 스타일을 두지 않음');
+    });
+  }
+  if (/^global\.(css|scss)$/.test(name)) {
+    let depth = 0;
+    lines.forEach((line, i) => {
+      const t = line.trim();
+      if (depth === 0 && t.includes('{') && !t.startsWith('@') && !t.startsWith('/*')) {
+        const sel = t.slice(0, t.indexOf('{'));
+        if (!/\[data-screen\s*=/.test(sel)) add(file, i + 1, 'P7', '중간', `global.css 예외가 화면 범위([data-screen="<화면ID>"])가 아님: ${sel.trim()}`);
+        const before = lines.slice(Math.max(0, i - 3), i).join(' ');
+        if (!/\/\*\s*예외:/.test(before)) add(file, i + 1, 'P7', '중간', 'global.css 예외 바로 위에 "/* 예외: <화면ID> — 이유 */" 주석이 없음');
+      }
+      depth += (line.match(/\{/g) || []).length - (line.match(/\}/g) || []).length;
+      if (depth < 0) depth = 0;
+    });
+  }
+}
+
 for (const file of files) {
   const lines = (read(file) || '').split(/\r?\n/);
+  checkStyle(file, lines);
   lines.forEach((line, i) => {
     const t = line.trim();
     if (!t || isComment(t)) return;
@@ -163,6 +198,9 @@ for (const file of files) {
     const risky = line.match(/(\.innerHTML\s*=|\.outerHTML\s*=|insertAdjacentHTML|document\.write\s*\(|dangerouslySetInnerHTML|\bv-html\b)/);
     if (risky) add(file, n, 'P6', '높음', `위험한 HTML 삽입: ${risky[1]}`);
     if (/<script[^>]*\bsrc\s*=\s*["']?(https?:)?\/\//i.test(line)) add(file, n, 'P6', '높음', '외부 스크립트를 직접 추가');
+
+    // P7 — 줄 단위
+    if (/!important/.test(line)) add(file, n, 'P7', '확인 필요', '!important — 컴포넌트 스타일을 덮는 예외면 이유를 주석에 적음');
   });
 }
 

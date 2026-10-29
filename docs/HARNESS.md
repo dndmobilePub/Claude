@@ -65,7 +65,7 @@
 | `.claude/skills/write-flow/read-storyboard.js` | `write-flow` | Figma 기획 설계서 (Figma `use_figma`로 실행) |
 | `.claude/skills/token-sync/read-variables.js` | `token-sync` | Figma 변수 (Figma `use_figma`로 실행) |
 | `.claude/skills/token-sync/read-styles.js` | `token-sync` | Figma 텍스트 스타일·효과 스타일 (Figma `use_figma`로 실행) |
-| `.claude/scripts/check-pub.mjs` | `ds-check` | 퍼블 파일의 규칙 위반 P1~P6 (정의 안 된 토큰, 텍스트 스타일 조합, 화면 폭, 개발 몫 코드, 이동 대상 ID, 위험한 HTML·외부 스크립트). 읽기만 한다 |
+| `.claude/scripts/check-pub.mjs` | `ds-check` | 퍼블 파일의 규칙 위반 P1~P7 (정의 안 된 토큰, 텍스트 스타일 조합, 화면 폭, 개발 몫 코드, 이동 대상 ID, 위험한 HTML·외부 스크립트, 스타일 위치). 읽기만 한다 |
 | `.claude/skills/version-update/bump-ver.mjs` | `version-update` | 화면 명세 frontmatter의 기준 버전 한 줄만 고친다 (유일하게 쓰기를 하는 스크립트. `--write` 없으면 목록만 보여준다) |
 
 - 옛 형식(.xls·.ppt)은 읽지 못한다. 새 형식으로 다시 저장해서 쓴다.
