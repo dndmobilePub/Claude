@@ -6,12 +6,15 @@
 ## 1. 구성 한눈에 보기
 | 장치 | 위치 | 역할 |
 |---|---|---|
-| 지침 라우팅 | `CLAUDE.md` | 작업별로 필요한 문서만 읽게 한다 |
+| 지침 라우팅 | `AGENTS.md` (하위 폴더 규칙은 `src/components/AGENTS.md`) | 작업별로 필요한 문서만 읽게 한다 |
 | 경로별 규칙 | `.claude/rules/` | `src/` 작업 때만 자동으로 읽힌다 |
 | 스킬·에이전트 | `.claude/skills/`, `.claude/agents/` | 절차는 필요할 때만 불러온다 |
 | 권한 | `.claude/settings.json` → `permissions` | 읽지 않을 파일, 막을 명령, 확인받을 명령 |
 | 훅 | `.claude/settings.json` → `hooks`, `.claude/hooks/` | 정해진 시점에 항상 실행되는 자동 점검 |
 
+- **AGENTS.md 읽기**: Claude Code는 저장소에 `CLAUDE.md`가 없으면 `AGENTS.md`를 프로젝트 지침으로 읽는다. (v2.1.277 이상) 하위 폴더의 `AGENTS.md`는 그 폴더 파일을 열 때 읽힌다.
+  - 낮은 버전이거나 `AGENTS.md`를 읽지 못하는 세션이면, 루트에 `@AGENTS.md` 한 줄만 쓴 `CLAUDE.md`를 둔다. 내용이 두 번 읽히지 않는다.
+  - 개인용 `CLAUDE.local.md`를 두면 `AGENTS.md`를 읽지 않게 되므로 두지 않는다. (개인 설정은 `.claude/settings.local.json`)
 - 문서 규칙은 Claude가 "지키려고 노력"하는 것이고, 권한·훅은 실행 환경이 **항상 강제**하는 것이다. 꼭 지켜야 하는 것은 둘 다에 둔다.
 
 ## 2. 권한 (`permissions`)
@@ -20,11 +23,13 @@
 ### deny — 읽기·실행 금지
 | 대상 | 이유 |
 |---|---|
-| `.env`, `.env.*`(`.env.example` 제외), `secrets/`, `*.pem`, `*.key` | 비밀 값 보호. 읽기 금지는 수정·생성도 막는다 |
+| `.env`, `.env.*`(`.env.example` 제외), `secrets/`, `*.pem`, `*.key` | 비밀 값 보호. 읽기 금지는 수정·생성도 막는다. `.env.example` 제외는 `Read(!.env.example)` 부정 규칙으로 한다 — 부정 규칙은 덜어낼 규칙(`Read(.env.*)`)보다 **뒤에** 있어야 동작한다 |
 | `node_modules/`, `dist/`, `build/`, `.next/`, `coverage/` | **토큰 절감**: 검색·읽기 대상에서 뺀다 |
 | `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml` | **토큰 절감** + 직접 수정 방지 (패키지 매니저로만 변경) |
 | 강제 푸시, `git reset --hard`, `git clean`, `git branch -D`, `rm -rf` | 되돌릴 수 없는 작업 차단 (`docs/GIT.md` 5번) |
 | Figma 쓰기 도구 (`create_new_file`, `send_code_to_figma`, `upload_assets`, `generate_diagram`, `generate_image`, Code Connect 매핑 쓰기, 플러그인·셰이더 생성·수정) | 이 지침에서 Figma는 읽기만 한다. 기획 설계서·디자인은 사람이 Figma에 만들고, AI는 분석해 md로 옮긴다 |
+
+- **읽기 금지가 막는 범위**: Claude의 파일 도구와, Bash에서 파일 이름을 적은 `cat`·`head`·`tail`·`sed`·`tee`, `< 파일`·`> 파일` 리디렉션까지 막는다. 파일 이름을 적지 않는 명령(예: 폴더에서 `grep -r`)과, 파일을 직접 여는 Node·Python 스크립트는 막지 못한다. 반드시 막아야 하면 샌드박스를 켠다. (Claude Code 문서 "Configure permissions")
 
 ### ask — 실행 전 항상 확인
 - `git commit`, `git push`, `git merge`, `git rebase`, `gh pr create`, `gh pr merge`
@@ -73,6 +78,7 @@
 | 묶음 안에서 화면 하나를 마칠 때마다 `/compact`. 다음 화면은 묶음 파일과 그 화면 명세만 읽고 시작 | 화면별 결과는 보고 파일에 남아 있어 대화에 들고 갈 필요가 없다 |
 | 대화가 길어지면 `/compact` | 압축 후 `session-reminder` 훅이 핵심 규칙을 복원한다 |
 | 화면 명세·플로우를 잘게 나누고, 템플릿 주석은 작성 후 지운다 | 읽는 양 자체를 줄인다 |
+| 스킬(`SKILL.md`)은 150줄 이하로 둔다. 넘으면 자세한 내용을 같은 폴더 `references/`로 나누고, 그 내용이 필요한 단계에서만 읽게 적는다 | 스킬은 부를 때마다 통째로 읽힌다 |
 | Figma는 명세에 적힌 노드만 조회 | 파일 전체 조회는 결과가 매우 크다 |
 | IA·기획서는 한 번 분석해 `docs/ia/`·`docs/storyboard/`에 md로 남기고, 이후에는 md의 해당 행·화면 절만 검색해 읽는다 | 같은 원본 파일을 화면마다 다시 읽지 않는다 |
 | 넓은 코드 검색은 서브에이전트에 맡긴다 | 검색 결과 대신 결론만 대화에 남는다 |

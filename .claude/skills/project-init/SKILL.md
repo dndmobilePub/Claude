@@ -29,7 +29,7 @@ description: 새 프로젝트를 시작할 때 docs/PROJECT.md의 프로젝트�
 
 ## 규칙
 - IMPORTANT: 확인받지 않은 추측 값은 기록하지 않는다.
-- `CLAUDE.md`는 수정하지 않는다. 프로젝트별 값은 `docs/PROJECT.md`에만 둔다.
+- `AGENTS.md`는 수정하지 않는다. 프로젝트별 값은 `docs/PROJECT.md`에만 둔다.
 
 ## 완료 보고 형식
 - 채운 항목 / [TODO]로 남긴 항목 목록

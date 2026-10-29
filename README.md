@@ -13,7 +13,7 @@ Claude Code로 UI를 만들기 위한 **재사용 가능한 md 지침 세트**�
 ## 1. 구조
 
 ```
-CLAUDE.md                     # 라우터: 작업별로 읽을 문서 안내 (짧게 유지)
+AGENTS.md                     # 라우터: 작업별로 읽을 문서 안내 (짧게 유지). Claude Code가 프로젝트 지침으로 읽음
 docs/
   PROJECT.md                  # 프로젝트별 설정: 서비스명·입력 원본(IA·기획서·Figma)·화면 ID 형식·퍼블 언어·스타일링·명령어·토큰 위치
   PRODUCT.md                  # 기획·도메인·용어집
@@ -65,7 +65,7 @@ docs/
     plan-batch/               #   명세 확정 화면 → 작업 묶음(순서·선행 조건)
     version-update/           #   입력 원본 새 버전 → 변경 기록·영향 문서 수정필요·기준 버전 갱신 (bump-ver.mjs 포함)
   agents/
-    design-system-reviewer.md #   독립 리뷰어 (명세·상태·코드 구조·접근성·금융 규칙)
+    design-system-reviewer.md #   독립 리뷰어 (명세·상태·코드 구조·접근성·업무 규칙)
 templates/                    # 양식
   screen-spec.md              #   화면 명세
   flow.md                     #   플로우
@@ -79,7 +79,7 @@ templates/                    # 양식
   report.md                   #   검수 보고
   batch.md                    #   작업 묶음
   ds-request.md               #   DS 변경 요청
-src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·Props)
+src/components/AGENTS.md      # 컴포넌트 폴더 규칙 (계층·네이밍·Props)
 .github/pull_request_template.md  # PR 본문 양식
 ```
 
@@ -87,8 +87,8 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 
 | 구분 | 파일 | 새 프로젝트에서 |
 |---|---|---|
-| 공통 | `CLAUDE.md`, `templates/`, `.claude/skills/`, `.claude/agents/`, `.claude/settings.json`, `.claude/hooks/`, `.claude/scripts/`, `.github/pull_request_template.md` | 그대로 사용 (경로가 다르면 `docs/HARNESS.md` 5번대로 조정) |
-| 공통 + 예외 섹션 | `docs/DESIGN.md`(9번), `docs/ARCHITECTURE.md`(11번), `docs/GIT.md`(7번), `docs/HARNESS.md`(6번), `.claude/rules/` 3종, `src/components/CLAUDE.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 |
+| 공통 | `AGENTS.md`, `templates/`, `.claude/skills/`, `.claude/agents/`, `.claude/settings.json`, `.claude/hooks/`, `.claude/scripts/`, `.github/pull_request_template.md` | 그대로 사용 (경로가 다르면 `docs/HARNESS.md` 5번대로 조정) |
+| 공통 + 예외 섹션 | `docs/DESIGN.md`(9번), `docs/ARCHITECTURE.md`(11번), `docs/GIT.md`(7번), `docs/HARNESS.md`(6번), `.claude/rules/` 3종, `src/components/AGENTS.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 |
 | 프로젝트별 | `docs/PROJECT.md`, `docs/PRODUCT.md`, `docs/ia/`, `docs/questions/`(`_index.md`의 1~4번 규칙은 공통), `docs/storyboard/`, `docs/ui-flow/`, `docs/screens/`, `docs/components/`, `docs/decisions/` | 새로 작성 |
 
 - 공통 규칙을 고치고 싶으면 프로젝트 저장소가 아니라 **이 원본 저장소**에서 고친 뒤 각 프로젝트에 반영합니다.
@@ -143,8 +143,8 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 
 ## 5. 운영 원칙
 
-- **승인**: 파일 생성·수정·커밋 전에 항상 승인을 받습니다. 단계를 건너뛰지 않습니다.
+- **승인**: 규칙 원본은 `AGENTS.md` "항상 지킬 규칙"과 `docs/GIT.md` 5번입니다. 스킬은 단계마다 승인 지점에서 멈춥니다. 단계를 건너뛰지 않습니다.
 - **입력 원본은 읽기만**: IA·기획서·디자인은 사람이 만듭니다. AI는 새로 그리거나 고치지 않고, 읽어서 분석한 뒤 md로 옮깁니다. (Figma 쓰기 도구는 권한 설정으로 막아 두었습니다)
 - **원본은 하나**: 디자인 값은 Figma(코드 토큰 파일은 `token-sync`가 만드는 사본), 화면 ID·화면명·일정은 IA(`docs/ia/`는 `ia-sync`가 만드는 사본, IA가 없으면 플로우 문서), 기획 내용은 기획서(`docs/storyboard/`는 `write-flow`가 만드는 사본), 프로젝트 설정은 `PROJECT.md`, 구조·규칙 결정은 ADR, 디자인 시스템에 없는 것의 결정은 DS 변경 요청, Figma ↔ 코드 컴포넌트 연결은 컴포넌트 명세, 질문과 답은 `docs/questions/`의 질문 줄, 화면·컴포넌트 상태는 각 명세의 frontmatter. 같은 내용을 여러 곳에 복사하지 않습니다.
 - **토큰 절감**: 작업에 필요한 문서·Figma 노드만 읽습니다. 명세·플로우는 파일을 잘게 나누고, 템플릿 주석은 작성 후 지웁니다. 빌드 결과·잠금 파일은 권한 설정으로 읽기를 막아 두었습니다. (`docs/HARNESS.md`)
-- **역할 분리**: 하드코딩 값은 `ds-check`, 명세·접근성·금융 규칙 검토는 `design-system-reviewer`가 맡습니다. 검수 기준은 `docs/QA.md` 하나에 두고, 결과는 화면마다 `docs/reports/<화면ID>.md` 하나에 남깁니다.
+- **역할 분리**: 하드코딩 값은 `ds-check`, 명세·접근성·업무 규칙 검토는 `design-system-reviewer`가 맡습니다. 검수 기준은 `docs/QA.md` 하나에 두고, 결과는 화면마다 `docs/reports/<화면ID>.md` 하나에 남깁니다.
