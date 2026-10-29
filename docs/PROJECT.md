@@ -11,6 +11,8 @@
 > 원본 파일은 저장소 안에 두기를 권장한다. 버전 이력을 Git으로 추적할 수 있다. (예: `docs/ia/source/`, `docs/storyboard/source/`)
 - IA 파일: [TODO: 경로. .xlsx 또는 .csv. 없으면 "없음" — 없으면 화면 목록 원본은 플로우 문서]
 - 화면 ID 형식: [TODO: 정규식을 백틱으로 감싸 적는다. 예) `^[A-Z]{2,5}-\d{3}$` (ACC-010). 비어 있으면 이 예가 기본값]
+- 공통 화면 도메인 키: [TODO: 기본 common. 공통 화면 플로우 문서 이름 docs/ui-flow/<키>.md (`docs/ui-flow/_index.md` "공통 화면")]
+- 공통 화면 임시 ID 약어: [TODO: 예) COM. IA에 공통 화면이 없을 때만 쓴다. 화면 ID 형식에 맞아야 한다]
 - Figma 기획 설계서: [TODO: URL. 없으면 "없음"]
 - 기획서 PPT: [TODO: 경로. .pptx. 여러 개면 모두. 없으면 "없음"]
 - Figma 라이브러리: [TODO: URL]

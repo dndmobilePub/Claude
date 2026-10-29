@@ -16,6 +16,9 @@
 //   + 변경 기록(docs/changes/<원본>-<버전>.md)의 "## 2. 변경 목록" 표 + 각 명세의 "수정필요" 상태
 //   → docs/changes/_index.md 의 AUTO 블록. 화면 명세의 ia_ver·plan_ver·design_ver가 현재 버전과 다르면 경고
 // - 검수 보고 파일(docs/reports/<화면ID>.md) frontmatter result → 화면 맵의 "검수" 칸
+// - 화면 패턴: 플로우 "2. 화면 목록" 표의 "패턴" 칸을 docs/PATTERNS.md 1번 표·4번 예외 표의 패턴과 대조
+// - 공통 화면: PROJECT.md "공통 화면 도메인 키"(기본 common) 플로우의 IA 밖 화면은
+//   docs/questions/ia.md에 그 화면 ID가 대상인 열린 질문이 있으면 "IA 추가 요청 중"으로 표시하고 경고하지 않는다
 // - 화면 ID 형식: docs/PROJECT.md "화면 ID 형식"의 정규식 (비어 있으면 기본값)
 //
 // 불일치(ID 중복, IA와 플로우의 차이, 허용되지 않은 상태 값 등)는 훅 모드에서 exit 2 + stderr로 Claude에게 알린다.
@@ -105,12 +108,32 @@ function screenIdPattern(root) {
   }
 }
 
-// 플로우 문서의 "## 2. 화면 목록" 표에서 화면 행을 읽는다. (첫 칸 = 화면 ID)
+// 플로우 문서의 "## 2. 화면 목록" 표에서 화면 행을 읽는다. (머리글 이름으로 읽고, 없으면 첫 칸 = 화면 ID, 둘째 칸 = 화면명)
 function flowScreens(text, idRe) {
   return sectionTable(text, 2, '화면 목록')
-    .map((r) => Object.values(r))
-    .filter((c) => idRe.test(c[0]))
-    .map(([id, title = '', role = '']) => ({ id, title, role }));
+    .map((r) => {
+      const v = Object.values(r);
+      return { id: r['화면 ID'] ?? v[0] ?? '', title: r['화면명'] ?? v[1] ?? '', role: r['역할'] ?? '', pattern: r['패턴'] ?? '' };
+    })
+    .filter((s) => idRe.test(s.id));
+}
+
+// docs/PATTERNS.md 1번 표와 4번 예외 표의 패턴 이름. 파일이 없으면 null (점검하지 않음)
+function patternNames(root) {
+  const text = read(join(root, 'docs/PATTERNS.md'));
+  if (text === null) return null;
+  const names = new Set(['없음']);
+  for (const r of [...sectionTable(text, 1, '패턴 목록'), ...sectionTable(text, 4, '프로젝트별 예외')]) {
+    if (r['패턴']) names.add(r['패턴']);
+  }
+  return names;
+}
+
+// docs/PROJECT.md의 "공통 화면 도메인 키". 없거나 [TODO]면 common
+function commonKey(root) {
+  const text = read(join(root, 'docs/PROJECT.md')) || '';
+  const m = text.match(/공통 화면 도메인 키:[ \t]*`?([A-Za-z0-9_-]+)`?/);
+  return m ? m[1] : 'common';
 }
 
 // IA 사본: 화면 목록·일정·현황에 표시할 단계
@@ -272,6 +295,9 @@ function buildScreens(root, warn, questions = []) {
   }
 
   // 플로우
+  const patterns = patternNames(root);
+  const common = commonKey(root);
+  const pending = new Set(); // IA 추가 요청 중인 공통 화면
   const iaById = new Map((ia?.list || []).map((s) => [s.id, s]));
   const flows = [];
   const seen = new Map(); // 화면 ID → 플로우 문서
@@ -292,9 +318,15 @@ function buildScreens(root, warn, questions = []) {
       if (fm.code && !s.id.startsWith(fm.code)) {
         warn(`${where}: ${s.id}의 약어가 플로우 code(${fm.code})와 다릅니다.`);
       }
+      if (patterns && s.pattern && !patterns.has(s.pattern)) {
+        warn(`${where}: ${s.id}의 패턴 "${s.pattern}"이 docs/PATTERNS.md 1번·4번 표에 없습니다.`);
+      }
       if (ia) {
         const row = iaById.get(s.id);
-        if (!row) warn(`${where}: IA 화면 목록에 없는 화면 ${s.id} (IA에 추가를 요청하거나 플로우에서 뺀다)`);
+        const asked = questions.some((q) => q.file === 'ia.md' && q.target === s.id && Q_OPEN.includes(q.status));
+        if (!row && key === common && asked) pending.add(s.id);
+        else if (!row && key === common) warn(`${where}: IA에 없는 공통 화면 ${s.id}인데 docs/questions/ia.md에 IA 추가 요청 질문(대상 ${s.id})이 없습니다.`);
+        else if (!row) warn(`${where}: IA 화면 목록에 없는 화면 ${s.id} (IA에 추가를 요청하거나 플로우에서 뺀다)`);
         else {
           if (row.title !== s.title) warn(`${s.id}: 화면명이 IA("${row.title}")와 플로우 표("${s.title}")에서 다릅니다. IA를 따른다.`);
           if (row.domain && row.domain !== key) warn(`${s.id}: IA 도메인(${row.domain})과 플로우 문서(${file})가 다릅니다.`);
@@ -348,7 +380,7 @@ function buildScreens(root, warn, questions = []) {
   const rows = ia
     ? [
         ...ia.list.map((s) => rowOf(s.id, s.title)),
-        ...[...seen.keys()].filter((id) => !ia.ids.has(id)).map((id) => rowOf(id, `${flowOf(id).screens.find((s) => s.id === id).title} (IA에 없음)`)),
+        ...[...seen.keys()].filter((id) => !ia.ids.has(id)).map((id) => rowOf(id, `${flowOf(id).screens.find((s) => s.id === id).title} (${pending.has(id) ? 'IA 추가 요청 중' : 'IA에 없음'})`)),
       ]
     : flows.flatMap((f) => f.screens.map((s) => rowOf(s.id, s.title)));
 

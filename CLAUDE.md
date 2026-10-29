@@ -17,6 +17,8 @@
 | IA 분석·갱신 | `ia-sync` 스킬 (양식 `templates/ia-source.md`, `templates/ia-screen-list.md`) |
 | 화면 ID·화면명·일정 확인 | `docs/ia/screen-list.md` (해당 화면 ID·도메인 행만 검색) |
 | 화면 흐름 파악 | `docs/ui-flow/_index.md` → 도메인별 플로우 |
+| 공통 화면(오류·점검·세션 만료 등) | `docs/ui-flow/_index.md` "공통 화면" → 공통 화면 플로우 |
+| 화면 패턴(필수 상태·빠지기 쉬운 항목) | `docs/PATTERNS.md` (해당 패턴 절만) |
 | 기획서(Figma 설계서·PPT) 분석 | `write-flow` 스킬 0단계 (양식 `templates/storyboard.md`) |
 | 기획서 분석 내용 확인 | `docs/storyboard/<도메인>.md` (해당 화면 절만) |
 | 새 플로우 작성 | `write-flow` 스킬 (양식 `templates/flow.md`) |

@@ -19,13 +19,14 @@ docs/
   PRODUCT.md                  # 기획·도메인·용어집
   DESIGN.md                   # 디자인 시스템 사용 규칙 (값은 Figma가 원본)
   ARCHITECTURE.md             # 퍼블 파일 구조: 퍼블과 개발의 경계·화면 폴더·이동 표시·더미 데이터·상태 확인
+  PATTERNS.md                 # 화면 패턴: 목록·상세·입력·확인·결과·검색·안내·동의의 필수 상태·빠지기 쉬운 항목
   QA.md                       # 검수 기준: 순서·공통 체크리스트·시각 비교(허용 차이·원인 분류)·결과·재검수
   GIT.md                      # 브랜치·커밋·PR 규칙
   HARNESS.md                  # 권한·훅 설정 설명과 토큰 절감 습관
   ia/source.md                # IA 읽는 방법 (시트·칼럼 매핑·도메인 대응·WBS 해석, ia-sync가 작성)
   ia/screen-list.md           # IA 사본: 화면 목록·일정 (화면 ID·화면명의 원본, ia-sync가 생성)
   storyboard/<도메인>.md       # 기획서 분석 (Figma 설계서·PPT의 md 사본, write-flow가 생성)
-  ui-flow/_index.md           # 화면 ID 체계·상태 정의 + 현황 표(자동 생성)
+  ui-flow/_index.md           # 화면 ID 체계·공통 화면·상태 정의 + 현황 표(자동 생성)
   ui-flow/<도메인>.md          # 도메인별 플로우 (화면 목록은 IA를 따름. IA가 없으면 이 표가 원본)
   screens/<화면ID>.md          # 화면 명세 (화면당 1파일, frontmatter가 상태의 원본)
   components/_index.md        # 컴포넌트 명세 현황 표(자동 생성)
