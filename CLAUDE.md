@@ -13,6 +13,7 @@
 | 기획·도메인 이해 | `docs/PRODUCT.md` |
 | UI 작성·수정 | `docs/DESIGN.md` → 해당 `docs/screens/<화면ID>.md` |
 | 퍼블 파일 위치·퍼블과 개발의 경계·더미 데이터 | `docs/ARCHITECTURE.md` (필요한 섹션만) |
+| 퍼블 검수·결과 기록 | `docs/QA.md` → `docs/reports/<화면ID>.md` (양식 `templates/report.md`) |
 | IA 분석·갱신 | `ia-sync` 스킬 (양식 `templates/ia-source.md`, `templates/ia-screen-list.md`) |
 | 화면 ID·화면명·일정 확인 | `docs/ia/screen-list.md` (해당 화면 ID·도메인 행만 검색) |
 | 화면 흐름 파악 | `docs/ui-flow/_index.md` → 도메인별 플로우 |
@@ -55,7 +56,7 @@
 - `ia-sync` — IA 엑셀(화면 목록·WBS 일정) → `docs/ia/` 사본 생성·갱신
 - `write-flow` — 기획서(Figma 설계서·PPT) 분석 + 도메인 플로우 작성 (IA 기준 화면 목록·흐름도·예외 흐름)
 - `write-screen-spec` — 화면 명세 작성, "확정" 점검
-- `implement-screen` — 화면 명세 → Figma 조회 → 퍼블 → 검증 → 개발 전달 보고
+- `implement-screen` — 화면 명세 → Figma 조회 → 퍼블 → 검수(`docs/QA.md`) → 보고 파일·개발 전달
 - `token-sync` — Figma 변수 → 코드 토큰 파일(tokens.css, React·Vue는 참조 파일 포함) 생성·갱신
 - `version-update` — 입력 원본 새 버전 → 다시 분석·변경 기록·영향 문서 "수정필요"·기준 버전 갱신
 - `ds-check` — 디자인 시스템 위반 검출

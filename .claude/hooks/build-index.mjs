@@ -15,6 +15,7 @@
 // - 현재 기준 버전(IA 사본 version, 기획서 분석 version, docs/changes/_index.md 1번 디자인 기준 버전)
 //   + 변경 기록(docs/changes/<원본>-<버전>.md)의 "## 2. 변경 목록" 표 + 각 명세의 "수정필요" 상태
 //   → docs/changes/_index.md 의 AUTO 블록. 화면 명세의 ia_ver·plan_ver·design_ver가 현재 버전과 다르면 경고
+// - 검수 보고 파일(docs/reports/<화면ID>.md) frontmatter result → 화면 맵의 "검수" 칸
 // - 화면 ID 형식: docs/PROJECT.md "화면 ID 형식"의 정규식 (비어 있으면 기본값)
 //
 // 불일치(ID 중복, IA와 플로우의 차이, 허용되지 않은 상태 값 등)는 훅 모드에서 exit 2 + stderr로 Claude에게 알린다.
@@ -30,6 +31,7 @@ const STATUS = {
   component: ['초안', '승인', '구현완료', '수정필요'],
 };
 const NEEDS_FIX = '수정필요';
+const QA_RESULT = ['통과', '조건부 통과', '미통과'];
 const NO_FLOW = '플로우 전';
 const NO_SPEC = '명세 전';
 const DEFAULT_ID = '^[A-Z]{2,5}-\\d{3}$';
@@ -246,6 +248,29 @@ function buildScreens(root, warn, questions = []) {
     if (fm.status === NEEDS_FIX) needsFix.push({ kind: '화면', name: id, link: `../screens/${file}` });
   }
 
+  // 검수 보고 파일
+  const reports = new Map();
+  const repDir = join(root, 'docs/reports');
+  for (const file of mdFiles(repDir)) {
+    const fm = frontmatter(read(join(repDir, file)) || '') || {};
+    const where = `docs/reports/${file}`;
+    const id = fm.screen || basename(file, '.md');
+    if (id !== basename(file, '.md')) warn(`${where}: frontmatter screen(${id})과 파일 이름이 다릅니다.`);
+    if (!QA_RESULT.includes(fm.result)) warn(`${where}: result "${fm.result ?? ''}"는 허용 값이 아닙니다 (${QA_RESULT.join(' | ')}).`);
+    const spec = specs.get(id);
+    if (!spec) warn(`${where}: 화면 명세 docs/screens/${id}.md가 없습니다.`);
+    else if (spec.status === '구현완료') {
+      if (fm.result === '미통과') warn(`${where}: 결과가 미통과인데 명세 상태가 구현완료입니다.`);
+      for (const k of ['ia_ver', 'plan_ver', 'design_ver']) {
+        if ((fm[k] || '') !== (spec[k] || '')) warn(`${where}: ${k}(${fm[k] || '빈칸'})가 명세(${spec[k] || '빈칸'})와 다릅니다. 명세가 바뀐 뒤 다시 검수하지 않았는지 확인합니다.`);
+      }
+    }
+    reports.set(id, { file, ...fm });
+  }
+  for (const [id, spec] of specs) {
+    if (spec.status === '구현완료' && !reports.has(id)) warn(`docs/screens/${spec.file}: 구현완료인데 검수 보고 파일 docs/reports/${id}.md가 없습니다.`);
+  }
+
   // 플로우
   const iaById = new Map((ia?.list || []).map((s) => [s.id, s]));
   const flows = [];
@@ -315,6 +340,7 @@ function buildScreens(root, warn, questions = []) {
       spec: spec ? `[보기](../screens/${spec.file})` : '-',
       status: spec ? spec.status : f ? NO_SPEC : NO_FLOW,
       figma: spec?.figma ? '있음' : '없음',
+      qa: reports.has(id) ? `[${esc(reports.get(id).result || '?')}](../reports/${reports.get(id).file})` : '',
       questions: openQ(id),
       due: ia?.due.get(id) || '',
     };
@@ -352,11 +378,11 @@ function buildScreens(root, warn, questions = []) {
     out.push('', '### 전체 화면 맵', `전체 ${rows.length} · ${count(rows)}`, '');
     if (ia) {
       const dueHead = `예정일${ia.stage ? ` (${ia.stage})` : ''}`;
-      out.push(`| 화면 ID | 화면명 | 플로우 | 명세 | 상태 | Figma | 열린 질문 | ${dueHead} |`, '|---|---|---|---|---|---|---|---|');
-      for (const r of rows) out.push(`| ${r.id} | ${esc(r.title)} | ${r.flow} | ${r.spec} | ${r.status} | ${r.figma} | ${r.questions} | ${esc(r.due)} |`);
+      out.push(`| 화면 ID | 화면명 | 플로우 | 명세 | 상태 | Figma | 검수 | 열린 질문 | ${dueHead} |`, '|---|---|---|---|---|---|---|---|---|');
+      for (const r of rows) out.push(`| ${r.id} | ${esc(r.title)} | ${r.flow} | ${r.spec} | ${r.status} | ${r.figma} | ${r.qa} | ${r.questions} | ${esc(r.due)} |`);
     } else {
-      out.push('| 화면 ID | 화면명 | 플로우 | 명세 | 상태 | Figma | 열린 질문 |', '|---|---|---|---|---|---|---|');
-      for (const r of rows) out.push(`| ${r.id} | ${esc(r.title)} | ${r.flow} | ${r.spec} | ${r.status} | ${r.figma} | ${r.questions} |`);
+      out.push('| 화면 ID | 화면명 | 플로우 | 명세 | 상태 | Figma | 검수 | 열린 질문 |', '|---|---|---|---|---|---|---|---|');
+      for (const r of rows) out.push(`| ${r.id} | ${esc(r.title)} | ${r.flow} | ${r.spec} | ${r.status} | ${r.figma} | ${r.qa} | ${r.questions} |`);
     }
   }
   out.push('', END);
@@ -530,7 +556,7 @@ function main() {
 
   if (hookMode) {
     const rel = relative(root, input.tool_input.file_path || '').replace(/\\/g, '/');
-    if (!/^docs\/(ia|ui-flow|screens|components|questions|changes|storyboard)\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
+    if (!/^docs\/(ia|ui-flow|screens|components|questions|changes|storyboard|reports)\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
     if (basename(rel) === '_index.md' && rel !== 'docs/changes/_index.md') return 0;
   }
 
@@ -555,7 +581,7 @@ function main() {
       `[인덱스 경고] 인덱스는 다시 만들었지만 원본 문서에서 불일치 ${warnings.length}건을 찾았습니다.`,
       ...warnings.slice(0, 10).map((w) => `- ${w}`),
       ...(warnings.length > 10 ? [`- 외 ${warnings.length - 10}건`] : []),
-      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일, 변경 기록)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
+      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일, 변경 기록, 검수 보고)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
     ].join('\n') + '\n',
   );
   return 2;
