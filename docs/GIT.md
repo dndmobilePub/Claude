@@ -5,12 +5,13 @@
 
 ## 1. 브랜치
 - 기본 흐름: `main`(보호) ← 작업 브랜치. 작업 브랜치는 PR로만 `main`에 합친다.
-- 작업 단위: **화면 1개 = 브랜치 1개 = PR 1개.** 기획 문서는 도메인 단위로 묶는다.
+- 작업 단위: **작업 묶음 1개 = 브랜치 1개 = PR 1개**, 묶음 안에서는 화면마다 커밋한다. 묶지 않고 화면 하나만 퍼블하면 화면 1개 = 브랜치 1개 = PR 1개. (`docs/batches/_index.md`) 기획 문서는 도메인 단위로 묶는다.
 - 이름 형식: `<타입>/<범위>-<짧은-설명>` (영문 소문자, 하이픈)
 
 | 예 | 용도 |
 |---|---|
-| `feat/TRF-010-amount-input` | 화면 퍼블 |
+| `feat/batch-03-account-list` | 작업 묶음 퍼블 (화면마다 커밋) |
+| `feat/TRF-010-amount-input` | 화면 하나 퍼블 |
 | `feat/component-amount-input` | 컴포넌트 신규·확장 |
 | `docs/ia-sync` | IA 사본 동기화 |
 | `docs/version-ia-v1.3` | 입력 원본 새 버전 반영 (`version-update`) |
@@ -33,7 +34,7 @@
 | chore | 설정·의존성·토큰 반영 |
 
 - 본문(선택): 무엇을, 왜 바꿨는지. 화면 퍼블이면 개발에 넘길 항목(`ARCHITECTURE.md` 10번)을 요약해 적는다.
-- 예: `feat(TRF-010): 이체 금액 입력 화면 퍼블`, `docs(transfer): 이체 플로우 작성`, `chore(tokens): Figma 변수 동기화`, `docs(change): IA v1.3 반영`
+- 예: `feat(TRF-010): 이체 금액 입력 화면 퍼블`, `docs(transfer): 이체 플로우 작성`, `chore(tokens): Figma 변수 동기화`, `docs(change): IA v1.3 반영`, `docs(batch): 03-account-list 작업 묶음`
 
 ## 3. 커밋 단위
 - 하나의 논리적 변경 = 커밋 하나. 관련 없는 변경을 섞지 않는다.
@@ -58,7 +59,8 @@
 ## 6. PR
 - 제목: 커밋 메시지 형식과 같게 쓴다.
 - 본문: `.github/pull_request_template.md` 양식을 채운다.
-- 합치기 전 조건: 리뷰 승인, 검수 결과 "통과" 또는 승인받은 "조건부 통과" (`docs/reports/<화면ID>.md`, 기준 `docs/QA.md`), 이 화면의 열린 차단 질문 없음 (`docs/questions/`)
+- 묶음 PR은 화면별 보고 파일 링크와 결과를 목록으로 적는다.
+- 합치기 전 조건: 리뷰 승인, (묶음이면 모든 화면의) 검수 결과 "통과" 또는 승인받은 "조건부 통과" (`docs/reports/<화면ID>.md`, 기준 `docs/QA.md`), 이 화면의 열린 차단 질문 없음 (`docs/questions/`)
 - 합치는 방식: squash merge 권장 (화면 하나가 커밋 하나로 남도록)
 - 화면 상태 "구현완료"는 화면 명세 frontmatter의 `status`로 바꾸고, 구현 PR에 함께 포함한다. (`implement-screen` 마무리 단계) `_index.md`는 훅이 자동 갱신하므로 직접 고치지 않는다.
 

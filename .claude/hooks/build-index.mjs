@@ -19,6 +19,8 @@
 // - 화면 패턴: 플로우 "2. 화면 목록" 표의 "패턴" 칸을 docs/PATTERNS.md 1번 표·4번 예외 표의 패턴과 대조
 // - 공통 화면: PROJECT.md "공통 화면 도메인 키"(기본 common) 플로우의 IA 밖 화면은
 //   docs/questions/ia.md에 그 화면 ID가 대상인 열린 질문이 있으면 "IA 추가 요청 중"으로 표시하고 경고하지 않는다
+// - 작업 묶음(docs/batches/<묶음 ID>.md)의 "## 2. 대상 화면과 순서" 표 + 화면 상태·검수 결과
+//   → 각 묶음 파일과 docs/batches/_index.md 의 AUTO 블록 (진행·완료, 묶음 밖 퍼블 대상)
 // - 화면 ID 형식: docs/PROJECT.md "화면 ID 형식"의 정규식 (비어 있으면 기본값)
 //
 // 불일치(ID 중복, IA와 플로우의 차이, 허용되지 않은 상태 값 등)는 훅 모드에서 exit 2 + stderr로 Claude에게 알린다.
@@ -290,6 +292,7 @@ function buildScreens(root, warn, questions = []) {
     }
     reports.set(id, { file, ...fm });
   }
+  allReports = reports;
   for (const [id, spec] of specs) {
     if (spec.status === '구현완료' && !reports.has(id)) warn(`docs/screens/${spec.file}: 구현완료인데 검수 보고 파일 docs/reports/${id}.md가 없습니다.`);
   }
@@ -349,6 +352,7 @@ function buildScreens(root, warn, questions = []) {
 
   // 질문 대상 점검: 화면 ID 형식인데 화면 목록에 없는 대상
   const known = new Set([...(ia?.ids || []), ...seen.keys()]);
+  knownIds = known;
   for (const q of questions) {
     if (idRe.test(q.target) && !known.has(q.target)) {
       warn(`docs/questions/${q.file} ${q.id}: 대상 ${q.target}가 화면 목록(${ia ? 'IA' : '플로우'})에 없습니다.`);
@@ -556,6 +560,85 @@ function buildChanges(cur, changes) {
   return out.join('\n');
 }
 
+// ---------- 작업 묶음 ----------
+
+let allReports = new Map(); // 검수 보고 (buildScreens가 채운다)
+let knownIds = new Set(); // 화면 목록의 화면 ID (buildScreens가 채운다)
+const QA_DONE = ['통과', '조건부 통과'];
+
+function screenDone(id) {
+  const spec = allSpecs.get(id);
+  const rep = allReports.get(id);
+  return spec?.status === '구현완료' && QA_DONE.includes(rep?.result);
+}
+
+// docs/batches/<묶음 ID>.md 를 읽고, 각 파일의 현황 블록과 _index.md 현황을 만든다.
+function buildBatches(root, warn) {
+  const dir = join(root, 'docs/batches');
+  const batches = [];
+  for (const file of mdFiles(dir)) {
+    const text = read(join(dir, file)) || '';
+    const where = `docs/batches/${file}`;
+    const fm = frontmatter(text) || {};
+    const id = fm.id || basename(file, '.md');
+    if (id !== basename(file, '.md')) warn(`${where}: frontmatter id(${id})와 파일 이름이 다릅니다.`);
+    const items = sectionTable(text, 2, '대상 화면과 순서')
+      .map((r) => ({ order: r['순서'] || '', id: r['화면 ID'] || '', work: r['작업'] || '', note: r['비고'] || '' }))
+      .filter((it) => it.id);
+    const screens = items.filter((it) => !it.id.startsWith('컴포넌트'));
+    for (const it of screens) {
+      if (!knownIds.has(it.id)) warn(`${where}: 화면 ${it.id}가 화면 목록에 없습니다.`);
+      if (!['퍼블', '다시 퍼블'].includes(it.work)) warn(`${where}: ${it.id}의 작업 "${it.work}"는 허용 값이 아닙니다 (퍼블 | 다시 퍼블).`);
+    }
+    const done = screens.filter((it) => screenDone(it.id)).length;
+    batches.push({ file, id, basis: fm.basis || '', created: fm.created || '', items, screens, done, open: done < screens.length || screens.length === 0 });
+  }
+
+  // 한 화면이 열린 묶음 두 개에 있으면 경고
+  const owner = new Map();
+  for (const b of batches.filter((x) => x.open)) {
+    for (const it of b.screens) {
+      if (owner.has(it.id) && owner.get(it.id) !== b.file) warn(`화면 ${it.id}가 열린 묶음 ${owner.get(it.id)}와 ${b.file}에 모두 있습니다.`);
+      else owner.set(it.id, b.file);
+    }
+  }
+
+  // 각 묶음 파일의 현황
+  for (const b of batches) {
+    const out = [START_LINE, '', `진행 ${b.done}/${b.screens.length}${b.open ? '' : ' · 완료'}`, ''];
+    if (b.items.length === 0) out.push('2번 표에 대상이 없다.');
+    else {
+      out.push('| 순서 | 대상 | 작업 | 명세 상태 | 검수 | 열린 질문(차단) |', '|---|---|---|---|---|---|');
+      for (const it of b.items) {
+        const spec = allSpecs.get(it.id);
+        const rep = allReports.get(it.id);
+        const qs = questionsCache.filter((q) => q.target === it.id && Q_OPEN.includes(q.status));
+        const blk = qs.filter((q) => q.block === '예').length;
+        out.push(`| ${esc(it.order)} | ${esc(it.id)} | ${esc(it.work)} | ${esc(spec?.status || (it.id.startsWith('컴포넌트') ? '' : '명세 없음'))} | ${esc(rep?.result || '')} | ${qs.length ? `${qs.length}${blk ? ` (${blk})` : ''}` : ''} |`);
+      }
+    }
+    out.push('', END);
+    replaceBlock(root, `docs/batches/${b.file}`, out.join('\n'), warn);
+  }
+
+  // _index.md 현황
+  const inOpen = new Set(owner.keys());
+  const waiting = [...allSpecs.values()].filter((sp) => sp.status === '확정' && !inOpen.has(sp.id)).map((sp) => sp.id);
+  const out = [START_LINE, ''];
+  if (batches.length === 0) out.push('아직 묶음이 없다.');
+  else {
+    out.push(`묶음 ${batches.length} · 열림 ${batches.filter((b) => b.open).length} · 완료 ${batches.filter((b) => !b.open).length}`, '');
+    out.push('| 묶음 | 근거 | 만든 날 | 진행 | 상태 |', '|---|---|---|---|---|');
+    for (const b of batches) out.push(`| [${b.id}](${b.file}) | ${esc(b.basis)} | ${esc(b.created)} | ${b.done}/${b.screens.length} | ${b.open ? '열림' : '완료'} |`);
+  }
+  out.push('', `### 묶음 밖 퍼블 대상 (명세 확정, 열린 묶음 없음): ${waiting.length}`);
+  if (waiting.length) out.push(waiting.join(', '));
+  out.push('', END);
+  return out.join('\n');
+}
+
+let questionsCache = [];
+
 // ---------- 쓰기 ----------
 
 function replaceBlock(root, relPath, block, warn) {
@@ -588,19 +671,21 @@ function main() {
 
   if (hookMode) {
     const rel = relative(root, input.tool_input.file_path || '').replace(/\\/g, '/');
-    if (!/^docs\/(ia|ui-flow|screens|components|questions|changes|storyboard|reports)\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
+    if (!/^docs\/(ia|ui-flow|screens|components|questions|changes|storyboard|reports|batches)\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
     if (basename(rel) === '_index.md' && rel !== 'docs/changes/_index.md') return 0;
   }
 
   const warnings = [];
   const warn = (m) => warnings.push(m);
   const questions = readQuestions(root, warn);
+  questionsCache = questions;
   replaceBlock(root, 'docs/ui-flow/_index.md', buildScreens(root, warn, questions), warn);
   replaceBlock(root, 'docs/components/_index.md', buildComponents(root, warn), warn);
   replaceBlock(root, 'docs/questions/_index.md', buildQuestions(questions), warn);
   const cur = currentVersions(root);
   checkSpecVersions(cur, warn);
   replaceBlock(root, 'docs/changes/_index.md', buildChanges(cur, readChanges(root, warn)), warn);
+  if (existsSync(join(root, 'docs/batches/_index.md'))) replaceBlock(root, 'docs/batches/_index.md', buildBatches(root, warn), warn);
 
   if (!hookMode) {
     process.stdout.write(`인덱스를 다시 만들었습니다. 경고 ${warnings.length}건\n`);
@@ -613,7 +698,7 @@ function main() {
       `[인덱스 경고] 인덱스는 다시 만들었지만 원본 문서에서 불일치 ${warnings.length}건을 찾았습니다.`,
       ...warnings.slice(0, 10).map((w) => `- ${w}`),
       ...(warnings.length > 10 ? [`- 외 ${warnings.length - 10}건`] : []),
-      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일, 변경 기록, 검수 보고)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
+      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일, 변경 기록, 검수 보고, 작업 묶음)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
     ].join('\n') + '\n',
   );
   return 2;

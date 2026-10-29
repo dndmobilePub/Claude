@@ -78,7 +78,7 @@ description: 입력 원본(IA·기획서·Figma 디자인)의 새 버전을 받�
 - PR 본문에 변경 수·수정필요 목록·새 질문을 적는다.
 
 ### 8. 다음 작업 안내
-- "수정필요" 화면: `write-screen-spec`으로 명세를 고침 → 확정 → `implement-screen`으로 다시 퍼블. 화면이 많으면 묶어서 순서를 정한다.
+- "수정필요" 화면: `write-screen-spec`으로 명세를 고침 → 확정 → `plan-batch`로 "다시 퍼블" 묶음을 만듦 → `implement-screen <묶음 ID>`. 화면이 하나면 묶지 않고 `implement-screen <화면ID>`.
 - 플로우: `write-flow` / 컴포넌트: 명세 수정 후 다시 구현
 - 열린 차단 질문이 있으면 그 답을 먼저 받는다.
 

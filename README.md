@@ -36,6 +36,8 @@ docs/
   changes/_index.md           # 기준 버전·변경 기록 규칙 + 현재 버전·수정필요 현황(자동 생성)
   changes/<원본>-<버전>.md      # 입력 원본 새 버전의 변경 기록 (version-update가 생성)
   reports/<화면ID>.md          # 검수 보고 (화면당 1파일, 최신본만, implement-screen이 생성)
+  batches/_index.md           # 작업 묶음 규칙 + 묶음 현황(자동 생성)
+  batches/<묶음 ID>.md         # 작업 묶음: 대상 화면·순서·선행 조건 (plan-batch가 생성)
   decisions/<번호>-<제목>.md    # 설계 결정 기록 (ADR)
 .claude/
   settings.json               # 권한(읽기 금지·명령 차단·확인) + 훅 등록
@@ -57,6 +59,7 @@ docs/
     implement-screen/         #   화면 명세 → Figma 조회 → 퍼블 → 검증 → 개발 전달 보고
     token-sync/               #   Figma 변수 → 코드 토큰 파일(tokens.css, React·Vue는 참조 파일 포함), 읽기 전용 조회 스크립트 포함
     ds-check/                 #   디자인 시스템 위반 검출
+    plan-batch/               #   명세 확정 화면 → 작업 묶음(순서·선행 조건)
     version-update/           #   입력 원본 새 버전 → 변경 기록·영향 문서 수정필요·기준 버전 갱신 (bump-ver.mjs 포함)
   agents/
     design-system-reviewer.md #   독립 리뷰어 (명세·상태·코드 구조·접근성·금융 규칙)
@@ -71,6 +74,7 @@ templates/                    # 양식
   questions.md                #   질문 파일
   change.md                   #   변경 기록 (버전 변경)
   report.md                   #   검수 보고
+  batch.md                    #   작업 묶음
 src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·Props)
 .github/pull_request_template.md  # PR 본문 양식
 ```
@@ -105,8 +109,9 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 | 기획 | 6 | 기획서(Figma·PPT) 분석 + 도메인별 플로우 작성 (화면 목록은 IA 기준) | `/write-flow transfer` |
 | 기획·디자인 | 7 | 화면 명세 작성 (Figma 화면 프레임 확인 포함) | `/write-screen-spec TRF-010` |
 | 기획·디자인 | 8 | 명세 확정 점검 → 상태 "확정" | `/write-screen-spec TRF-010 확정점검` |
-| 퍼블리싱·검수 | 9 | 화면 퍼블 → 검수(`docs/QA.md`) → 보고 파일·개발 전달 | `/implement-screen TRF-010` |
-| 검수 | 10 | 사람이 보고 파일과 화면 확인 → PR 승인 | PR 리뷰 |
+| 퍼블리싱 | 9 | 확정된 화면을 작업 묶음으로 묶기 (순서·선행 조건) | `/plan-batch` |
+| 퍼블리싱·검수 | 10 | 묶음 퍼블 → 화면마다 검수(`docs/QA.md`) → 보고 파일·개발 전달 | `/implement-screen 03-account-list` (화면 하나면 `TRF-010`) |
+| 검수 | 11 | 사람이 보고 파일과 화면 확인 → PR 승인 | PR 리뷰 |
 
 - 구분은 전체 흐름(준비 → 기획 → 디자인 → 퍼블리싱 → 검수) 중 어디에 속하는지입니다. 코드 토큰은 화면 작업보다 먼저 있어야 해서 3단계에 둡니다.
 - 비어 있는 `[TODO]` 값이 작업에 필요하면 Claude가 추측하지 않고 먼저 묻습니다.
@@ -118,7 +123,8 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 ```
 /ia-sync (IA → 화면 목록, 플로우 전) → /write-flow (기획서 분석 → 플로우에 화면 등록, 명세 전) → /write-screen-spec (초안) → 기획·디자인 확인 (검토)
 → /write-screen-spec 확정점검 (확정)
-→ /implement-screen
+→ /plan-batch (작업 묶음: 순서·선행 조건)
+→ /implement-screen <묶음 ID> — 묶음 안 화면마다 아래를 반복
     사전 점검 → Figma 조회 → 퍼블 계획 [승인] → 퍼블 (이동은 data-screen-link 표시만)
     → 검수 (린트·테스트, ds-check, 디자인 프레임 폭에서 Figma 비교, 기준 폭·최소 폭, 상태별 확인, design-system-reviewer)
     → 공통 체크리스트·화면별 기준 대조 → 결과(통과/조건부 통과/미통과) → 보고 파일 [승인] → 상태 갱신·커밋 (구현완료)
