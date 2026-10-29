@@ -32,6 +32,9 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 작성·수정하거�
 
 ### 2. Figma 확인
 - Figma 노드 URL이 있으면 `get_metadata`와 `get_screenshot`으로 화면 구성·상태 프레임만 확인한다. 세부 스타일은 조회하지 않는다.
+- `get_metadata` 결과에서 화면 프레임 크기를 `docs/PROJECT.md` "뷰포트" 표의 디자인 프레임 크기와 대조한다. (높이는 내용에 따라 달라도 된다)
+  - 폭이 다르면 멈추고 묻는다. 답이 없으면 `design.md`에 차단 "예"로 남긴다. (`DESIGN.md` 6-2)
+  - 디바이스가 여럿이면 frontmatter `device`를 채우고, 디바이스마다 프레임을 확인한다. 없는 디바이스 프레임은 질문으로 남긴다.
 - 없으면 frontmatter의 `figma`를 비워 두고 "Figma 노드 필요" 질문을 남긴다. (`design.md`, 차단 "예")
 
 ### 3. 섹션별 초안
@@ -65,6 +68,7 @@ description: 화면 명세(docs/screens/<화면ID>.md)를 작성·수정하거�
 아래를 모두 만족하면 frontmatter `status`를 "확정"으로 바꾸자고 제안한다. (변경은 승인 후, `updated`도 함께 갱신)
 
 - [ ] frontmatter `figma`에 노드 URL이 있다
+- [ ] 화면 프레임 폭이 `PROJECT.md` 뷰포트 표의 디자인 프레임 폭과 같다 (디바이스가 여럿이면 `device`의 디바이스마다)
 - [ ] 1~9번 섹션이 채워져 있거나 "해당 없음"으로 표시돼 있다
 - [ ] 3번 상태마다 Figma 노드가 있거나, "디자인 필요" 항목에 대해 처리 방법이 정해졌다
 - [ ] 4번 이동 화면이 플로우 문서와 일치한다
