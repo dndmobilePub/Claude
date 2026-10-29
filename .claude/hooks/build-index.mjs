@@ -25,6 +25,7 @@
 //   열린 요청(요청·디자이너 검토)의 screens에 있는 화면이 확정·구현완료면 경고
 // - 컴포넌트 명세 frontmatter figma_name → docs/components/_index.md 의 연결 목록 (같은 이름 중복, 구현완료인데 path 없음 경고)
 // - 화면 ID 형식: docs/PROJECT.md "화면 ID 형식"의 정규식 (비어 있으면 기본값)
+// - 화면 명세 device: PROJECT.md "뷰포트" 표의 디바이스 중에서만. 표에 디바이스가 여럿이면 초안이 아닌 명세는 비워 두지 않는다
 // - 퍼블 소스 폴더: docs/PROJECT.md "퍼블 소스 폴더"(기본 src/)를 바꿨는데 .claude/rules/의 paths나
 //   src/components/AGENTS.md가 그대로면 경고 (.claude/scripts/project-values.mjs, docs/HARNESS.md 5번)
 //
@@ -135,6 +136,16 @@ function patternNames(root) {
     if (r['패턴']) names.add(r['패턴']);
   }
   return names;
+}
+
+// docs/PROJECT.md "뷰포트" 표의 디바이스 목록. 표가 없거나 [TODO]뿐이면 null (점검하지 않음)
+function viewportDevices(root) {
+  const text = read(join(root, 'docs/PROJECT.md')) || '';
+  const sec = text.match(/^##\s+뷰포트[^\n]*\n([\s\S]*?)(?=^##\s|(?![\s\S]))/m);
+  if (!sec) return null;
+  const rows = sec[1].split(/\r?\n/).filter((l) => l.trim().startsWith('|')).slice(2);
+  const devices = rows.map((l) => l.split('|')[1]?.trim()).filter((d) => d && !d.startsWith('[TODO'));
+  return devices.length ? devices : null;
 }
 
 // docs/PROJECT.md의 "공통 화면 도메인 키". 없거나 [TODO]면 common
@@ -260,6 +271,7 @@ function buildScreens(root, warn, questions = []) {
   const screenDir = join(root, 'docs/screens');
 
   // 화면 명세
+  const devices = viewportDevices(root);
   const specs = new Map();
   for (const file of mdFiles(screenDir)) {
     const text = read(join(screenDir, file));
@@ -273,6 +285,11 @@ function buildScreens(root, warn, questions = []) {
     if (id !== basename(file, '.md')) warn(`${where}: frontmatter id(${id})와 파일 이름이 다릅니다.`);
     if (!STATUS.screen.includes(fm.status)) {
       warn(`${where}: status "${fm.status ?? ''}"는 허용 값이 아닙니다 (${STATUS.screen.join(' | ')}).`);
+    }
+    if (devices) {
+      const list = (fm.device || '').split(',').map((d) => d.trim()).filter(Boolean);
+      for (const d of list) if (!devices.includes(d)) warn(`${where}: device "${d}"가 PROJECT.md 뷰포트 표의 디바이스(${devices.join(', ')})에 없습니다.`);
+      if (devices.length > 1 && !list.length && fm.status !== '초안') warn(`${where}: 뷰포트 표에 디바이스가 여럿(${devices.join(', ')})인데 device가 비어 있습니다. 이 화면이 쓰이는 디바이스를 쉼표로 적습니다.`);
     }
     const title = h1(text).replace(id, '').trim();
     specs.set(id, { ...fm, id, file, title });

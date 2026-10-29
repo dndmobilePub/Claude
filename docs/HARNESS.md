@@ -27,7 +27,7 @@
 | `node_modules/`, `dist/`, `build/`, `.next/`, `coverage/` | **토큰 절감**: 검색·읽기 대상에서 뺀다 |
 | `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml` | **토큰 절감** + 직접 수정 방지 (패키지 매니저로만 변경) |
 | 강제 푸시, `git reset --hard`, `git clean`, `git branch -D`, `rm -rf` | 되돌릴 수 없는 작업 차단 (`docs/GIT.md` 5번) |
-| Figma 쓰기 도구 (`create_new_file`, `send_code_to_figma`, `upload_assets`, `generate_diagram`, `generate_image`, Code Connect 매핑 쓰기, 플러그인·셰이더 생성·수정) | 이 지침에서 Figma는 읽기만 한다. 기획 설계서·디자인은 사람이 Figma에 만들고, AI는 분석해 md로 옮긴다 |
+| Figma 쓰기 도구 (`create_new_file`, `send_code_to_figma`, `upload_assets`, `generate_diagram`, `generate_image`, Code Connect 매핑 쓰기, 플러그인·셰이더 생성·수정, Weave 모델·도구 실행과 자산 업로드) | 이 지침에서 Figma는 읽기만 한다. 기획 설계서·디자인은 사람이 Figma에 만들고, AI는 분석해 md로 옮긴다 |
 
 - **읽기 금지가 막는 범위**: Claude의 파일 도구와, Bash에서 파일 이름을 적은 `cat`·`head`·`tail`·`sed`·`tee`, `< 파일`·`> 파일` 리디렉션까지 막는다. 파일 이름을 적지 않는 명령(예: 폴더에서 `grep -r`)과, 파일을 직접 여는 Node·Python 스크립트는 막지 못한다. 반드시 막아야 하면 샌드박스를 켠다. (Claude Code 문서 "Configure permissions")
 
@@ -45,7 +45,7 @@
 | 훅 | 시점 | 하는 일 |
 |---|---|---|
 | `check-hardcoded.mjs` | 파일 수정 직후 (Edit·Write) | 퍼블 소스 폴더(`docs/PROJECT.md`, 기본 `src/`)의 스타일·컴포넌트 파일에서 HEX·rgb/hsl 색상, 2px 이상 px 값을 찾아 Claude에게 알린다. 최대 10건만 보여준다 |
-| `build-index.mjs` | 파일 수정 직후 (Edit·Write) | `docs/ia/`·`docs/ui-flow/`·`docs/screens/`·`docs/components/`·`docs/questions/`·`docs/PROJECT.md`·`.claude/rules/`가 바뀌면 세 `_index.md`(화면·컴포넌트·질문)의 AUTO 블록을 다시 만든다. ID 중복·형식 오류, IA와 플로우의 화면명·도메인 차이, 허용되지 않은 상태 값, 질문 칸 누락(확정인데 반영 위치 없음, 차단 질문을 가정으로 진행 등), 퍼블 소스 폴더와 rules `paths`·컴포넌트 폴더 `AGENTS.md` 위치의 차이 같은 불일치를 Claude에게 알린다 |
+| `build-index.mjs` | 파일 수정 직후 (Edit·Write) | `docs/ia/`·`docs/ui-flow/`·`docs/screens/`·`docs/components/`·`docs/questions/`·`docs/PROJECT.md`·`.claude/rules/`가 바뀌면 세 `_index.md`(화면·컴포넌트·질문)의 AUTO 블록을 다시 만든다. ID 중복·형식 오류, IA와 플로우의 화면명·도메인 차이, 허용되지 않은 상태 값, 질문 칸 누락(확정인데 반영 위치 없음, 차단 질문을 가정으로 진행 등), 퍼블 소스 폴더와 rules `paths`·컴포넌트 폴더 `AGENTS.md` 위치의 차이, 명세 `device`가 뷰포트 표와 맞지 않음 같은 불일치를 Claude에게 알린다 |
 | `session-reminder.mjs` | 대화 압축 직후 | 승인·토큰·디자인 핵심 규칙, 현재 브랜치, 커밋되지 않은 변경을 다시 알려준다 |
 
 - `build-index`의 원본: 화면 ID·화면명·예정일은 IA 사본 `docs/ia/screen-list.md` (없으면 플로우 문서 "2. 화면 목록" 표), 화면 ID 형식은 `docs/PROJECT.md` "화면 ID 형식", 상태·Figma는 각 명세의 frontmatter. frontmatter는 한 줄짜리 `키: 값`만 읽고, 표는 머리글 이름으로 읽는다.

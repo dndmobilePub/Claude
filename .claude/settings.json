@@ -34,7 +34,10 @@
       "mcp__figma__create_generative_plugin",
       "mcp__figma__update_generative_plugin",
       "mcp__figma__create_shader",
-      "mcp__figma__update_shader"
+      "mcp__figma__update_shader",
+      "mcp__figma__weave_run_model",
+      "mcp__figma__weave_run_tool",
+      "mcp__figma__weave_upload_asset"
     ],
     "ask": [
       "Bash(git commit *)",
