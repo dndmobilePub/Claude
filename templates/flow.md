@@ -1,7 +1,7 @@
 ---
 domain: 도메인명
 code: XXX              # 화면 ID 앞 약어 (예: TRF). IA가 있으면 docs/ia/source.md 3번의 약어
-status: 초안           # 초안 | 검토 | 확정
+status: 초안           # 초안 | 검토 | 확정 | 수정필요
 updated: YYYY-MM-DD
 ---
 

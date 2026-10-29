@@ -22,6 +22,7 @@
 | 검토 | 기획·디자인 확인 중 | 확인 요청 시 |
 | 확정 | 구현 가능 (Figma 노드·필수 섹션 채움) | `write-screen-spec` 확정 점검 통과 후 승인 |
 | 구현완료 | implement-screen 완료 보고 승인됨 | `implement-screen` 마무리 |
+| 수정필요 | 원본의 새 버전 때문에 명세·퍼블을 다시 고쳐야 함 (확정·구현완료였던 화면만) | `version-update` 저장. 명세를 고쳐 확정 점검을 통과하면 "확정"으로 (`docs/changes/_index.md` 3번) |
 
 ## 현황
 <!-- AUTO:START — 자동 생성. 직접 고치지 말고 원본 파일을 고친다 -->

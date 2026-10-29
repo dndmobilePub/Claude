@@ -26,7 +26,9 @@ description: 기획서(Figma 기획 설계서·PPT)를 분석해 docs/storyboard
 
 ### 0. 기획서 분석
 - "Figma 기획 설계서"와 "기획서 PPT"가 모두 "없음"이면 이 단계를 건너뛴다. (md를 만들지 않고 사용자 설명·문서로 진행)
-- `docs/storyboard/<도메인>.md`가 있으면 `analyzed` 일자를 알리고 원본이 바뀌었는지 묻는다. 바뀌지 않았으면 md만 쓰고 이 단계를 마친다.
+- `docs/storyboard/<도메인>.md`가 있으면 `version`·`analyzed`를 알리고 원본이 바뀌었는지 묻는다. 바뀌지 않았으면 md만 쓰고 이 단계를 마친다.
+- 기획서의 새 버전을 받은 것이면 여기서 멈추고 `version-update`로 시작한다. (`version-update`가 이 단계를 부르고, 영향받은 플로우·명세를 처리한다)
+- 저장할 때 frontmatter `version`에 분석한 기획서 버전을 적는다. 모르면 묻는다.
 - 없거나 바뀌었으면 원본별로 읽는다. 둘 다 있으면 둘 다 읽는다.
   - Figma 설계서: `read-storyboard.js`
     1. `NODE_ID = null`로 페이지·프레임 목록을 받고, 이 도메인에 해당하는 페이지·섹션을 확인받는다.

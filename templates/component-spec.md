@@ -2,7 +2,7 @@
 name: ComponentName
 layer: 기본            # 기본 | 조합
 kind: 신규             # 신규 | 기존 확장
-status: 초안           # 초안 | 승인 | 구현완료
+status: 초안           # 초안 | 승인 | 구현완료 | 수정필요
 figma:                 # 컴포넌트 세트 노드 URL. 조합 계층은 없으면 비워 둔다
 path: src/components/...
 code_connect: 해당 없음  # 매핑 있음 | 추가 필요 | 해당 없음

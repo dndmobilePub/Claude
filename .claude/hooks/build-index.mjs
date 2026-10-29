@@ -12,6 +12,9 @@
 // - 컴포넌트 명세 frontmatter → docs/components/_index.md 의 AUTO 블록
 // - 질문 파일(docs/questions/<source>.md)의 "## 질문 목록" 표
 //   → docs/questions/_index.md 의 AUTO 블록 (열린 질문 모음), 화면 맵의 "열린 질문" 칸
+// - 현재 기준 버전(IA 사본 version, 기획서 분석 version, docs/changes/_index.md 1번 디자인 기준 버전)
+//   + 변경 기록(docs/changes/<원본>-<버전>.md)의 "## 2. 변경 목록" 표 + 각 명세의 "수정필요" 상태
+//   → docs/changes/_index.md 의 AUTO 블록. 화면 명세의 ia_ver·plan_ver·design_ver가 현재 버전과 다르면 경고
 // - 화면 ID 형식: docs/PROJECT.md "화면 ID 형식"의 정규식 (비어 있으면 기본값)
 //
 // 불일치(ID 중복, IA와 플로우의 차이, 허용되지 않은 상태 값 등)는 훅 모드에서 exit 2 + stderr로 Claude에게 알린다.
@@ -22,10 +25,11 @@ import { join, relative, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const STATUS = {
-  screen: ['초안', '검토', '확정', '구현완료'],
-  flow: ['초안', '검토', '확정'],
-  component: ['초안', '승인', '구현완료'],
+  screen: ['초안', '검토', '확정', '구현완료', '수정필요'],
+  flow: ['초안', '검토', '확정', '수정필요'],
+  component: ['초안', '승인', '구현완료', '수정필요'],
 };
+const NEEDS_FIX = '수정필요';
 const NO_FLOW = '플로우 전';
 const NO_SPEC = '명세 전';
 const DEFAULT_ID = '^[A-Z]{2,5}-\\d{3}$';
@@ -239,6 +243,7 @@ function buildScreens(root, warn, questions = []) {
     }
     const title = h1(text).replace(id, '').trim();
     specs.set(id, { ...fm, id, file, title });
+    if (fm.status === NEEDS_FIX) needsFix.push({ kind: '화면', name: id, link: `../screens/${file}` });
   }
 
   // 플로우
@@ -277,11 +282,13 @@ function buildScreens(root, warn, questions = []) {
       }
     }
     flows.push({ file, key, domain: fm.domain || key, code: fm.code || '', status: fm.status || '', screens });
+    if (fm.status === NEEDS_FIX) needsFix.push({ kind: '플로우', name: key, link: `../ui-flow/${file}` });
   }
 
   for (const [id, spec] of specs) {
     if (!seen.has(id)) warn(`docs/screens/${spec.file}: ${id}가 어느 플로우의 화면 목록에도 없습니다.`);
   }
+  allSpecs = specs;
 
   // 질문 대상 점검: 화면 ID 형식인데 화면 목록에 없는 대상
   const known = new Set([...(ia?.ids || []), ...seen.keys()]);
@@ -375,6 +382,7 @@ function buildComponents(root, warn) {
       warn(`${where}: status "${fm.status ?? ''}"는 허용 값이 아닙니다 (${STATUS.component.join(' | ')}).`);
     }
     rows.push({ name, file, ...fm });
+    if (fm.status === NEEDS_FIX) needsFix.push({ kind: '컴포넌트', name, link: `../components/${file}` });
   }
 
   const out = [START_LINE, ''];
@@ -387,6 +395,104 @@ function buildComponents(root, warn) {
     for (const r of rows) {
       out.push(`| ${esc(r.name)} | ${esc(r.layer)} | ${esc(r.kind)} | ${esc(r.status)} | ${esc(r.code_connect)} | [보기](${r.file}) |`);
     }
+  }
+  out.push('', END);
+  return out.join('\n');
+}
+
+// ---------- 버전·변경 기록 ----------
+
+const needsFix = []; // 상태가 "수정필요"인 화면·플로우·컴포넌트 (buildScreens·buildComponents가 채운다)
+let allSpecs = new Map(); // 화면 명세 (buildScreens가 채운다)
+const CH_SOURCE = { ia: 'IA', plan: '기획서', design: '디자인' };
+const CH_KIND = ['추가', '삭제', '수정', '이동', '명칭 변경'];
+const CH_DONE = ['미처리', '반영', '해당 없음'];
+const VER_KEY = { ia: 'ia_ver', plan: 'plan_ver', design: 'design_ver' };
+
+const usable = (v) => (v && !/^\[?TODO/.test(v) ? v : '');
+
+// 원본별 현재 기준 버전
+function currentVersions(root) {
+  const ia = usable(frontmatter(read(join(root, 'docs/ia/screen-list.md')) || '')?.version);
+  const plan = new Map(); // 도메인 키 → 버전
+  const sbDir = join(root, 'docs/storyboard');
+  for (const file of mdFiles(sbDir)) {
+    const v = usable(frontmatter(read(join(sbDir, file)) || '')?.version);
+    if (v) plan.set(basename(file, '.md'), v);
+  }
+  const idx = read(join(root, 'docs/changes/_index.md')) || '';
+  const dm = idx.match(/디자인 기준 버전:[ \t]*([^\n]*)/);
+  const design = usable(dm ? dm[1].trim() : '');
+  return { ia, plan, design };
+}
+
+// 화면 명세의 기준 버전 점검
+function checkSpecVersions(cur, warn) {
+  for (const [id, spec] of allSpecs) {
+    if (spec.status === NEEDS_FIX) continue;
+    const where = `docs/screens/${spec.file}`;
+    const domain = (spec.flow || '').match(/ui-flow\/([^/#]+)\.md/)?.[1];
+    const want = { ia: cur.ia, plan: domain ? cur.plan.get(domain) || '' : '', design: cur.design };
+    for (const [src, key] of Object.entries(VER_KEY)) {
+      const now = want[src];
+      const has = spec[key] || '';
+      if (!now) continue;
+      if (!has) {
+        if (['확정', '구현완료'].includes(spec.status)) warn(`${where}: ${key}가 비어 있습니다. 현재 ${CH_SOURCE[src]} 기준 버전은 ${now}입니다.`);
+      } else if (has !== now) {
+        warn(`${where}: ${key}(${has})가 현재 ${CH_SOURCE[src]} 기준 버전(${now})과 다릅니다. version-update로 영향을 확인하고, 영향이 있으면 status를 "수정필요"로 바꿉니다.`);
+      }
+    }
+  }
+}
+
+// docs/changes/<원본>-<버전>.md 를 읽고 형식을 점검한다.
+function readChanges(root, warn) {
+  const dir = join(root, 'docs/changes');
+  const list = [];
+  for (const file of mdFiles(dir)) {
+    const text = read(join(dir, file)) || '';
+    const where = `docs/changes/${file}`;
+    const fm = frontmatter(text) || {};
+    if (!CH_SOURCE[fm.source]) warn(`${where}: frontmatter source "${fm.source ?? ''}"는 허용 값이 아닙니다 (${Object.keys(CH_SOURCE).join(' | ')}).`);
+    if (!fm.version) warn(`${where}: frontmatter version이 비어 있습니다.`);
+    const rows = sectionTable(text, 2, '변경 목록').filter((r) => r['구분'] || r['대상']);
+    rows.forEach((r, i) => {
+      const at = `${where} 변경 ${i + 1}행(${r['대상'] || '대상 없음'})`;
+      if (!CH_KIND.includes(r['구분'])) warn(`${at}: 구분 "${r['구분']}"는 허용 값이 아닙니다 (${CH_KIND.join(' | ')}).`);
+      if (!r['대상']) warn(`${at}: 대상이 비어 있습니다.`);
+      if (!CH_DONE.includes(r['처리'])) warn(`${at}: 처리 "${r['처리']}"는 허용 값이 아닙니다 (${CH_DONE.join(' | ')}).`);
+    });
+    list.push({ file, ...fm, rows, open: rows.filter((r) => r['처리'] === '미처리') });
+  }
+  // 수정필요인데 미처리 변경 줄이 없으면 경고 (화면만 점검)
+  for (const n of needsFix.filter((x) => x.kind === '화면')) {
+    const hit = list.some((c) => c.open.some((r) => r['대상'] === n.name || (r['영향 문서'] || '').includes(`screens/${n.name}.md`)));
+    if (!hit) warn(`docs/screens/${n.name}.md: 상태가 수정필요인데 변경 기록에 이 화면의 미처리 줄이 없습니다.`);
+  }
+  return list;
+}
+
+function buildChanges(cur, changes) {
+  const out = [START_LINE, '', '### 현재 기준 버전', '| 원본 | 현재 버전 | 원본 위치 |', '|---|---|---|'];
+  out.push(`| IA | ${esc(cur.ia || '-')} | [docs/ia/screen-list.md](../ia/screen-list.md) |`);
+  if (cur.plan.size === 0) out.push('| 기획서 | - | docs/storyboard/<도메인>.md |');
+  for (const [k, v] of cur.plan) out.push(`| 기획서 (${esc(k)}) | ${esc(v)} | [docs/storyboard/${k}.md](../storyboard/${k}.md) |`);
+  out.push(`| 디자인 | ${esc(cur.design || '-')} | 이 파일 1번 |`, '');
+
+  out.push('### 변경 기록');
+  if (changes.length === 0) out.push('아직 변경 기록이 없다.');
+  else {
+    out.push('| 파일 | 원본 | 버전 | 이전 | 받은 날 | 변경 | 미처리 |', '|---|---|---|---|---|---|---|');
+    for (const c of [...changes].sort((a, b) => String(b.received || '').localeCompare(String(a.received || '')))) {
+      out.push(`| [${c.file}](${c.file}) | ${esc(CH_SOURCE[c.source] || c.source)} | ${esc(c.version)} | ${esc(c.prev)} | ${esc(c.received)} | ${c.rows.length} | ${c.open.length} |`);
+    }
+  }
+  out.push('', `### 수정필요 (${needsFix.length})`);
+  if (needsFix.length === 0) out.push('수정필요 상태인 문서가 없다.');
+  else {
+    out.push('| 구분 | 이름 | 문서 |', '|---|---|---|');
+    for (const n of needsFix) out.push(`| ${n.kind} | ${esc(n.name)} | [보기](${n.link}) |`);
   }
   out.push('', END);
   return out.join('\n');
@@ -424,8 +530,8 @@ function main() {
 
   if (hookMode) {
     const rel = relative(root, input.tool_input.file_path || '').replace(/\\/g, '/');
-    if (!/^docs\/(ia|ui-flow|screens|components|questions)\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
-    if (basename(rel) === '_index.md') return 0;
+    if (!/^docs\/(ia|ui-flow|screens|components|questions|changes|storyboard)\/[^/]+\.md$/.test(rel) && rel !== 'docs/PROJECT.md') return 0;
+    if (basename(rel) === '_index.md' && rel !== 'docs/changes/_index.md') return 0;
   }
 
   const warnings = [];
@@ -434,6 +540,9 @@ function main() {
   replaceBlock(root, 'docs/ui-flow/_index.md', buildScreens(root, warn, questions), warn);
   replaceBlock(root, 'docs/components/_index.md', buildComponents(root, warn), warn);
   replaceBlock(root, 'docs/questions/_index.md', buildQuestions(questions), warn);
+  const cur = currentVersions(root);
+  checkSpecVersions(cur, warn);
+  replaceBlock(root, 'docs/changes/_index.md', buildChanges(cur, readChanges(root, warn)), warn);
 
   if (!hookMode) {
     process.stdout.write(`인덱스를 다시 만들었습니다. 경고 ${warnings.length}건\n`);
@@ -446,7 +555,7 @@ function main() {
       `[인덱스 경고] 인덱스는 다시 만들었지만 원본 문서에서 불일치 ${warnings.length}건을 찾았습니다.`,
       ...warnings.slice(0, 10).map((w) => `- ${w}`),
       ...(warnings.length > 10 ? [`- 외 ${warnings.length - 10}건`] : []),
-      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
+      '원본(IA 사본, 플로우 화면 목록 표, 명세 frontmatter, 질문 파일, 변경 기록)을 고쳐야 하면 사용자에게 알리고 승인받은 뒤 고치세요. IA 사본은 ia-sync로만 갱신합니다.',
     ].join('\n') + '\n',
   );
   return 2;

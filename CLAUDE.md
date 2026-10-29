@@ -22,6 +22,8 @@
 | 새 화면 명세 작성 | `write-screen-spec` 스킬 (양식 `templates/screen-spec.md`) |
 | 새 컴포넌트 작성 | `templates/component-spec.md` → `docs/components/<컴포넌트명>.md`에 저장 |
 | Figma 변수 → 코드 토큰 반영 | `token-sync` 스킬 |
+| 입력 원본(IA·기획서·디자인)의 새 버전 반영 | `version-update` 스킬 (규칙 `docs/changes/_index.md`) |
+| 무엇이 바뀌었는지·수정필요 목록 확인 | `docs/changes/_index.md` 현황 → 해당 변경 기록 (대상 행만 검색) |
 | 컴포넌트 명세 확인 | `docs/components/_index.md` → 해당 명세 |
 | 질문 남기기·답 반영 (자료에 없음·해석 필요·원본끼리 다름) | `docs/questions/_index.md` 1~3번 → 해당 질문 파일 |
 | 열린 질문 확인 | `docs/questions/_index.md` 현황 (대상·확인 대상 행만 검색) |
@@ -55,4 +57,5 @@
 - `write-screen-spec` — 화면 명세 작성, "확정" 점검
 - `implement-screen` — 화면 명세 → Figma 조회 → 퍼블 → 검증 → 개발 전달 보고
 - `token-sync` — Figma 변수 → 코드 토큰 파일(tokens.css, React·Vue는 참조 파일 포함) 생성·갱신
+- `version-update` — 입력 원본 새 버전 → 다시 분석·변경 기록·영향 문서 "수정필요"·기준 버전 갱신
 - `ds-check` — 디자인 시스템 위반 검출

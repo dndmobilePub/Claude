@@ -31,6 +31,8 @@ docs/
   components/<컴포넌트명>.md    # 컴포넌트 명세 (신규·확장·조합만)
   questions/_index.md         # 질문 기록 규칙 + 열린 질문 현황(자동 생성)
   questions/<원본>.md          # 질문 원본: ia·plan(기획서)·design(디자인)·spec(작업 중·원본끼리 다름)
+  changes/_index.md           # 기준 버전·변경 기록 규칙 + 현재 버전·수정필요 현황(자동 생성)
+  changes/<원본>-<버전>.md      # 입력 원본 새 버전의 변경 기록 (version-update가 생성)
   decisions/<번호>-<제목>.md    # 설계 결정 기록 (ADR)
 .claude/
   settings.json               # 권한(읽기 금지·명령 차단·확인) + 훅 등록
@@ -52,6 +54,7 @@ docs/
     implement-screen/         #   화면 명세 → Figma 조회 → 퍼블 → 검증 → 개발 전달 보고
     token-sync/               #   Figma 변수 → 코드 토큰 파일(tokens.css, React·Vue는 참조 파일 포함), 읽기 전용 조회 스크립트 포함
     ds-check/                 #   디자인 시스템 위반 검출
+    version-update/           #   입력 원본 새 버전 → 변경 기록·영향 문서 수정필요·기준 버전 갱신 (bump-ver.mjs 포함)
   agents/
     design-system-reviewer.md #   독립 리뷰어 (명세·상태·코드 구조·접근성·금융 규칙)
 templates/                    # 양식
@@ -63,6 +66,7 @@ templates/                    # 양식
   ia-source.md                #   IA 읽는 방법
   ia-screen-list.md           #   IA 사본 (화면 목록·일정)
   questions.md                #   질문 파일
+  change.md                   #   변경 기록 (버전 변경)
 src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·Props)
 .github/pull_request_template.md  # PR 본문 양식
 ```
@@ -101,6 +105,7 @@ src/components/CLAUDE.md      # 컴포넌트 폴더 규칙 (계층·네이밍·P
 
 - 비어 있는 `[TODO]` 값이 작업에 필요하면 Claude가 추측하지 않고 먼저 묻습니다.
 - IA가 없는 프로젝트는 4단계를 건너뜁니다. 이때는 6단계에서 화면 ID를 정하고 플로우 문서가 화면 목록의 원본이 됩니다.
+- 진행 중에 IA·기획서·디자인의 새 버전을 받으면 `/version-update`로 반영합니다. 영향받은 화면만 "수정필요"가 되고, 명세 수정 → 확정 → 다시 퍼블 순서로 처리합니다.
 
 ## 4. 화면 하나가 완성되는 흐름
 

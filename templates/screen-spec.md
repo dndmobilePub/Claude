@@ -1,9 +1,12 @@
 ---
 id: XXX-000
-status: 초안           # 초안 | 검토 | 확정 | 구현완료
+status: 초안           # 초안 | 검토 | 확정 | 구현완료 | 수정필요
 figma:                 # 노드 URL. 확정 전 필수 — 없으면 구현을 시작하지 않는다
 device:                # PROJECT.md "뷰포트" 표의 디바이스. 여럿이면 쉼표로. 표가 한 줄이면 비워 둔다
 flow: ui-flow/<도메인>.md#<하위 흐름 앵커>
+ia_ver:                # 작성 기준 버전. 현재 버전은 docs/changes/_index.md 현황. 원본이 없으면 비워 둔다
+plan_ver:
+design_ver:
 updated: YYYY-MM-DD
 ---
 

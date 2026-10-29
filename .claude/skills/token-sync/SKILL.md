@@ -11,6 +11,7 @@ description: Figma 변수를 읽어 코드 토큰 파일(tokens.css, React·Vue�
 ## 입력
 - 기본: 동기화 대상 컬렉션 전체
 - 컬렉션 이름을 지정받으면 그 컬렉션만 조회하고, 나머지 토큰은 기존 파일 내용을 그대로 둔다.
+- 디자인 새 버전과 함께 변수가 바뀐 것이면 `version-update`로 시작한다. (`version-update`가 이 스킬을 부르고 영향받은 화면을 처리한다)
 
 ## 멈춤 조건 (해당하면 즉시 멈추고 묻는다)
 - `docs/PROJECT.md`의 "Figma 변수 파일", "코드 토큰 위치", "퍼블 언어", "TypeScript" 중 하나가 [TODO]

@@ -12,6 +12,7 @@ description: IA 엑셀(화면 목록·WBS 일정)을 읽어 docs/ia/screen-list.
 ## 입력
 - IA 파일: `docs/PROJECT.md`의 "IA 파일"
 - 모드: 처음(읽는 방법이 없음) / 갱신(읽는 방법이 있음)
+- IA의 새 버전을 받은 것이면 이 스킬을 직접 쓰지 않고 `version-update`로 시작한다. (`version-update`가 이 스킬의 갱신 모드를 부르고, 영향받은 플로우·명세를 처리한다)
 
 ## 원칙
 - IMPORTANT: IA에 적힌 값을 고치거나 채우지 않는다. 빈 화면 ID에 ID를 지어 붙이지 않는다. 이상한 것은 묻고, 답이 없으면 `docs/questions/ia.md`에 남긴다.
