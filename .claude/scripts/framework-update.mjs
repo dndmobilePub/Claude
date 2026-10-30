@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // 공통 지침(프레임워크) 업데이트 스크립트. 외부 패키지 없이 Node만으로 동작한다.
-// 분류의 원본은 .claude/framework.json "files" (교체 / 병합 / 선택 / 설정 / 프로젝트).
+// 분류의 원본은 .claude/framework.json "files" (교체 / 병합 / 선택 / 설정 / 프로젝트 / 원본 전용).
 //
 // 사용
 //   node .claude/scripts/framework-update.mjs lint
-//       프레임워크 저장소용. git이 추적하는 파일이 다섯 분류 중 정확히 하나에 들어가는지 확인한다.
+//       프레임워크 저장소용. git이 추적하는 파일이 여섯 분류 중 정확히 하나에 들어가는지 확인한다.
 //   node .claude/scripts/framework-update.mjs check --from <지금 버전 폴더> --to <새 버전 폴더>
 //       프로젝트에 무엇이 어떻게 바뀌는지 보고만 한다. (파일을 고치지 않는다)
 //   node .claude/scripts/framework-update.mjs apply --from <지금 버전 폴더> --to <새 버전 폴더> [--keep-conflicts]
@@ -20,6 +20,7 @@
 //         프로젝트에 없으면 일부러 뺀 것으로 보고 건너뛴다. 새 버전이 새로 만든 파일이면 "선택 확인"으로 알리기만 한다
 //   설정: 고치지 않는다. 지금 버전 → 새 버전 사이의 차이를 보여주고 사람이 반영한다
 //   프로젝트: 건드리지 않는다
+//   원본 전용: 지침 원본 저장소에만 있는 파일(tests/ 등). 비교·반영하지 않는다
 //   지금 버전에 있고 새 버전에 없는 파일: 프로젝트 파일이 지금 버전과 같으면 지운다. 다르면 "충돌"
 // 경로: 프레임워크의 src/로 시작하는 파일은 docs/PROJECT.md "퍼블 소스 폴더"로 옮겨서 찾는다.
 // 결과: 충돌이 있으면 종료 코드 1.
@@ -32,7 +33,7 @@ import { pubDir } from './project-values.mjs';
 
 const root = process.env.CLAUDE_PROJECT_DIR || fileURLToPath(new URL('../..', import.meta.url));
 const MANIFEST = '.claude/framework.json';
-const KINDS = ['교체', '병합', '선택', '설정', '프로젝트'];
+const KINDS = ['교체', '병합', '선택', '설정', '프로젝트', '원본 전용'];
 const EXC = /^##\s+[\d.-]*\s*프로젝트별 예외/;
 const AUTO_START = '<!-- AUTO:START';
 const AUTO_END = '<!-- AUTO:END -->';
@@ -186,7 +187,7 @@ function plan(fromDir, toDir) {
 
   for (const p of paths) {
     const kind = kindOf(p)[0] || oldKindOf(p)[0] || '프로젝트';
-    if (kind === '프로젝트') continue;
+    if (kind === '프로젝트' || kind === '원본 전용') continue;
     const oldText = read(join(fromDir, p));
     const newText = read(join(toDir, p));
     const t = target(p);

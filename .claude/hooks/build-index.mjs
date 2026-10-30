@@ -119,13 +119,18 @@ function screenIdPattern(root) {
 }
 
 // 플로우 문서의 "## 2. 화면 목록" 표에서 화면 행을 읽는다. (머리글 이름으로 읽고, 없으면 첫 칸 = 화면 ID, 둘째 칸 = 화면명)
-function flowScreens(text, idRe) {
+// bad(id)를 주면 화면 ID 칸이 비어 있지 않은데 형식에 맞지 않는 행을 알려준다.
+function flowScreens(text, idRe, bad) {
   return sectionTable(text, 2, '화면 목록')
     .map((r) => {
       const v = Object.values(r);
       return { id: r['화면 ID'] ?? v[0] ?? '', title: r['화면명'] ?? v[1] ?? '', role: r['역할'] ?? '', pattern: r['패턴'] ?? '' };
     })
-    .filter((s) => idRe.test(s.id));
+    .filter((s) => {
+      if (idRe.test(s.id)) return true;
+      if (bad && s.id) bad(s.id);
+      return false;
+    });
 }
 
 // docs/PATTERNS.md 1번 표와 4번 예외 표의 패턴 이름. 파일이 없으면 null (점검하지 않음)
@@ -337,7 +342,9 @@ function buildScreens(root, warn, questions = []) {
     else if (!STATUS.flow.includes(fm.status)) {
       warn(`${where}: status "${fm.status ?? ''}"는 허용 값이 아닙니다 (${STATUS.flow.join(' | ')}).`);
     }
-    const screens = text ? flowScreens(text, idRe) : [];
+    const screens = text
+      ? flowScreens(text, idRe, (id) => warn(`${where}: 화면 목록의 화면 ID "${id}"가 PROJECT.md의 화면 ID 형식(${idRe.source})과 맞지 않아 빠졌습니다.`))
+      : [];
     for (const s of screens) {
       if (seen.get(s.id) === where) warn(`${where}: 화면 ID ${s.id}가 화면 목록에 두 번 있습니다.`);
       else if (seen.has(s.id)) warn(`화면 ID ${s.id}가 ${seen.get(s.id)}와 ${where}에 중복 등록됐습니다.`);

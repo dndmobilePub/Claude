@@ -21,3 +21,5 @@
 - 문서 기본 요소(`lang`·viewport·제목·웹폰트 한 곳, `docs/PROJECT.md` "화면 언어")와 에셋 규칙(위치·형식·파일 이름, Figma 임시 에셋 주소 금지), 검수 C15·`check-pub` P8
 - 파일 구조 두 가지(화면 폴더 / 종류별 폴더), 퍼블 소스 폴더 설정, 스타일은 컴포넌트 안에서·예외만 `global.css`
 - 배포: `.claude/framework.json`(버전·파일 분류), `framework-update` 스킬·스크립트, 이 CHANGELOG
+- `build-index`: 플로우 화면 목록에서 화면 ID 형식이 맞지 않는 행을 조용히 빼지 않고 경고 (테스트로 찾음)
+- 원본 검사: `tests/`(framework-update·build-index·check-pub·IA·PPT 읽기·bump-ver, `node --test`, "원본 전용" 분류라 프로젝트에 배포하지 않음), README "시작 첫날 확인 목록"

@@ -38,6 +38,9 @@
       ".claude/framework.json",
       "docs/PRODUCT.md",
       "docs/*/.gitkeep"
+    ],
+    "원본 전용": [
+      "tests/**"
     ]
   }
 }

@@ -5,7 +5,7 @@ description: 공통 지침(이 지침 세트)의 새 버전을 프로젝트에 �
 
 # 공통 지침 업데이트 절차
 
-> 분류의 원본은 `.claude/framework.json`의 `files`(교체 / 병합 / 선택 / 설정 / 프로젝트)다.
+> 분류의 원본은 `.claude/framework.json`의 `files`(교체 / 병합 / 선택 / 설정 / 프로젝트 / 원본 전용)다. 원본 전용(`tests/`)은 비교하지 않는다.
 > 비교·반영은 `node .claude/scripts/framework-update.mjs`가 한다. 이 스킬은 순서와 승인 지점을 정한다.
 
 ## 멈춤 조건
