@@ -28,7 +28,7 @@
 // - 화면 명세 device: PROJECT.md "뷰포트" 표의 디바이스 중에서만. 표에 디바이스가 여럿이면 초안이 아닌 명세는 비워 두지 않는다
 // - 퍼블 소스 폴더: docs/PROJECT.md "퍼블 소스 폴더"(기본 src/)를 바꿨는데 .claude/rules/의 paths나
 //   src/components/AGENTS.md가 그대로면 경고 (.claude/scripts/project-values.mjs, docs/HARNESS.md 5번)
-// - 업종 규칙: docs/PROJECT.md "업종 규칙"과 .claude/rules/의 선택 파일(.claude/framework.json "선택")이 어긋나면 경고
+// - 업종 규칙: docs/PROJECT.md "업종 규칙"과 .claude/rules/의 업종 규칙 파일(.claude/framework.json "업종별 선택")이 어긋나면 경고
 //
 // 불일치(ID 중복, IA와 플로우의 차이, 허용되지 않은 상태 값 등)는 훅 모드에서 exit 2 + stderr로 Claude에게 알린다.
 // 훅 오류로 작업이 막히지 않도록, 예외가 나면 그냥 통과시킨다.

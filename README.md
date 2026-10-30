@@ -37,19 +37,19 @@ tests/               # 지침 원본 검사용 테스트 (프로젝트에는 쓰
 - 작업별로 어떤 문서·스킬을 쓰는지는 `AGENTS.md`, 훅·스크립트 하나하나의 역할은 `docs/HARNESS.md`, 파일 분류는 `.claude/framework.json`이 원본입니다. 이 트리는 큰 그림만 보여줍니다.
 
 ## 2. 재사용 구분
-파일마다 공통 지침 업데이트 때 어떻게 다루는지가 정해져 있습니다. 원본은 `.claude/framework.json`의 `files`입니다.
+파일마다 **누가 관리하는지**가 정해져 있습니다. 공통 지침 업데이트(`/framework-update`)는 이 분류를 보고 파일마다 처리 방법을 정합니다. 원본은 `.claude/framework.json`의 `files`입니다.
 
-| 분류 | 파일 | 프로젝트에서 | 업데이트 때 |
+| 분류 | 파일 | 프로젝트에서 | 공통 지침 업데이트 때 |
 |---|---|---|---|
-| 교체 | `AGENTS.md`, `CHANGELOG.md`, `.claude/skills/`·`agents/`·`hooks/`·`scripts/`, `templates/`, PR 양식 | 그대로 사용 | 새 버전으로 바뀜 |
-| 병합 | `docs/DESIGN.md`·`ARCHITECTURE.md`·`PATTERNS.md`·`QA.md`·`GIT.md`·`HARNESS.md`, `docs/*/_index.md`, `.claude/rules/`의 공통 규칙(Figma 구현·접근성), `src/components/AGENTS.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 (rules는 `paths`도) | 공통 부분만 바뀌고 예외 섹션·AUTO 블록·frontmatter는 유지 |
-| 선택 | `.claude/rules/`의 업종 규칙 (예: `finance-ui.md`) | `docs/PROJECT.md` "업종 규칙"에 고른 것만 두고 나머지는 지움. 남긴 파일은 병합과 같음 | 남긴 파일은 병합과 같음. 지운 파일은 되살리지 않고, 새 업종 규칙은 알리기만 함 |
-| 설정 | `docs/PROJECT.md`, `.claude/settings.json`, `.gitignore`, `README.md` | 프로젝트 값으로 채우거나 고침 | 바뀐 줄만 보여주고 사람이 반영 |
-| 프로젝트 | `docs/PRODUCT.md`, 그 밖에 프로젝트가 만드는 문서(명세·플로우·질문·보고 등)와 퍼블 파일 | 새로 작성 | 건드리지 않음 |
-| 원본 전용 | `tests/` | 지운다 | 비교하지 않음 |
+| 지침 관리 | `AGENTS.md`, `CHANGELOG.md`, `.claude/skills/`·`agents/`·`hooks/`·`scripts/`, `templates/`, PR 양식 | 고치지 않고 그대로 사용 (사람·AI 모두). 고칠 일은 원본 저장소에 보완 요청 | 새 버전으로 바뀜 |
+| 지침 + 프로젝트 예외 | `docs/DESIGN.md`·`ARCHITECTURE.md`·`PATTERNS.md`·`QA.md`·`GIT.md`·`HARNESS.md`, `docs/*/_index.md`, `.claude/rules/`의 공통 규칙(Figma 구현·접근성), `src/components/AGENTS.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 (rules는 `paths`도) | 공통 부분만 바뀌고 예외 섹션·AUTO 블록·frontmatter는 유지 |
+| 업종별 선택 | `.claude/rules/`의 업종 규칙 (예: `finance-ui.md`) | `docs/PROJECT.md` "업종 규칙"에 고른 것만 두고 나머지는 지움. 남긴 파일은 "지침 + 프로젝트 예외"와 같음 | 남긴 파일은 "지침 + 프로젝트 예외"와 같음. 지운 파일은 되살리지 않고, 새 업종 규칙은 알리기만 함 |
+| 프로젝트 설정 | `docs/PROJECT.md`, `.claude/settings.json`, `.gitignore`, `README.md` | 프로젝트 값으로 채우거나 고침 | 바뀐 줄만 보여주고 사람이 반영 |
+| 프로젝트 작성 | `docs/PRODUCT.md`, 그 밖에 프로젝트가 만드는 문서(명세·플로우·질문·보고 등)와 퍼블 파일 | 새로 작성 | 건드리지 않음 |
+| 지침 원본 전용 | `tests/` | 지운다 (지침 원본 저장소에서만 씀) | 비교하지 않음 |
 
 - 공통 규칙을 고치고 싶으면 프로젝트 저장소가 아니라 **이 원본 저장소**에서 고친 뒤 새 버전으로 내보냅니다. (6번)
-- 프로젝트에서만 다른 점은 공통 규칙을 고치지 말고 예외 섹션이나 ADR로 남깁니다. 교체·병합 파일의 공통 부분을 직접 고치면 다음 업데이트에서 "충돌"로 멈춥니다.
+- 프로젝트에서만 다른 점은 공통 규칙을 고치지 말고 예외 섹션이나 ADR로 남깁니다. "지침 관리"·"지침 + 프로젝트 예외" 파일의 공통 부분을 직접 고치면 다음 업데이트에서 "충돌"로 멈춥니다.
 
 ## 3. 새 프로젝트 시작 순서
 

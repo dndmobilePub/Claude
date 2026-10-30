@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "repository": "https://github.com/dndmobilePub/Claude",
   "files": {
-    "교체": [
+    "지침 관리": [
       "AGENTS.md",
       "CHANGELOG.md",
       ".claude/agents/**",
@@ -13,7 +13,7 @@
       ".github/pull_request_template.md",
       "templates/**"
     ],
-    "병합": [
+    "지침 + 프로젝트 예외": [
       ".claude/rules/a11y.md",
       ".claude/rules/figma-design-system.md",
       "docs/ARCHITECTURE.md",
@@ -25,21 +25,21 @@
       "docs/*/_index.md",
       "src/components/AGENTS.md"
     ],
-    "선택": [
+    "업종별 선택": [
       ".claude/rules/finance-ui.md"
     ],
-    "설정": [
+    "프로젝트 설정": [
       ".claude/settings.json",
       ".gitignore",
       "README.md",
       "docs/PROJECT.md"
     ],
-    "프로젝트": [
+    "프로젝트 작성": [
       ".claude/framework.json",
       "docs/PRODUCT.md",
       "docs/*/.gitkeep"
     ],
-    "원본 전용": [
+    "지침 원본 전용": [
       "tests/**"
     ]
   }

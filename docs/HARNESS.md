@@ -70,7 +70,7 @@
 | `.claude/skills/token-sync/read-styles.js` | `token-sync` | Figma 텍스트 스타일·효과 스타일 (Figma `use_figma`로 실행) |
 | `.claude/scripts/check-pub.mjs` | `ds-check` | 퍼블 파일의 규칙 위반 P1~P8 (정의 안 된 토큰, 텍스트 스타일 조합, 화면 폭, 개발 몫 코드, 이동 대상 ID, 위험한 HTML·외부 스크립트, 스타일 위치, 문서 기본 요소·임시 에셋 주소). 읽기만 한다 |
 | `.claude/skills/version-update/bump-ver.mjs` | `version-update` | 화면 명세 frontmatter의 기준 버전 한 줄만 고친다 (`--write` 없으면 목록만 보여준다) |
-| `.claude/scripts/framework-update.mjs` | `framework-update` | 공통 지침 두 버전과 프로젝트를 비교해 교체·병합·추가·삭제·충돌·설정 확인을 보고하고, `apply`면 충돌이 없을 때만 반영한다. `lint`는 원본 저장소에서 파일 분류(`.claude/framework.json`)를 점검한다 |
+| `.claude/scripts/framework-update.mjs` | `framework-update` | 공통 지침 두 버전과 프로젝트를 비교해 교체·병합·추가·삭제·충돌·설정 확인·업종 규칙 확인을 보고하고, `apply`면 충돌이 없을 때만 반영한다. `lint`는 원본 저장소에서 파일 분류(`.claude/framework.json`)를 점검한다 |
 
 - 옛 형식(.xls·.ppt)은 읽지 못한다. 새 형식으로 다시 저장해서 쓴다.
 - 지침 원본 저장소에서 훅·스크립트를 고치면 저장소 루트에서 `node --test`로 `tests/`를 돌린다. (프로젝트에는 `tests/`가 없다 — README 3·6번)
@@ -92,14 +92,14 @@
 ## 5. 프로젝트에서 바꾸는 방법
 | 하고 싶은 것 | 방법 |
 |---|---|
-| 팀 전체 규칙 추가·변경 | `.claude/settings.json` 수정 → 원본 저장소에도 반영 검토. 이 파일은 "설정" 분류라 공통 지침 업데이트 때 덮어쓰지 않고 바뀐 줄만 보여준다 |
+| 팀 전체 규칙 추가·변경 | `.claude/settings.json` 수정 → 원본 저장소에도 반영 검토. 이 파일은 "프로젝트 설정" 분류라 공통 지침 업데이트 때 덮어쓰지 않고 바뀐 줄만 보여준다 |
 | 개인 설정 (예: 자주 쓰는 린트 명령 자동 허용) | `.claude/settings.local.json`에 작성 (git 제외 대상) |
 | 빌드 결과 폴더가 다름 | deny 목록의 폴더 경로 수정 |
 | 패키지 매니저가 다름 | ask 목록의 패키지 추가 명령 수정 |
 | Figma MCP 서버 이름이 `figma`가 아님 | ask 목록의 `mcp__figma__use_figma`와 deny 목록의 Figma 쓰기 도구를 `mcp__<서버 이름>__<도구>`로 수정 (`/mcp`에서 이름 확인) |
 | Figma MCP 도구 이름이 다름·쓰기 도구가 추가됨 | `/mcp`에서 도구 목록을 확인하고 deny 목록의 Figma 쓰기 도구를 맞춘다 |
 | 퍼블 소스 폴더가 `src/`가 아님 | ① `docs/PROJECT.md` "퍼블 소스 폴더"에 적는다 (훅·`check-pub`은 이 값을 읽는다) ② `.claude/rules/`에 남은 규칙 파일 모두의 `paths` 앞부분을 그 폴더로 바꾼다 (규칙 파일은 설정 값을 읽지 못한다) ③ `src/components/AGENTS.md`를 실제 컴포넌트 폴더로 옮긴다. ②·③을 빠뜨리면 `build-index`가 경고한다. 안쪽 폴더 이름이 다르면 `docs/ARCHITECTURE.md` 11번 |
-| 업종 규칙을 고르거나 바꿈 | ① `docs/PROJECT.md` "업종 규칙"에 쓸 파일을 적는다 ② 쓰지 않는 업종 규칙 파일(`.claude/framework.json` "선택" 분류)은 지운다. 지운 파일은 공통 지침 업데이트 때 되살아나지 않는다 ③ 다시 쓰려면 지금 버전 태그의 공통 지침 저장소에서 그 파일을 가져온다. ①·②가 어긋나면 `build-index`가 경고한다 |
+| 업종 규칙을 고르거나 바꿈 | ① `docs/PROJECT.md` "업종 규칙"에 쓸 파일을 적는다 ② 쓰지 않는 업종 규칙 파일(`.claude/framework.json` "업종별 선택" 분류)은 지운다. 지운 파일은 공통 지침 업데이트 때 되살아나지 않는다 ③ 다시 쓰려면 지금 버전 태그의 공통 지침 저장소에서 그 파일을 가져온다. ①·②가 어긋나면 `build-index`가 경고한다 |
 | 하드코딩 점검 범위 조정 | `check-hardcoded.mjs`의 `RULES` 수정 (대상 폴더는 위 줄) |
 | Code Connect를 쓴다 (`docs/PROJECT.md`) | deny 목록의 Code Connect 쓰기 도구(`add_code_connect_map`, `send_code_connect_mappings`)를 ask 목록으로 옮긴다. 다른 Figma 쓰기 도구는 그대로 둔다 |
 

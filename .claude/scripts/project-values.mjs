@@ -4,7 +4,7 @@
 // - 코드 토큰 위치: token-sync가 토큰 파일을 만드는 폴더. 없거나 [TODO]면 <퍼블 소스 폴더>styles/tokens/ (종류별 폴더면 css/tokens/)
 // - 폴더 설정 점검: 설정 파일을 읽지 못하는 곳(.claude/rules/의 paths, 컴포넌트 폴더 AGENTS.md 위치)이
 //   퍼블 소스 폴더와 어긋나면 경고 문장을 돌려준다. (docs/HARNESS.md 5번)
-// - 업종 규칙 점검: docs/PROJECT.md "업종 규칙"과 .claude/rules/에 실제로 있는 선택 파일(.claude/framework.json "선택")이
+// - 업종 규칙 점검: docs/PROJECT.md "업종 규칙"과 .claude/rules/에 실제로 있는 업종 규칙 파일(.claude/framework.json "업종별 선택")이
 //   어긋나면 경고 문장을 돌려준다.
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
@@ -91,11 +91,11 @@ export function checkPubDirSetup(root) {
   return warnings;
 }
 
-// .claude/framework.json "선택" 분류 글롭 → 정규식 목록. 없으면 빈 목록
+// .claude/framework.json "업종별 선택" 분류 글롭 → 정규식 목록. 없으면 빈 목록
 function optionalRes(root) {
   let globs = [];
   try {
-    globs = JSON.parse(readFileSync(join(root, '.claude/framework.json'), 'utf8')).files?.['선택'] || [];
+    globs = JSON.parse(readFileSync(join(root, '.claude/framework.json'), 'utf8')).files?.['업종별 선택'] || [];
   } catch {
     return [];
   }

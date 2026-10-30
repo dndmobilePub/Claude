@@ -1,4 +1,4 @@
-// 테스트 공용 도구 — 지침 원본 저장소 검사용 (프로젝트에는 배포하지 않는다. framework.json "원본 전용")
+// 테스트 공용 도구 — 지침 원본 저장소 검사용 (프로젝트에는 배포하지 않는다. framework.json "지침 원본 전용")
 // 외부 패키지 없이 Node 기본 모듈만 쓴다. 실행: node --test tests/
 
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, existsSync } from 'node:fs';
