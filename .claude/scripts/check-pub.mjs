@@ -18,6 +18,10 @@
 //      화면 전용 스타일: screens/ 안의 스타일 파일·Vue <style>·스타일 가져오기, 화면 ID 이름의 스타일 파일   높음
 //      global.css 예외: [data-screen="<화면ID>"] 범위가 아님, 바로 위 "/* 예외: <화면ID> — 이유 */" 없음   중간
 //      !important                                                                                 확인 필요
+//   P8 문서·에셋 (ARCHITECTURE.md 4-1·4-2)
+//      <html>이 있는 문서에 lang·viewport meta·<title>이 없음                                       중간
+//      viewport가 확대를 막음 (user-scalable=no, maximum-scale 2 미만)                              높음
+//      Figma MCP 임시 에셋 주소가 코드에 남음 (localhost:3845, 127.0.0.1:3845, figma.com/api/mcp/asset)  높음
 //
 // 결과: 표를 출력한다. 높음·중간이 하나라도 있으면 종료 코드 1, 없으면 0.
 
@@ -152,9 +156,30 @@ function checkStyle(file, lines) {
   }
 }
 
+// P8 — 파일 단위: 문서 기본 요소 (<html>이 있는 파일만)
+function checkDocument(file, text) {
+  const html = text.match(/<html\b[^>]*>/i);
+  if (!html) return;
+  const lineOf = (re) => {
+    const i = text.search(re);
+    return i < 0 ? 1 : text.slice(0, i).split(/\r?\n/).length;
+  };
+  if (!/\blang\s*=\s*["']?[\w-]+/i.test(html[0])) add(file, lineOf(/<html\b/i), 'P8', '중간', '<html>에 lang이 없음 (docs/PROJECT.md "화면 언어")');
+  const vp = text.match(/<meta[^>]*name\s*=\s*["']viewport["'][^>]*>/i);
+  if (!vp) add(file, lineOf(/<head\b|<html\b/i), 'P8', '중간', 'viewport meta가 없음 (width=device-width, initial-scale=1)');
+  else {
+    const content = (vp[0].match(/content\s*=\s*["']([^"']*)["']/i) || [])[1] || '';
+    const max = content.match(/maximum-scale\s*=\s*([\d.]+)/i);
+    if (/user-scalable\s*=\s*(no|0)\b/i.test(content) || (max && Number(max[1]) < 2)) add(file, lineOf(/name\s*=\s*["']viewport/i), 'P8', '높음', `viewport가 확대를 막음: ${content} (a11y.md 6번 글자 확대)`);
+  }
+  if (!/<title>\s*[^<\s][^<]*<\/title>/i.test(text)) add(file, lineOf(/<head\b|<html\b/i), 'P8', '중간', '<title>이 없거나 비어 있음 (IA 화면명, 형식은 ARCHITECTURE.md 11번)');
+}
+
 for (const file of files) {
-  const lines = (read(file) || '').split(/\r?\n/);
+  const text = read(file) || '';
+  const lines = text.split(/\r?\n/);
   checkStyle(file, lines);
+  checkDocument(file, text);
   lines.forEach((line, i) => {
     const t = line.trim();
     if (!t || isComment(t)) return;
@@ -198,6 +223,9 @@ for (const file of files) {
     const risky = line.match(/(\.innerHTML\s*=|\.outerHTML\s*=|insertAdjacentHTML|document\.write\s*\(|dangerouslySetInnerHTML|\bv-html\b)/);
     if (risky) add(file, n, 'P6', '높음', `위험한 HTML 삽입: ${risky[1]}`);
     if (/<script[^>]*\bsrc\s*=\s*["']?(https?:)?\/\//i.test(line)) add(file, n, 'P6', '높음', '외부 스크립트를 직접 추가');
+
+    // P8 — 줄 단위 (주석 줄은 위에서 건너뜀)
+    if (/(localhost|127\.0\.0\.1):3845\b|figma\.com\/api\/mcp\/asset/i.test(line)) add(file, n, 'P8', '높음', 'Figma MCP 임시 에셋 주소 — 에셋을 받아 에셋 폴더에 저장하고 그 경로를 씀 (ARCHITECTURE.md 4-2)');
 
     // P7 — 줄 단위
     if (/!important/.test(line)) add(file, n, 'P7', '확인 필요', '!important — 컴포넌트 스타일을 덮는 예외면 이유를 주석에 적음');

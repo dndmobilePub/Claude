@@ -6,6 +6,7 @@
 
 ## 기본 정보
 - 서비스명: [TODO]
+- 화면 언어: [TODO: `<html lang>` 값. 예) ko. 비어 있으면 ko (`docs/ARCHITECTURE.md` 4-1)]
 - 업종 규칙: [TODO: 쓰는 `.claude/rules/` 업종 규칙 파일. 여럿이면 쉼표로. 예) finance-ui.md / 없음. 쓰지 않는 업종 규칙 파일은 지운다 — 지운 파일은 공통 지침 업데이트 때 되살아나지 않는다 (`docs/HARNESS.md` 5번)]
 
 ## 입력 원본

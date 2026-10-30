@@ -19,7 +19,7 @@ docs/
   PROJECT.md                  # 프로젝트별 설정: 서비스명·입력 원본(IA·기획서·Figma)·화면 ID 형식·퍼블 언어·스타일링·명령어·토큰 위치
   PRODUCT.md                  # 기획·도메인·용어집
   DESIGN.md                   # 디자인 시스템 사용 규칙 (값은 Figma가 원본)
-  ARCHITECTURE.md             # 퍼블 파일 구조: 퍼블과 개발의 경계·폴더 구조(화면 폴더/종류별 폴더)·이동 표시·더미 데이터·상태 확인·스타일 위치(예외 global.css)
+  ARCHITECTURE.md             # 퍼블 파일 구조: 퍼블과 개발의 경계·폴더 구조(화면 폴더/종류별 폴더)·이동 표시·문서 기본 요소·에셋·더미 데이터·상태 확인·스타일 위치(예외 global.css)
   PATTERNS.md                 # 화면 패턴: 목록·상세·입력·확인·결과·검색·안내·동의의 필수 상태·빠지기 쉬운 항목
   QA.md                       # 검수 기준: 순서·공통 체크리스트·시각 비교(허용 차이·원인 분류)·결과·재검수
   GIT.md                      # 브랜치·커밋·PR 규칙
@@ -51,7 +51,7 @@ docs/
     session-reminder.mjs      #   대화 압축 후 핵심 규칙·작업 위치 재안내
   scripts/
     office-zip.mjs            #   xlsx·pptx 공용 읽기 모듈 (외부 패키지 없음)
-    check-pub.mjs             #   퍼블 점검 스크립트 P1~P7 (ds-check가 먼저 실행)
+    check-pub.mjs             #   퍼블 점검 스크립트 P1~P8 (ds-check가 먼저 실행)
     project-values.mjs        #   PROJECT.md의 퍼블 소스 폴더·파일 구조·코드 토큰 위치 읽기 (훅·스크립트 공용)
     framework-update.mjs      #   공통 지침 두 버전과 프로젝트 비교·반영, 분류 점검(lint)
   rules/                      # 퍼블 소스 폴더(기본 src/) 작업 시 자동 적용되는 규칙
