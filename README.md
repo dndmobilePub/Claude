@@ -91,7 +91,9 @@ tests/               # 지침 원본 검사용 테스트 (프로젝트에는 쓰
 | [ ] | 훅이 도는지 | 플로우 문서 하나를 고친 뒤 `docs/ui-flow/_index.md` 현황이 바뀌는지. Windows는 `node`가 경로에 있는지 | `docs/HARNESS.md` 3번, `node .claude/hooks/build-index.mjs` 수동 실행 |
 | [ ] | IA 읽기 | `node .claude/skills/ia-sync/read-ia.mjs <IA 파일> sheets`, `dump`를 조금 → 병합 셀·숨김 행·WBS 색칠(`fills`)이 맞게 나오는지 | 원본 저장소에 보완 요청 (그동안은 `/ia-sync`에서 사람과 함께 확인) |
 | [ ] | 기획서 PPT 읽기 | `node .claude/skills/write-flow/read-ppt.mjs <PPT> list`, `text` 몇 장 | 같음 |
-| [ ] | Figma 조회 스크립트 | `/token-sync`·`/write-flow`에서 `read-variables`·`read-styles`·`read-storyboard`를 실제 파일로 한 번 실행 (`use_figma`는 실행마다 확인) | 같음 |
+| [ ] | Figma 조회 스크립트 | `/token-sync`·`/write-flow`에서 `read-variables`·`read-styles`·`export-tokens`·`read-storyboard`를 실제 파일로 한 번 실행 (`use_figma`는 실행마다 확인) | 같음 |
+| [ ] | Figma 스크린샷 받기 | 화면 노드 하나를 `get_screenshot`으로 받아 이미지가 보이는지. 클라우드 세션은 주소 내려받기가 막힐 수 있음 | `enableBase64Response: true`로 대화 안에서 받기. 그것도 안 되면 사람이 캡처 (`docs/DESIGN.md` 2번) |
+| [ ] | 토큰 변환 | `/token-sync`에서 `convert-tokens.mjs`가 해시 검사를 통과하고 비교 보고를 내는지 | 원본 저장소에 보완 요청 |
 | [ ] | 점검 스크립트 | 첫 화면을 퍼블한 뒤 `node .claude/scripts/check-pub.mjs` | 같음 |
 
 ## 4. 화면 하나가 완성되는 흐름

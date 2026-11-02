@@ -2,12 +2,14 @@
 // - use_figma의 code에 그대로 넣고, 아래 KIND와 OFFSET만 바꿔 실행한다.
 // - IMPORTANT: 읽기만 한다. 노드·변수·스타일을 만들거나 고치는 코드를 추가하지 않는다.
 // - KIND: 'TEXT'(텍스트 스타일) | 'EFFECT'(효과 스타일) | null(개수만)
-// - 결과가 MAX_CHARS를 넘기 전에 멈춘다. 돌려준 next가 null이 아니면 OFFSET = next로 다시 실행한다.
+// - 결과가 MAX_BYTES(바이트)를 넘기 전에 멈춘다. 돌려준 next가 null이 아니면 OFFSET = next로 다시 실행한다.
 // - 스타일 값에 변수가 연결돼 있으면 그 변수 이름을 bound에 함께 돌려준다. (변환은 DESIGN.md 3-3)
 
 const KIND = null; // 예) 'TEXT'
 const OFFSET = 0;
-const MAX_CHARS = 40000;
+const MAX_BYTES = 40000; // use_figma 결과는 48KB(바이트)까지
+const bytes = (s) => { let n = 0; for (const ch of s) { const c = ch.codePointAt(0); n += c < 0x80 ? 1 : c < 0x800 ? 2 : c < 0x10000 ? 3 : 4; } return n; };
+
 
 const texts = await figma.getLocalTextStylesAsync();
 const effects = await figma.getLocalEffectStylesAsync();
@@ -75,8 +77,8 @@ let size = 0;
 let i = OFFSET;
 for (; i < list.length; i++) {
   const row = KIND === 'TEXT' ? await textRow(list[i]) : await effectRow(list[i]);
-  const rowSize = JSON.stringify(row).length + 1;
-  if (rows.length > 0 && size + rowSize > MAX_CHARS) break;
+  const rowSize = bytes(JSON.stringify(row)) + 1;
+  if (rows.length > 0 && size + rowSize > MAX_BYTES) break;
   rows.push(row);
   size += rowSize;
 }

@@ -15,13 +15,17 @@ test('lint: 원본 저장소의 모든 파일이 분류 하나에만 들어간�
 
 // from(지금 버전) / to(새 버전) / proj(프로젝트) 세 폴더를 만든다.
 // change(to)로 새 버전을, edit(proj)로 프로젝트를 바꾼다.
+// 지금 버전과 그다음 minor 버전 (원본 버전이 바뀌어도 테스트가 그대로 돌게)
+const CUR = JSON.parse(read(REPO, '.claude/framework.json')).version;
+const NEXT = CUR.replace(/^(\d+)\.(\d+)\.\d+$/, (_, a, b) => `${a}.${Number(b) + 1}.0`);
+
 function setup(t, { change = () => {}, edit = () => {} } = {}) {
   const base = tempDir(t);
   const from = join(base, 'from');
   const to = join(base, 'to');
   const proj = join(base, 'proj');
   for (const d of [from, to, proj]) copyRepo(d);
-  replaceIn(to, '.claude/framework.json', '"version": "0.1.0"', '"version": "0.2.0"');
+  replaceIn(to, '.claude/framework.json', `"version": "${CUR}"`, `"version": "${NEXT}"`);
   change(to);
   edit(proj);
   gitCommitAll(from);
@@ -39,7 +43,7 @@ test('지침 관리: 프로젝트가 고치지 않은 파일은 새 버전으로
   assert.equal(r.code, 0, r.out);
   assert.ok(row(r.out, '교체', 'AGENTS.md'), r.out);
   assert.match(read(s.proj, 'AGENTS.md'), /새 버전/);
-  assert.match(read(s.proj, '.claude/framework.json'), /"version": "0.2.0"/);
+  assert.match(read(s.proj, '.claude/framework.json'), new RegExp(`"version": "${NEXT.replace(/\./g, '\\.')}"`));
 });
 
 test('지침 관리: 프로젝트가 직접 고친 파일은 충돌이고 apply가 멈춘다', (t) => {
@@ -51,7 +55,7 @@ test('지침 관리: 프로젝트가 직접 고친 파일은 충돌이고 apply�
   assert.notEqual(r.code, 0);
   assert.ok(row(r.out, '충돌', 'AGENTS.md'), r.out);
   assert.match(read(s.proj, 'AGENTS.md'), /프로젝트 수정/);
-  assert.match(read(s.proj, '.claude/framework.json'), /"version": "0.1.0"/);
+  assert.match(read(s.proj, '.claude/framework.json'), new RegExp(`"version": "${CUR.replace(/\./g, '\\.')}"`));
 });
 
 test('지침 + 프로젝트 예외: 공통 부분은 바뀌고 예외 섹션 값은 남는다', (t) => {

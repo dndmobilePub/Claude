@@ -31,9 +31,10 @@ description: 기획서(Figma 기획 설계서·PPT)를 분석해 docs/storyboard
 - 저장할 때 frontmatter `version`에 분석한 기획서 버전을 적는다. 모르면 묻는다.
 - 없거나 바뀌었으면 원본별로 읽는다. 둘 다 있으면 둘 다 읽는다.
   - Figma 설계서: `read-storyboard.js`
-    1. `NODE_ID = null`로 페이지·프레임 목록을 받고, 이 도메인에 해당하는 페이지·섹션을 확인받는다.
+    1. `NODE_ID = null`로 페이지 목록을 받고, 페이지 ID로 다시 실행해 프레임 목록을 본 뒤 이 도메인에 해당하는 페이지·섹션을 확인받는다.
     2. 그 노드로 텍스트를 읽는다. `next`가 있으면 이어서 읽는다.
     3. 텍스트만으로 이해할 수 없는 프레임(흐름 도식 등)만 `get_screenshot`으로 확인한다.
+    4. 기획서를 이미지로 붙인 경우(결과의 `texts`가 비고 `images`만 있음): 이미지 노드마다 `get_screenshot`으로 한 장씩 읽는다. 주소로 받지 못하면 `enableBase64Response: true`. 글자가 작아 읽기 어려우면 `maxDimension`을 키운다. storyboard 각 절의 "위치"에 이미지 노드 ID를 적는다. 이미지에 없는 장(빠진 페이지 번호 등)은 추측하지 않고 질문으로 남긴다.
   - PPT: `node .claude/skills/write-flow/read-ppt.mjs <파일> list`
     1. 슬라이드 목록(첫 줄·글자 수·이미지 수)을 보고 이 도메인에 해당하는 슬라이드 범위를 확인받는다.
     2. `text --slides <범위> --notes`로 읽는다. `# 다음:` 값이 있으면 이어서 읽는다.

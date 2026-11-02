@@ -2,12 +2,14 @@
 // - use_figma의 code에 그대로 넣고, 아래 COLLECTION_ID와 OFFSET만 바꿔 실행한다.
 // - IMPORTANT: 읽기만 한다. 노드·변수·스타일을 만들거나 고치는 코드를 추가하지 않는다.
 // - COLLECTION_ID가 null이면 컬렉션 목록만 돌려준다.
-// - 컬렉션을 지정하면 변수를 OFFSET부터 읽고, 결과가 MAX_CHARS를 넘기 전에 멈춘다.
+// - 컬렉션을 지정하면 변수를 OFFSET부터 읽고, 결과가 MAX_BYTES(바이트)를 넘기 전에 멈춘다.
 //   돌려준 next가 null이 아니면 OFFSET = next로 다시 실행한다.
 
 const COLLECTION_ID = null; // 예) 'VariableCollectionId:1:2'
 const OFFSET = 0;
-const MAX_CHARS = 40000;
+const MAX_BYTES = 40000; // use_figma 결과는 48KB(바이트)까지
+const bytes = (s) => { let n = 0; for (const ch of s) { const c = ch.codePointAt(0); n += c < 0x80 ? 1 : c < 0x800 ? 2 : c < 0x10000 ? 3 : 4; } return n; };
+
 
 const collections = await figma.variables.getLocalVariableCollectionsAsync();
 
@@ -54,8 +56,8 @@ for (; i < col.variableIds.length; i++) {
     else values[key] = val;
   }
   const row = { name: v.name, type: v.resolvedType, scopes: v.scopes, hidden: v.hiddenFromPublishing, values };
-  const rowSize = JSON.stringify(row).length + 1;
-  if (variables.length > 0 && size + rowSize > MAX_CHARS) break;
+  const rowSize = bytes(JSON.stringify(row)) + 1;
+  if (variables.length > 0 && size + rowSize > MAX_BYTES) break;
   variables.push(row);
   size += rowSize;
 }

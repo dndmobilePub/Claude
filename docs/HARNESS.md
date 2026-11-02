@@ -34,7 +34,7 @@
 ### ask — 실행 전 항상 확인
 - `git commit`, `git push`, `git merge`, `git rebase`, `gh pr create`, `gh pr merge`
 - 패키지 추가: `npm install`, `npm i`, `pnpm add`, `yarn add` (새 의존성 임의 추가 방지)
-- Figma `use_figma`: Figma 파일을 고칠 수도 있는 도구라 실행할 때마다 코드를 보고 확인한다. 이 지침에서는 `token-sync`·`write-flow`의 읽기 전용 조회 스크립트(`read-variables.js`, `read-styles.js`, `read-storyboard.js`)에만 쓴다
+- Figma `use_figma`: Figma 파일을 고칠 수도 있는 도구라 실행할 때마다 코드를 보고 확인한다. 이 지침에서는 `token-sync`·`write-flow`의 읽기 전용 조회 스크립트(`read-variables.js`, `read-styles.js`, `export-tokens.js`, `read-storyboard.js`)에만 쓴다. 결과는 48KB(바이트)까지만 돌아오므로 조회 스크립트는 40,000바이트 단위로 나눠 돌려준다. Figma MCP가 지원하지 않는 API(`figma.loadAllPagesAsync` 등)는 쓰지 않는다
 
 ### 주의
 - 명령 규칙은 Claude가 보통 쓰는 형태를 막는 장치이지 완전한 보안 경계가 아니다. 다른 형태로 같은 명령을 쓸 수 있으므로 문서 규칙과 함께 둔다.
@@ -59,7 +59,7 @@
 - 훅 스크립트에 오류가 나면 작업을 막지 않고 통과시킨다.
 
 ### 스크립트 (입력 원본 읽기·점검·버전 표기)
-훅이 아니라 스킬이 필요할 때 `node`로 실행한다. `bump-ver.mjs`와 `framework-update.mjs apply` 말고는 모두 읽기 전용이고, 외부 패키지가 필요 없다. (`.claude/scripts/office-zip.mjs`를 함께 쓴다. 퍼블 소스 폴더·코드 토큰 위치는 훅과 스크립트가 `.claude/scripts/project-values.mjs`로 함께 읽는다)
+훅이 아니라 스킬이 필요할 때 `node`로 실행한다. `bump-ver.mjs`, `framework-update.mjs apply`, `convert-tokens.mjs --write` 말고는 모두 읽기 전용이고, 외부 패키지가 필요 없다. (`.claude/scripts/office-zip.mjs`를 함께 쓴다. 퍼블 소스 폴더·코드 토큰 위치는 훅과 스크립트가 `.claude/scripts/project-values.mjs`로 함께 읽는다)
 
 | 스크립트 | 스킬 | 읽는 것 |
 |---|---|---|
@@ -68,6 +68,8 @@
 | `.claude/skills/write-flow/read-storyboard.js` | `write-flow` | Figma 기획 설계서 (Figma `use_figma`로 실행) |
 | `.claude/skills/token-sync/read-variables.js` | `token-sync` | Figma 변수 (Figma `use_figma`로 실행) |
 | `.claude/skills/token-sync/read-styles.js` | `token-sync` | Figma 텍스트 스타일·효과 스타일 (Figma `use_figma`로 실행) |
+| `.claude/skills/token-sync/export-tokens.js` | `token-sync` | Figma 변수·텍스트·효과 스타일 전체를 압축 형식 + 해시로 내보낸다 (Figma `use_figma`로 실행, 조각마다) |
+| `.claude/skills/token-sync/convert-tokens.mjs` | `token-sync` | 내보낸 텍스트의 해시를 검사하고 `DESIGN.md` 3-2·3-3·9번대로 토큰 파일을 만든다. 기본은 비교 보고만, `--write`면 토큰 파일을 쓴다 |
 | `.claude/scripts/check-pub.mjs` | `ds-check` | 퍼블 파일의 규칙 위반 P1~P8 (정의 안 된 토큰, 텍스트 스타일 조합, 화면 폭, 개발 몫 코드, 이동 대상 ID, 위험한 HTML·외부 스크립트, 스타일 위치, 문서 기본 요소·임시 에셋 주소). 읽기만 한다 |
 | `.claude/skills/version-update/bump-ver.mjs` | `version-update` | 화면 명세 frontmatter의 기준 버전 한 줄만 고친다 (`--write` 없으면 목록만 보여준다) |
 | `.claude/scripts/framework-update.mjs` | `framework-update` | 공통 지침 두 버전과 프로젝트를 비교해 교체·병합·추가·삭제·충돌·설정 확인·업종 규칙 확인을 보고하고, `apply`면 충돌이 없을 때만 반영한다. `lint`는 원본 저장소에서 파일 분류(`.claude/framework.json`)를 점검한다 |
