@@ -34,7 +34,7 @@
 | C9 | 시각 비교: 허용 차이를 넘는 차이가 없거나, 원인 분류와 처리가 기록됨 | 이 문서 3번 |
 | C10 | 구현 기준 폭·최소 폭에서 가로 스크롤·겹침·의도하지 않은 줄바꿈 없음 | `DESIGN.md` 6-2 |
 | C11 | 린트·테스트 통과 | `docs/PROJECT.md` |
-| C12 | 열린 차단 질문 없음. 본문의 `가정(Q-ID)`와 보고 파일의 가정 목록이 일치 | `docs/questions/_index.md` |
+| C12 | 열린 차단 질문 없음. 본문의 `가정(Q-ID)`·`가정(DS-ID)`와 보고 파일의 가정 목록이 일치 | `docs/questions/_index.md`, `docs/ds-requests/_index.md` 2번 |
 | C13 | 개발 전달 목록 작성 | `ARCHITECTURE.md` 10번 |
 | C14 | 비밀 값·실제 개인정보 없음 | `docs/GIT.md` 4번 |
 | C15 | 문서 기본 요소(lang·viewport·제목·웹폰트 한 곳)와 에셋 규칙(위치·형식·이름, 임시 주소 없음) 적용 | `ARCHITECTURE.md` 4-1·4-2, `check-pub` P8 |

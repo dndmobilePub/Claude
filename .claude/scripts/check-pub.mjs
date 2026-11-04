@@ -29,7 +29,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { pubDir as readPubDir, tokenDir as readTokenDir } from './project-values.mjs';
+import { pubDir as readPubDir, tokenDir as readTokenDir, screenIdPattern } from './project-values.mjs';
 
 const root = process.env.CLAUDE_PROJECT_DIR || fileURLToPath(new URL('../..', import.meta.url));
 const EXT = /\.(html|vue|jsx?|tsx?|css|scss)$/;
@@ -66,13 +66,15 @@ const tokenDir = readTokenDir(root);
 const frameWidths = [...project.matchAll(/\|\s*[^|\n]+\|\s*(\d{3,4})\s*[×x]\s*\d{3,4}\s*\|/g)].map((m) => m[1]);
 
 // 화면 목록: IA 사본 + 플로우 화면 목록 표의 첫 칸
+// 화면 ID 모양은 docs/PROJECT.md "화면 ID 형식"을 따른다. 없으면 "영문으로 시작하고 숫자가 들어간 이름"으로 넓게 본다.
 function screenIds() {
   const ids = new Set();
+  const idRe = screenIdPattern(root) || /^[A-Za-z][\w-]*\d[\w-]*$/;
   const take = (text) => {
     if (!text) return;
     for (const line of text.split(/\r?\n/)) {
       const c = line.split('|').map((x) => x.trim());
-      if (c.length > 2 && /^[A-Za-z][\w-]*\d$/.test(c[1])) ids.add(c[1]);
+      if (c.length > 2 && idRe.test(c[1])) ids.add(c[1]);
     }
   };
   take(read(join(root, 'docs/ia/screen-list.md')));

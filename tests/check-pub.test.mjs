@@ -88,3 +88,25 @@ test('P1: 정의되지 않은 토큰 (토큰 폴더가 있을 때)', (t) => {
   assert.doesNotMatch(r.out, /정의되지 않은 토큰 --color-primary/);
   assert.equal(read(dir, 'src/styles/tokens/tokens.css').includes('--color-primary'), true);
 });
+
+const flowDoc = (ids) => `# 플로우\n\n## 2. 화면 목록\n| 화면 ID | 화면명 | 패턴 | 역할 |\n|---|---|---|---|\n${ids.map((id) => `| ${id} | 화면 | 목록 | |`).join('\n')}\n`;
+
+test('P5: PROJECT.md 화면 ID 형식으로 화면 목록을 읽는다 (글자로 끝나는 ID)', (t) => {
+  const dir = makeProject(t);
+  write(dir, 'docs/PROJECT.md', read(dir, 'docs/PROJECT.md').replace(/- 화면 ID 형식: .*/, () => '- 화면 ID 형식: `^[A-Z]{6}\\d{3}_\\d{2}[A-Z]{2}$`'));
+  write(dir, 'docs/ui-flow/transfer.md', flowDoc(['TRNMUL002_10MS', 'TRNMUL002_23TB']));
+  write(dir, 'src/screens/transfer/A.vue', '<template><button data-screen-link="TRNMUL002_23TB">다음</button><a data-screen-link="TRNMUL002_99XX">x</a></template>\n');
+  const r = run(dir, SCRIPT, ['src']);
+  assert.doesNotMatch(r.out, /건너뜀: P5/);
+  assert.match(r.out, /TRNMUL002_99XX이 화면 목록/);
+  assert.doesNotMatch(r.out, /TRNMUL002_23TB이 화면 목록/);
+});
+
+test('P5: 화면 ID 형식이 비어 있으면 숫자가 든 ID를 넓게 읽는다', (t) => {
+  const dir = makeProject(t);
+  write(dir, 'docs/ui-flow/transfer.md', flowDoc(['TRF-010', 'ACC010MS']));
+  write(dir, 'src/screens/transfer/A.vue', '<template><a data-screen-link="ACC010MS">x</a></template>\n');
+  const r = run(dir, SCRIPT, ['src']);
+  assert.doesNotMatch(r.out, /건너뜀: P5/);
+  assert.doesNotMatch(r.out, /ACC010MS이 화면 목록/);
+});

@@ -46,7 +46,7 @@ src/
   components/                       # 컴포넌트 (스타일은 컴포넌트 안에)
   dummy/<도메인>.<확장자>             # 더미 데이터 (5번)
   lib/                              # 공통 유틸 (단위 테스트를 함께 둔다)
-  styles/                           # 토큰·공통 스타일·global.css(예외)
+  styles/                           # 토큰·공통 스타일·레이아웃 값 파일(layout.css, DESIGN 3-4)·global.css(예외)
   assets/icons/ · assets/images/ · assets/fonts/   # 에셋 (4-2)
 ```
 - 스토리북을 쓰면 스토리 파일 위치는 `src/components/AGENTS.md` 예외 섹션을 따른다.
@@ -60,6 +60,7 @@ src/
   html/components/<이름>.html         # 컴포넌트 마크업 견본
   css/tokens/                         # 토큰 (token-sync 생성)
   css/common.css                      # 공통 스타일
+  css/layout.css                      # 레이아웃 값 파일 (토큰이 없는 종류의 숫자, DESIGN 3-4)
   css/components/<이름>.css            # 컴포넌트 스타일
   css/global.css                      # 예외 스타일 (8번)
   js/components/<이름>.js              # 컴포넌트 동작 (탭·아코디언 등, 있을 때만)
@@ -121,7 +122,17 @@ src/
   - 아이콘·벡터 그림: SVG
   - 사진·복잡한 그림: Figma에서 받은 형식 그대로. 래스터 배율은 11번 예외 (비어 있으면 2배)
   - 단색 아이콘은 SVG의 고정 색(`fill`·`stroke`)을 `currentColor`로 바꿔 글자 색 토큰을 따르게 한다. 다색 아이콘은 그대로 둔다.
-  - SVG를 넣는 방식(파일 참조 / 마크업 안에 직접 / 아이콘 컴포넌트)은 11번 예외를 따른다. 비어 있으면 기존 방식을 따르고, 처음이면 묻는다.
+    - 받은 SVG 파일을 코드 쪽에서 이렇게 고치는 것은 Figma 원본을 고치는 것이 아니다. (Figma는 읽기만 — `.claude/rules/figma-design-system.md`. 고치지 않는 대상은 Figma 파일이다) 모양(경로·크기)은 바꾸지 않고 색 속성만 바꾼다.
+  - SVG를 넣는 방식은 11번 예외를 따른다. 비어 있으면 기존 방식을 따르고, 처음이면 아래에서 골라 묻는다.
+
+    | 방식 | 쓸 수 있는 언어 | 색 바꾸기 | 비고 |
+    |---|---|---|---|
+    | 파일 참조 (`<img src>`) | 모두 | 안 됨 (다색·고정 색 아이콘용) | 대체 텍스트는 `alt` |
+    | 마크업 안에 직접 (`<svg>…</svg>`) | 모두 | `currentColor` | JS는 HTML에, React·Vue는 아이콘 컴포넌트 템플릿에 SVG 마크업을 그대로 쓴다 |
+    | 빌드 도구로 SVG를 컴포넌트로 가져오기 | React·Vue (빌드 도구 플러그인이 있을 때) | `currentColor` | 플러그인은 새 패키지라 묻고 추가한다 (1번) |
+    | CSS 마스크 (`mask-image: url(...)` + `background-color`) | 모두 | 배경색 토큰 | 파일은 그대로 두고 색은 CSS로. 아이콘 요소는 `aria-hidden` 또는 레이블을 따로 준다 |
+
+    - IMPORTANT: SVG 문자열을 HTML로 넣지 않는다. (`v-html`·`dangerouslySetInnerHTML`·`innerHTML` — 1번) "아이콘 컴포넌트"는 위 방식 중 하나를 감싼 컴포넌트다.
 - 파일 이름: 영문 소문자·숫자·하이픈, `<종류>-<의미>` (예: `icon-close.svg`, `img-empty-list.png`). Figma 레이어 이름을 그대로 쓰지 않는다. 앞머리 규칙이 다르면 11번 예외.
 - 대체 텍스트는 `.claude/rules/a11y.md` 2번을 따른다.
 - 새로 넣은 에셋은 검수 보고 "개발 전달"에 파일과 Figma 노드를 적는다. (10번)
@@ -227,5 +238,5 @@ src/dummy/transfer.js
 - 웹폰트 불러오는 방법 (4-1): [TODO: 예) 자체 파일 `assets/fonts/` + 공통 스타일 @font-face / 외부 주소(CDN)와 그 주소]
 - 에셋 위치·파일 이름 앞머리가 다를 때 (4-2): [TODO: 예) 아이콘 앞머리 ic-]
 - 래스터 이미지 배율 (4-2): [TODO: 예) 2배. 비어 있으면 2배]
-- SVG를 넣는 방식 (4-2): [TODO: 파일 참조 / 마크업 안에 직접 / 아이콘 컴포넌트]
+- SVG를 넣는 방식 (4-2): [TODO: 파일 참조 / 마크업 안에 직접 / 빌드 도구로 가져오기 / CSS 마스크. 아이콘 컴포넌트를 두면 그 안에서 쓰는 방식]
 - 기타: [TODO]

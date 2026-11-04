@@ -16,7 +16,7 @@
 
 ## 2. 폴더 구조
 - 컴포넌트 하나 = 폴더 하나. 폴더 이름은 컴포넌트 이름과 같다.
-- 폴더 안 파일 역할:
+- 폴더 안 파일 역할: (8번 예외 "폴더 안 파일 구성"이 있으면 그것이 먼저다)
 
 | 역할 | 필수 | 비고 |
 |---|---|---|
@@ -24,11 +24,14 @@
 | 스타일 | 스타일링 방식에 따름 | Tailwind면 별도 파일 없음. Vue는 `.vue` 안에 둘 수도 있음 |
 | 동작 스크립트 | JS에서 동작이 있을 때만 | React·Vue는 본체 안에 둔다 |
 | 타입(props) | React·Vue + TypeScript일 때 | 본체 안에 둘 수도 있음 — 프로젝트 예외를 따름 |
-| 내보내기(index) | React·Vue | 외부는 index로만 가져간다 |
+| 내보내기(index) | React·Vue 기본 (예외 칸에서 생략 가능) | 있으면 외부는 index로만 가져간다. 8번 "폴더 안 파일 구성"에 index를 두지 않기로 정했으면 본체 파일을 바로 가져간다 |
 | 스토리 | 스토리북을 쓸 때 | `docs/PROJECT.md` 스토리북 |
 
 ## 3. 네이밍
 - 컴포넌트 이름: PascalCase. Figma 컴포넌트(세트) 이름과 같게 한다.
+  - Figma 이름에 `/` 경로가 있으면 경로를 이어 PascalCase로 만든다. 예) `Account Card/Bank` → `AccountCardBank`
+  - 디바이스·크기만 다른 세트(예: `…/Mobile`·`…/PC`)를 코드 컴포넌트 하나로 만들 때는 그 표기를 이름에서 뺀다. 빼는 표기와 하나로 묶을지는 8번 예외 "Figma 이름 → 코드 이름"에 정한다. 비어 있으면 묻는다.
+  - 한 코드 컴포넌트에 Figma 세트가 여럿이면 명세 `figma_name`에 쉼표로 모두 적는다. (7번)
 - 폴더 이름: 컴포넌트 이름과 같다.
 - JS: 마크업의 클래스 이름은 컴포넌트 이름을 바꾼 kebab-case를 기본 클래스로 쓴다. (예: `AccountCard` → `account-card`) 하위 요소·변형 표기 규칙은 예외 섹션의 클래스 이름 규칙을 따른다.
 - 이벤트: React `on` + 동사 (`onChange`, `onConfirm`) / Vue `emit('change')` / JS 사용자 정의 이벤트를 쓸 때 kebab-case (`confirm`).
@@ -62,12 +65,13 @@
 - 스타일은 컴포넌트 안에서 해결한다. 화면이 컴포넌트 스타일을 덮어써야 할 것 같으면 먼저 변형 추가를 검토한다. 정말 안 될 때만 `global.css` 예외 (ARCHITECTURE 8-1)
 
 ## 7. Figma 연결과 Code Connect
-- Figma 컴포넌트와 코드 컴포넌트의 연결 원본은 컴포넌트 명세(`figma_name`, 4·5번 표)다. 연결 목록은 `docs/components/_index.md`에 자동으로 모인다.
+- Figma 컴포넌트와 코드 컴포넌트의 연결 원본은 컴포넌트 명세(`figma_name`, 4·5번 표)다. 연결 목록은 `docs/components/_index.md`에 자동으로 모인다. `figma_name`에 쉼표로 적은 세트는 세트마다 한 줄씩 연결 목록에 들어간다.
 - `docs/PROJECT.md` "Code Connect 사용"이 "사용"일 때만: 컴포넌트가 구현완료되면 명세 내용대로 Figma Code Connect 등록을 제안한다. Figma에 쓰는 작업이라 반드시 승인받은 뒤 한다. 권한 설정은 `docs/HARNESS.md` 5번.
 
 ## 8. 프로젝트별 예외 (선택)
 - 계층별 실제 폴더: [TODO: 예) src/components/ui, src/components/patterns]
-- 폴더 안 파일 구성: [TODO: 예) JS: button.html, button.css / JS 종류별 폴더: html/components/button.html, css/components/button.css, js/components/button.js / React: Button.jsx, Button.module.css, index.js / Vue: Button.vue, index.js]
+- 폴더 안 파일 구성: [TODO: 예) JS: button.html, button.css / JS 종류별 폴더: html/components/button.html, css/components/button.css, js/components/button.js / React: Button.jsx, Button.module.css, index.js / Vue: Button.vue, index.js. index를 두지 않으면 빼고 적는다 — 2번 표보다 이 줄이 먼저다]
+- Figma 이름 → 코드 이름: [TODO: 경로·디바이스 표기를 어떻게 바꾸는지와, 디바이스별 세트를 하나로 묶는지. 예) `/Mobile`·`/PC`·크기 표기(`16M/01`)는 빼고 경로를 이어 PascalCase, 디바이스별 세트는 컴포넌트 하나(폭으로 모양 전환)]
 - 클래스 이름 규칙 (JS): [TODO: 예) BEM — block__element--modifier]
 - 스토리 파일 위치: [TODO: 예) 컴포넌트 폴더 안 / src/stories/]
 - 테스트 작성 여부: [TODO]

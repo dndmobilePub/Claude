@@ -2,6 +2,8 @@
 // - 퍼블 소스 폴더: 퍼블 파일을 두는 최상위 폴더. 없거나 [TODO]면 기본 src/
 // - 파일 구조: 화면 폴더(기본) / 종류별 폴더 (docs/ARCHITECTURE.md 3번)
 // - 코드 토큰 위치: token-sync가 토큰 파일을 만드는 폴더. 없거나 [TODO]면 <퍼블 소스 폴더>styles/tokens/ (종류별 폴더면 css/tokens/)
+// - 레이아웃 값 파일: 토큰이 없는 종류의 숫자를 모으는 파일. 없거나 [TODO]면 <퍼블 소스 폴더>styles/layout.css (종류별 폴더면 css/layout.css)
+// - 화면 ID 형식: 정규식. 없거나 [TODO]면 null
 // - 폴더 설정 점검: 설정 파일을 읽지 못하는 곳(.claude/rules/의 paths, 컴포넌트 폴더 AGENTS.md 위치)이
 //   퍼블 소스 폴더와 어긋나면 경고 문장을 돌려준다. (docs/HARNESS.md 5번)
 // - 업종 규칙 점검: docs/PROJECT.md "업종 규칙"과 .claude/rules/에 실제로 있는 업종 규칙 파일(.claude/framework.json "업종별 선택")이
@@ -42,6 +44,27 @@ export function pubDir(root) {
 export function fileLayout(root) {
   const v = valueOf(readProject(root), '파일 구조');
   return v && v.startsWith('종류별') ? '종류별 폴더' : '화면 폴더';
+}
+
+// "화면 ID 형식: `정규식`". 없거나 [TODO]거나 정규식이 잘못되면 null (기본값은 쓰는 쪽이 정한다)
+export function screenIdPattern(root) {
+  const m = readProject(root).match(/화면 ID 형식:[ \t]*`([^`]+)`/);
+  if (!m) return null;
+  try {
+    return new RegExp(m[1]);
+  } catch {
+    return null;
+  }
+}
+
+// 레이아웃 값 파일: 토큰이 없는 종류(폭·높이·z-index 등)의 숫자를 모으는 한 곳 (docs/DESIGN.md 3-4)
+// 없거나 [TODO]면 <퍼블 소스 폴더>styles/layout.css (종류별 폴더면 css/layout.css). 확장자는 프로젝트가 정한다
+export function layoutFile(root) {
+  const v = valueOf(readProject(root), '레이아웃 값 파일');
+  const norm = v && normalizeDir(v);
+  if (norm) return norm.replace(/\/$/, '');
+  const def = fileLayout(root) === '종류별 폴더' ? 'css/layout.css' : 'styles/layout.css';
+  return `${pubDir(root)}${def}`;
 }
 
 export function tokenDir(root) {

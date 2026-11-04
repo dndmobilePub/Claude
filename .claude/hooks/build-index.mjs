@@ -22,7 +22,7 @@
 // - 작업 묶음(docs/batches/<묶음 ID>.md)의 "## 2. 대상 화면과 순서" 표 + 화면 상태·검수 결과
 //   → 각 묶음 파일과 docs/batches/_index.md 의 AUTO 블록 (진행·완료, 묶음 밖 퍼블 대상)
 // - DS 변경 요청(docs/ds-requests/<요청 ID>-<이름>.md) frontmatter → docs/ds-requests/_index.md 의 AUTO 블록
-//   열린 요청(요청·디자이너 검토)의 screens에 있는 화면이 확정·구현완료면 경고
+//   열린 요청(요청·디자이너 검토)의 screens에 있는 화면이 확정·구현완료면 경고 (assume: 예인 요청은 가정 진행이라 경고하지 않음)
 // - 컴포넌트 명세 frontmatter figma_name → docs/components/_index.md 의 연결 목록 (같은 이름 중복, 구현완료인데 path 없음 경고)
 // - 화면 ID 형식: docs/PROJECT.md "화면 ID 형식"의 정규식 (비어 있으면 기본값)
 // - 화면 명세 device: PROJECT.md "뷰포트" 표의 디바이스 중에서만. 표에 디바이스가 여럿이면 초안이 아닌 명세는 비워 두지 않는다
@@ -36,7 +36,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { pubDir, checkPubDirSetup, checkRuleSetup } from '../scripts/project-values.mjs';
+import { pubDir, checkPubDirSetup, checkRuleSetup, screenIdPattern as readIdPattern } from '../scripts/project-values.mjs';
 
 const STATUS = {
   screen: ['초안', '검토', '확정', '구현완료', '수정필요'],
@@ -109,13 +109,7 @@ function sectionTable(text, no, title) {
 
 // docs/PROJECT.md의 "화면 ID 형식: `정규식`"을 읽는다. 없거나 [TODO]면 기본값.
 function screenIdPattern(root) {
-  const text = read(join(root, 'docs/PROJECT.md')) || '';
-  const m = text.match(/화면 ID 형식:\s*`([^`]+)`/);
-  try {
-    return new RegExp(m ? m[1] : DEFAULT_ID);
-  } catch {
-    return new RegExp(DEFAULT_ID);
-  }
+  return readIdPattern(root) || new RegExp(DEFAULT_ID);
 }
 
 // 플로우 문서의 "## 2. 화면 목록" 표에서 화면 행을 읽는다. (머리글 이름으로 읽고, 없으면 첫 칸 = 화면 ID, 둘째 칸 = 화면명)
@@ -476,9 +470,9 @@ function buildComponents(root, warn) {
       warn(`${where}: status "${fm.status ?? ''}"는 허용 값이 아닙니다 (${STATUS.component.join(' | ')}).`);
     }
     if (fm.layer === '기본' && !fm.figma_name) warn(`${where}: 기본 계층인데 figma_name(연결할 Figma 컴포넌트 이름)이 비어 있습니다.`);
-    if (fm.figma_name) {
-      if (byFigma.has(fm.figma_name)) warn(`${where}: Figma 컴포넌트 "${fm.figma_name}"이 ${byFigma.get(fm.figma_name)}에도 연결돼 있습니다.`);
-      else byFigma.set(fm.figma_name, where);
+    for (const name of figmaNames(fm.figma_name)) {
+      if (byFigma.has(name)) warn(`${where}: Figma 컴포넌트 "${name}"이 ${byFigma.get(name)}에도 연결돼 있습니다.`);
+      else byFigma.set(name, where);
     }
     const path = (fm.path || '').replace(/`/g, '').trim();
     if (fm.status === '구현완료' && path && !path.endsWith('...') && !existsSync(join(root, path))) {
@@ -495,7 +489,7 @@ function buildComponents(root, warn) {
     const count = STATUS.component.map((st) => `${st} ${rows.filter((r) => r.status === st).length}`).join(' · ');
     out.push(`전체 ${rows.length} · ${count}`, '');
     out.push('### 연결 목록 (Figma 컴포넌트 → 코드 컴포넌트)');
-    const linked = rows.filter((r) => r.figma_name).sort((a, b) => a.figma_name.localeCompare(b.figma_name));
+    const linked = rows.flatMap((r) => figmaNames(r.figma_name).map((name) => ({ ...r, figma_name: name }))).sort((a, b) => a.figma_name.localeCompare(b.figma_name));
     if (linked.length === 0) out.push('연결된 컴포넌트가 없다.');
     else {
       out.push('| Figma 이름 | 코드 컴포넌트 | 경로 | 상태 | Code Connect |', '|---|---|---|---|---|');
@@ -508,11 +502,17 @@ function buildComponents(root, warn) {
   return out.join('\n');
 }
 
+// figma_name: 세트 이름 하나 또는 쉼표로 여럿 (디바이스별 세트를 코드 하나로 만들 때)
+function figmaNames(value) {
+  return (value || '').split(',').map((x) => x.trim()).filter(Boolean);
+}
+
 // ---------- DS 변경 요청 ----------
 
 const DS_STATUS = ['요청', '디자이너 검토', '반영', '대체', '기각'];
 const DS_OPEN = ['요청', '디자이너 검토'];
 const DS_KIND = ['토큰', '컴포넌트', '변형', '아이콘', '기타'];
+const DS_ASSUME = ['예', '아니오'];
 
 function buildDsRequests(root, warn) {
   const dir = join(root, 'docs/ds-requests');
@@ -531,14 +531,18 @@ function buildDsRequests(root, warn) {
     if (fm.kind && !DS_KIND.includes(fm.kind)) warn(`${where}: kind "${fm.kind}"는 허용 값이 아닙니다 (${DS_KIND.join(' | ')}).`);
     if (!DS_OPEN.includes(fm.status) && DS_STATUS.includes(fm.status) && !fm.decided) warn(`${where}: ${fm.status}인데 decided(결정일)가 비어 있습니다.`);
     const screens = (fm.screens || '').split(',').map((x) => x.trim()).filter(Boolean);
+    // assume: 예 — 사용자가 허락해 결정 전에 가정으로 진행한다. 화면을 멈추지 않는다. (_index.md 2번)
+    if (fm.assume && !DS_ASSUME.includes(fm.assume)) warn(`${where}: assume "${fm.assume}"는 허용 값이 아닙니다 (${DS_ASSUME.join(' | ')}).`);
+    const assume = fm.assume === '예';
+    if (assume && !/^[ \t]*-[ \t]*가정:[ \t]*\S/m.test(text)) warn(`${where}: assume이 "예"인데 4번 결정에 "- 가정:" 줄(임시로 쓰는 값·방법)이 없습니다.`);
     for (const sid of screens) {
       if (!knownIds.has(sid)) warn(`${where}: screens의 ${sid}가 화면 목록에 없습니다.`);
       const sp = allSpecs.get(sid);
-      if (DS_OPEN.includes(fm.status) && ['확정', '구현완료'].includes(sp?.status)) {
-        warn(`docs/screens/${sid}.md: 열린 DS 변경 요청 ${id}가 있는데 상태가 ${sp.status}입니다.`);
+      if (DS_OPEN.includes(fm.status) && !assume && ['확정', '구현완료'].includes(sp?.status)) {
+        warn(`docs/screens/${sid}.md: 열린 DS 변경 요청 ${id}가 있는데 상태가 ${sp.status}입니다. (결정 전에 진행하려면 사용자 허락을 받아 요청 파일에 assume: 예와 가정 내용을 적습니다)`);
       }
     }
-    list.push({ file, id, kind: fm.kind || '', status: fm.status || '', screens, created: fm.created || '', title: h1(text).replace(id, '').trim() });
+    list.push({ file, id, kind: fm.kind || '', status: fm.status || '', screens, assume, created: fm.created || '', title: h1(text).replace(id, '').trim() });
   }
   const open = list.filter((x) => DS_OPEN.includes(x.status));
   const out = [START_LINE, ''];
@@ -548,8 +552,11 @@ function buildDsRequests(root, warn) {
     out.push('### 열린 요청');
     if (open.length === 0) out.push('열린 요청이 없다.');
     else {
-      out.push('| ID | 내용 | 종류 | 상태 | 멈춘 화면 | 만든 날 |', '|---|---|---|---|---|---|');
-      for (const x of open) out.push(`| [${x.id}](${x.file}) | ${esc(x.title)} | ${esc(x.kind)} | ${esc(x.status)} | ${esc(x.screens.join(', '))} | ${esc(x.created)} |`);
+      out.push('| ID | 내용 | 종류 | 상태 | 멈춘 화면 | 가정 진행 화면 | 만든 날 |', '|---|---|---|---|---|---|---|');
+      for (const x of open) {
+        const ids = esc(x.screens.join(', ')) || '-';
+        out.push(`| [${x.id}](${x.file}) | ${esc(x.title)} | ${esc(x.kind)} | ${esc(x.status)} | ${x.assume ? '-' : ids} | ${x.assume ? ids : '-'} | ${esc(x.created)} |`);
+      }
     }
     out.push('', '- 닫힌 요청(반영·대체·기각)은 파일에서 ID로 검색한다.');
   }

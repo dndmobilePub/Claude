@@ -144,3 +144,57 @@ test('훅 모드: 감시 대상이 아닌 파일 수정에는 아무것도 하�
   assert.equal(r.status, 0);
   assert.equal(read(dir, 'docs/ui-flow/_index.md'), before);
 });
+
+const dsReq = (id, screens, extra = '', body = '') => `---
+id: ${id}
+kind: 토큰
+status: 요청
+screens: ${screens}
+${extra}created: 2026-01-01
+decided:
+---
+
+# ${id} 크기 토큰
+
+## 4. 결정
+- 결과: 대기
+${body}`;
+
+test('DS 요청: 열린 요청의 화면이 구현완료면 경고, assume: 예면 가정 진행으로 경고하지 않는다', (t) => {
+  const dir = makeProject(t);
+  write(dir, 'docs/ui-flow/transfer.md', flow([['TRF-010', '금액 입력', '입력', ''], ['TRF-020', '이체 확인', '확인', '']]));
+  write(dir, 'docs/screens/TRF-010.md', spec('TRF-010', '금액 입력', '구현완료'));
+  write(dir, 'docs/screens/TRF-020.md', spec('TRF-020', '이체 확인', '구현완료'));
+  write(dir, 'docs/reports/TRF-010.md', '# 보고\n');
+  write(dir, 'docs/reports/TRF-020.md', '# 보고\n');
+  write(dir, 'docs/ds-requests/DS-001-size.md', dsReq('DS-001', 'TRF-010'));
+  write(dir, 'docs/ds-requests/DS-002-z.md', dsReq('DS-002', 'TRF-020', 'assume: 예\n', '- 가정: Figma 값을 레이아웃 값 파일에 씀\n'));
+  const r = run(dir, HOOK);
+  assert.match(r.out, /TRF-010\.md: 열린 DS 변경 요청 DS-001/);
+  assert.doesNotMatch(r.out, /TRF-020\.md: 열린 DS 변경 요청 DS-002/);
+  const index = read(dir, 'docs/ds-requests/_index.md');
+  assert.match(index, /\| \[DS-001\][^\n]*\| TRF-010 \| - \|/);
+  assert.match(index, /\| \[DS-002\][^\n]*\| - \| TRF-020 \|/);
+});
+
+test('DS 요청: assume: 예인데 "- 가정:" 줄이 없거나 assume 값이 틀리면 경고한다', (t) => {
+  const dir = makeProject(t);
+  write(dir, 'docs/ui-flow/transfer.md', flow([['TRF-010', '금액 입력', '입력', '']]));
+  write(dir, 'docs/ds-requests/DS-001-size.md', dsReq('DS-001', 'TRF-010', 'assume: 예\n'));
+  write(dir, 'docs/ds-requests/DS-002-z.md', dsReq('DS-002', 'TRF-010', 'assume: 응\n'));
+  const r = run(dir, HOOK);
+  assert.match(r.out, /DS-001-size\.md: assume이 "예"인데 4번 결정에 "- 가정:" 줄/);
+  assert.match(r.out, /DS-002-z\.md: assume "응"는 허용 값이 아닙니다/);
+});
+
+test('컴포넌트: figma_name에 쉼표로 적은 세트는 세트마다 연결 목록 줄이 되고 세트별로 중복을 본다', (t) => {
+  const dir = makeProject(t);
+  const comp = (name, figma) => `---\nname: ${name}\nlayer: 기본\nkind: 신규\nstatus: 승인\nfigma_name: ${figma}\nfigma:\npath: src/components/ui/${name}/${name}.vue\ncode_connect: 해당 없음\n---\n\n# ${name}\n`;
+  write(dir, 'docs/components/Header.md', comp('Header', 'Header/Mobile, Header/PC'));
+  write(dir, 'docs/components/HeaderPc.md', comp('HeaderPc', 'Header/PC'));
+  const r = run(dir, HOOK);
+  const index = read(dir, 'docs/components/_index.md');
+  assert.match(index, /\| Header\/Mobile \| \[Header\]/);
+  assert.match(index, /\| Header\/PC \| \[Header\]/);
+  assert.match(r.out, /HeaderPc\.md: Figma 컴포넌트 "Header\/PC"이 docs\/components\/Header\.md에도 연결돼 있습니다/);
+});

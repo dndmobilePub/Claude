@@ -6,7 +6,7 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { relative } from 'node:path';
-import { pubDir, tokenDir } from '../scripts/project-values.mjs';
+import { pubDir, tokenDir, layoutFile } from '../scripts/project-values.mjs';
 
 const MAX_FINDINGS = 10;
 
@@ -40,6 +40,8 @@ function main() {
   // 토큰 정의 파일(또는 폴더)은 제외.
   const tokens = tokenDir(root);
   if (rel === tokens.replace(/\/$/, '') || rel.startsWith(tokens)) return 0;
+  // 레이아웃 값 파일은 토큰이 없는 종류의 숫자를 모으는 곳이라 제외 (docs/DESIGN.md 3-4)
+  if (rel === layoutFile(root)) return 0;
 
   const findings = [];
   const lines = readFileSync(filePath, 'utf8').split(/\r?\n/);
@@ -63,7 +65,7 @@ function main() {
       ...shown.map((f) => `- ${f}`),
       ...(more > 0 ? [`- 외 ${more}건`] : []),
       '토큰으로 바꾸거나, 맞는 토큰이 없으면 사용자에게 물어보세요 (docs/DESIGN.md 3·8번).',
-      '허용 값(레이아웃용 등)이라면 그대로 두고 이유를 보고하세요.',
+      '토큰이 없는 종류(폭·높이·z-index 등)는 레이아웃 값 파일에 이름을 붙여 모으고 그 변수를 쓰세요 (docs/DESIGN.md 3-4).',
     ].join('\n') + '\n',
   );
   return 2;
