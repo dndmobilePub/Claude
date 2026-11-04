@@ -102,6 +102,50 @@ test('P5: PROJECT.md 화면 ID 형식으로 화면 목록을 읽는다 (글자�
   assert.doesNotMatch(r.out, /TRNMUL002_23TB이 화면 목록/);
 });
 
+const setIdFormat = (dir) => write(dir, 'docs/PROJECT.md', read(dir, 'docs/PROJECT.md').replace(/- 화면 ID 형식: .*/, () => '- 화면 ID 형식: `^[A-Z]{6}\\d{3}_\\d{2}[A-Z]{2}$`'));
+
+test('P5: Vue 바인딩 삼항식은 식 안의 화면 ID만 대조한다', (t) => {
+  const dir = makeProject(t);
+  setIdFormat(dir);
+  write(dir, 'docs/ui-flow/transfer.md', flowDoc(['TRNMUL002_10MS', 'TRNMUL002_23TB']));
+  write(dir, 'src/components/ui/Tab/Tab.vue', `<template><a :data-screen-link="type === 'default' ? 'TRNMUL002_23TB' : 'TRNMUL002_99XX'">x</a></template>\n`);
+  const r = run(dir, SCRIPT, ['src']);
+  assert.match(r.out, /TRNMUL002_99XX이 화면 목록/);
+  assert.doesNotMatch(r.out, /TRNMUL002_23TB이 화면 목록/);
+  assert.doesNotMatch(r.out, /default/);
+});
+
+test('P5: Vue 변수 바인딩은 높음이 아니라 확인 필요', (t) => {
+  const dir = makeProject(t);
+  setIdFormat(dir);
+  write(dir, 'docs/ui-flow/transfer.md', flowDoc(['TRNMUL002_10MS']));
+  write(dir, 'src/components/patterns/Card/Card.vue', '<template><a :data-screen-link="item.screenLink">x</a><b v-bind:data-screen-link="link">y</b></template>\n');
+  const r = run(dir, SCRIPT, ['src']);
+  assert.equal(r.code, 0, r.out);
+  assert.equal(has(r.out, 'P5', '높음', 'src/components/patterns/Card/Card.vue'), false);
+  assert.equal(has(r.out, 'P5', '확인 필요', 'src/components/patterns/Card/Card.vue'), true);
+  assert.doesNotMatch(r.out, /item\.screenLink이 화면 목록/);
+});
+
+test('P5: JSX 고정 값과 {식} 안의 화면 ID를 대조한다', (t) => {
+  const dir = makeProject(t);
+  setIdFormat(dir);
+  write(dir, 'docs/ui-flow/transfer.md', flowDoc(['TRNMUL002_10MS', 'TRNMUL002_23TB']));
+  write(dir, 'src/screens/transfer/A.tsx', [
+    'export const A = ({ ok }) => (<>',
+    '  <a data-screen-link={"TRNMUL002_10MS"}>a</a>',
+    '  <a data-screen-link={"TRNMUL002_88XX"}>b</a>',
+    "  <a data-screen-link={ok ? 'TRNMUL002_23TB' : 'TRNMUL002_77XX'}>c</a>",
+    '</>);',
+    '',
+  ].join('\n'));
+  const r = run(dir, SCRIPT, ['src']);
+  assert.match(r.out, /TRNMUL002_88XX이 화면 목록/);
+  assert.match(r.out, /TRNMUL002_77XX이 화면 목록/);
+  assert.doesNotMatch(r.out, /TRNMUL002_10MS이 화면 목록/);
+  assert.doesNotMatch(r.out, /TRNMUL002_23TB이 화면 목록/);
+});
+
 test('P5: 화면 ID 형식이 비어 있으면 숫자가 든 ID를 넓게 읽는다', (t) => {
   const dir = makeProject(t);
   write(dir, 'docs/ui-flow/transfer.md', flowDoc(['TRF-010', 'ACC010MS']));
