@@ -176,7 +176,7 @@ export const tokens = {
   예)
   ```css
   :root {
-    --layout-pc-content-width: 600px; /* Figma 21992:165809 · DS-001 */
+    --layout-pc-content-width: 600px; /* Figma 1234:5678 · DS-001 */
     --layout-z-sticky: 10;            /* 하단 고정 버튼 */
     --layout-z-dialog: 30;            /* 알럿 딤 */
   }

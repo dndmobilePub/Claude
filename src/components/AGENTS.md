@@ -9,7 +9,7 @@
 | 계층 | 역할 | 예 | 규칙 |
 |---|---|---|---|
 | 기본(ui) | Figma 디자인 시스템 컴포넌트와 1:1 대응 | Button, Input, Badge | 데이터·업무 로직 없음 |
-| 조합(patterns) | 기본 컴포넌트를 묶은 반복 패턴 | AccountCard, AmountInput | 표시 규칙은 가능, 데이터 가져오기 없음 |
+| 조합(patterns) | 기본 컴포넌트를 묶은 반복 패턴 | Card, AmountInput | 표시 규칙은 가능, 데이터 가져오기 없음 |
 | 화면 전용 | 한 화면에서만 쓰는 조각 | (화면 폴더 안, 종류별 폴더면 화면 HTML 안 — `docs/ARCHITECTURE.md` 4번) | 스타일을 따로 두지 않는다(ARCHITECTURE 8번). 두 화면 이상에서 쓰이면 조합 계층으로 옮긴다 |
 
 - 가져다 쓰는 방향은 한쪽만 허용한다: 화면 전용 → 조합 → 기본. 기본 컴포넌트는 조합 컴포넌트를 가져오지 않는다.
@@ -29,13 +29,13 @@
 
 ## 3. 네이밍
 - 컴포넌트 이름: PascalCase. Figma 컴포넌트(세트) 이름과 같게 한다.
-  - Figma 이름에 `/` 경로가 있으면 경로를 이어 PascalCase로 만든다. 예) `Account Card/Bank` → `AccountCardBank`
-  - 경로 중 **컴포넌트 세트 이름까지만** 쓴다. 세트 안에서 variant 속성 값으로 나뉜 조각(예: `Single/Regular`, `Default/On`)은 빼고, variant는 4번 속성으로 옮긴다. 앞 단계와 같은 단어가 겹치면 한 번만 쓴다. 예) `Link/Mobile/LinkDashed/Single/Regular` → `LinkDashed`
+  - Figma 이름에 `/` 경로가 있으면 경로를 이어 PascalCase로 만든다. 예) `Card/Bank` → `CardBank`
+  - 경로 중 **컴포넌트 세트 이름까지만** 쓴다. 세트 안에서 variant 속성 값으로 나뉜 조각(예: `Single/Regular`, `Default/On`)은 빼고, variant는 4번 속성으로 옮긴다. 앞 단계와 같은 단어가 겹치면 한 번만 쓴다. 예) `Link/Mobile/LinkLine/Single/Regular` → `LinkLine`
   - 규칙대로 만든 이름이 길거나 어색하면 짧은 이름을 제안하고 승인받아 명세 `figma_name`과 함께 적는다.
   - 디바이스·크기만 다른 세트(예: `…/Mobile`·`…/PC`)를 코드 컴포넌트 하나로 만들 때는 그 표기를 이름에서 뺀다. 빼는 표기와 하나로 묶을지는 8번 예외 "Figma 이름 → 코드 이름"에 정한다. 비어 있으면 묻는다.
   - 한 코드 컴포넌트에 Figma 세트가 여럿이면 명세 `figma_name`에 쉼표로 모두 적는다. (7번)
 - 폴더 이름: 컴포넌트 이름과 같다.
-- JS: 마크업의 클래스 이름은 컴포넌트 이름을 바꾼 kebab-case를 기본 클래스로 쓴다. (예: `AccountCard` → `account-card`) 하위 요소·변형 표기 규칙은 예외 섹션의 클래스 이름 규칙을 따른다.
+- JS: 마크업의 클래스 이름은 컴포넌트 이름을 바꾼 kebab-case를 기본 클래스로 쓴다. (예: `CardBank` → `card-bank`) 하위 요소·변형 표기 규칙은 예외 섹션의 클래스 이름 규칙을 따른다.
 - 이벤트: React `on` + 동사 (`onChange`, `onConfirm`) / Vue `emit('change')` / JS 사용자 정의 이벤트를 쓸 때 kebab-case (`confirm`).
 
 ## 4. 변형(variant)과 속성
