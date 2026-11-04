@@ -59,7 +59,7 @@ description: Figma 변수와 텍스트 스타일·그림자 효과 스타일을 
 - 임시 파일은 지워도 된다.
 
 ### 6. 커밋
-- `docs/GIT.md` 규칙을 따른다. 브랜치 `chore/token-sync`, 메시지 `chore(tokens): Figma 변수 동기화`
+- `docs/GIT.md` 규칙을 따른다. 브랜치는 `docs/GIT.md`(7번 예외 포함)를 따른다. 예) 브랜치 `chore/token-sync`. 메시지 `chore(tokens): Figma 변수 동기화`
 - 커밋 본문에 변수·스타일별 추가·변경·삭제 개수와 Figma 변수·스타일 파일 이름을 적는다.
 - 토큰 파일 외의 변경을 같은 커밋에 넣지 않는다. (`text-styles.css`는 토큰 파일로 본다)
 

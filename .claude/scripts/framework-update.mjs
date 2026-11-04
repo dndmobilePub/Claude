@@ -11,6 +11,8 @@
 //       check와 같은 보고를 하고, 충돌·설정 확인이 아닌 파일만 반영한다. .claude/framework.json을 새 버전으로 바꾼다.
 //       충돌이 있으면 아무것도 고치지 않고 멈춘다. 충돌 파일을 그대로 두기로 사람이 정했을 때만 --keep-conflicts를 붙인다.
 //   <지금 버전 폴더>·<새 버전 폴더>: 프레임워크 저장소를 그 버전 태그로 받아 둔 폴더 (framework-update 스킬 2단계)
+//   --project <프로젝트 폴더>: 반영할 프로젝트. 새 버전 폴더의 스크립트로 실행할 때 붙인다 (새 버전에서 고친 비교가 바로 적용되게).
+//       없으면 CLAUDE_PROJECT_DIR, 그것도 없으면 이 스크립트가 있는 저장소
 //
 // 분류별 처리
 //   지침 관리: 프로젝트 파일이 지금 버전과 같으면 새 버전으로 바꾼다. 다르면 "충돌"(프로젝트가 직접 고침)
@@ -31,7 +33,11 @@ import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { pubDir } from './project-values.mjs';
 
-const root = process.env.CLAUDE_PROJECT_DIR || fileURLToPath(new URL('../..', import.meta.url));
+const projectArg = (() => {
+  const i = process.argv.indexOf('--project');
+  return i >= 0 && process.argv[i + 1] ? resolve(process.argv[i + 1]) : null;
+})();
+const root = projectArg || process.env.CLAUDE_PROJECT_DIR || fileURLToPath(new URL('../..', import.meta.url));
 const MANIFEST = '.claude/framework.json';
 const KINDS = ['지침 관리', '지침 + 프로젝트 예외', '업종별 선택', '프로젝트 설정', '프로젝트 작성', '지침 원본 전용'];
 const EXC = /^##\s+[\d.-]*\s*프로젝트별 예외/;
@@ -150,6 +156,25 @@ function mergeInto(newText, projectText) {
   return `${out.trimEnd()}\n`;
 }
 
+// ---------- 새 항목 ----------
+
+// "- 키: 값" 줄의 키 목록. 예외 섹션·프로젝트 설정 파일에서 새 버전이 더한 항목을 찾는 데 쓴다.
+function keysOf(text) {
+  const keys = new Set();
+  for (const line of (text ?? '').split(/\r?\n/)) {
+    const m = line.match(/^\s*-\s+([^:：\n`]{1,40}?)\s*[:：]/);
+    if (m) keys.add(m[1].trim());
+  }
+  return keys;
+}
+
+// 새 버전이 더했고(지금 버전에 없음) 프로젝트에도 없는 키
+function newKeys(oldText, newText, projText) {
+  const had = keysOf(oldText);
+  const proj = keysOf(projText);
+  return [...keysOf(newText)].filter((k) => !had.has(k) && !proj.has(k));
+}
+
 // ---------- 차이 ----------
 
 function diff(a, b, max = 40) {
@@ -197,7 +222,8 @@ function plan(fromDir, toDir) {
     if (oldText === newText) continue;
 
     if (kind === '프로젝트 설정') {
-      items.push({ ...item, action: '설정 확인', detail: diff(oldText, newText) });
+      const added = projText === null ? [] : newKeys(oldText, newText, projText);
+      items.push({ ...item, action: '설정 확인', note: added.length ? `새 항목: ${added.join(', ')}` : '', detail: diff(oldText, newText) });
       continue;
     }
     if (newText === null) {
@@ -234,6 +260,8 @@ function plan(fromDir, toDir) {
     }
     const merged = mergeInto(newText, projText);
     if (merged.trimEnd() !== projText.trimEnd()) items.push({ ...item, action: '병합', content: merged });
+    const excAdded = newKeys(oldText === null ? null : split(oldText).keep.exc, split(newText).keep.exc, split(projText).keep.exc);
+    if (excAdded.length) items.push({ ...item, action: '설정 확인', note: `예외 섹션 새 항목: ${excAdded.join(', ')} — 병합은 프로젝트 예외 섹션을 그대로 두므로 직접 넣습니다 (값이 없으면 기본값 또는 "해당 없음")` });
     const oldFront = oldText === null ? null : split(oldText).keep.front;
     const newFront = split(newText).keep.front;
     if (oldFront !== newFront) items.push({ ...item, action: '설정 확인', note: 'frontmatter가 바뀌었습니다. 프로젝트 값(paths 등)을 지키며 직접 반영합니다', detail: diff(oldFront, newFront) });

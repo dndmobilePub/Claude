@@ -198,3 +198,63 @@ test('컴포넌트: figma_name에 쉼표로 적은 세트는 세트마다 연결
   assert.match(index, /\| Header\/PC \| \[Header\]/);
   assert.match(r.out, /HeaderPc\.md: Figma 컴포넌트 "Header\/PC"이 docs\/components\/Header\.md에도 연결돼 있습니다/);
 });
+
+test('손으로 실행: 표준 입력이 열려만 있고 아무것도 오지 않아도 기다리지 않고 끝난다', async (t) => {
+  const dir = makeProject(t);
+  const { spawn } = process.getBuiltinModule('node:child_process');
+  const child = spawn(process.execPath, [join(dir, HOOK)], { cwd: dir, env: { ...process.env, CLAUDE_PROJECT_DIR: dir }, stdio: ['pipe', 'pipe', 'pipe'] });
+  let out = '';
+  child.stdout.on('data', (c) => (out += c));
+  const code = await new Promise((done) => {
+    const timer = setTimeout(() => {
+      child.kill();
+      done('timeout');
+    }, 5000);
+    child.on('exit', (c) => {
+      clearTimeout(timer);
+      done(c);
+    });
+  });
+  child.stdin.destroy();
+  assert.equal(code, 0, out);
+  assert.match(out, /인덱스를 다시 만들었습니다/);
+});
+
+test('질문: 대상·반영 위치는 쉼표로 여러 개를 적을 수 있다', (t) => {
+  const dir = makeProject(t);
+  write(dir, 'docs/ui-flow/transfer.md', flow([['TRF-010', '금액 입력', '입력', ''], ['TRF-020', '확인', '확인', '']]));
+  write(dir, 'docs/screens/TRF-010.md', spec('TRF-010', '금액 입력', '초안'));
+  write(
+    dir,
+    'docs/questions/spec.md',
+    `---
+source: spec
+prefix: Q-SP
+---
+
+# 질문: 명세
+
+## 질문 목록
+| ID | 대상 | 출처 위치 | 질문 | 확인 대상 | 차단 | 상태 | 답 | 반영 위치 |
+|---|---|---|---|---|---|---|---|---|
+| Q-SP-001 | TRF-010, TRF-020 | 명세 | 두 화면 공통? | 기획 | 아니오 | 미답변 | | |
+| Q-SP-002 | TRF-010, TRF-999 | 명세 | 없는 화면 섞임 | 기획 | 아니오 | 미답변 | | |
+| Q-SP-003 | TRF-010 | 명세 | 반영 두 곳 | 기획 | 아니오 | 확정 | 예 | docs/screens/TRF-010.md, docs/screens/TRF-777.md |
+`,
+  );
+  const r = run(dir, HOOK);
+  assert.match(r.out, /Q-SP-002: 대상 TRF-999가 화면 목록/);
+  assert.doesNotMatch(r.out, /대상 TRF-010, TRF-020/);
+  assert.match(r.out, /Q-SP-003: 반영 위치 docs\/screens\/TRF-777\.md 파일이 없습니다/);
+  assert.doesNotMatch(r.out, /반영 위치 docs\/screens\/TRF-010\.md 파일이 없습니다/);
+  const map = read(dir, 'docs/ui-flow/_index.md');
+  assert.match(map, /TRF-020[^\n]*\| 1 \|/);
+});
+
+test('플로우: "2-1. 도메인 밖 이동 화면" 표는 화면 목록·화면 맵에 넣지 않는다', (t) => {
+  const dir = makeProject(t);
+  write(dir, 'docs/ui-flow/transfer.md', flow([['TRF-010', '금액 입력', '입력', '']]) + '\n### 2-1. 도메인 밖 이동 화면\n| 화면 ID | 화면명 | 가는 곳 |\n|---|---|---|\n| ACC-100 | 계좌 관리 | 계좌 |\n');
+  const r = run(dir, HOOK);
+  assert.equal(r.code, 0, r.out);
+  assert.doesNotMatch(read(dir, 'docs/ui-flow/_index.md'), /ACC-100/);
+});

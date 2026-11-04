@@ -146,6 +146,24 @@ test('P5: JSX 고정 값과 {식} 안의 화면 ID를 대조한다', (t) => {
   assert.doesNotMatch(r.out, /TRNMUL002_23TB이 화면 목록/);
 });
 
+test('P5: 긴 바인딩식은 단어 경계에서 잘라 보여 준다', (t) => {
+  const dir = makeProject(t);
+  setIdFormat(dir);
+  write(dir, 'docs/ui-flow/transfer.md', flowDoc(['TRNMUL002_10MS']));
+  write(dir, 'src/components/patterns/Card/Card.vue', `<template><a :data-screen-link="selectedType === 'default' ? screenLinkForDefault : undefinedValueForOthers">x</a></template>\n`);
+  const r = run(dir, SCRIPT, ['src']);
+  assert.match(r.out, /screenLinkForDefault : …\) — 값을 넘기는 곳\(부모 화면의 prop·배열, 더미 데이터\)/);
+});
+
+test('P5: 플로우 "도메인 밖 이동 화면" 표의 ID는 이동 대상으로 인정한다', (t) => {
+  const dir = makeProject(t);
+  setIdFormat(dir);
+  write(dir, 'docs/ui-flow/transfer.md', flowDoc(['TRNMUL002_10MS']) + '\n### 2-1. 도메인 밖 이동 화면\n| 화면 ID | 화면명 | 가는 곳 |\n|---|---|---|\n| DPSACC008_00MS | 자주쓰는 계좌 관리 | 예금 |\n');
+  write(dir, 'src/screens/transfer/A.vue', '<template><a href="#" data-screen-link="DPSACC008_00MS">x</a></template>\n');
+  const r = run(dir, SCRIPT, ['src']);
+  assert.doesNotMatch(r.out, /DPSACC008_00MS이 화면 목록/);
+});
+
 test('P5: 화면 ID 형식이 비어 있으면 숫자가 든 ID를 넓게 읽는다', (t) => {
   const dir = makeProject(t);
   write(dir, 'docs/ui-flow/transfer.md', flowDoc(['TRF-010', 'ACC010MS']));

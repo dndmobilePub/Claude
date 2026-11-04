@@ -71,7 +71,7 @@ description: IA 엑셀(화면 목록·WBS 일정)을 읽어 docs/ia/screen-list.
 - 저장하면 `build-index` 훅이 화면 맵을 IA 기준으로 다시 만든다. 경고(플로우와 다른 화면명·도메인, IA에 없는 화면 등)가 나오면 보고하고, 플로우를 고칠지 승인받는다. (플로우 수정은 `write-flow`로)
 
 ### 6. 커밋
-- `docs/GIT.md` 규칙을 따른다. 브랜치 `docs/ia-sync`, 메시지 `docs(ia): IA <버전> 동기화`
+- `docs/GIT.md` 규칙을 따른다. 브랜치는 `docs/GIT.md`(7번 예외 포함)를 따른다. 예) 브랜치 `docs/ia-sync`. 메시지 `docs(ia): IA <버전> 동기화`
 - 커밋 본문에 추가·변경·제외 개수를 적는다. 사본 외의 변경을 같은 커밋에 넣지 않는다. (`source.md`를 처음 만들었거나 `docs/questions/ia.md`를 고쳤으면 함께 넣는다)
 
 ## 보고 형식

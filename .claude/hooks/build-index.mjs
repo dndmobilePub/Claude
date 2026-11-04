@@ -97,7 +97,11 @@ function sectionTable(text, no, title) {
   const num = no === null ? '' : `${no}\\.\\s*`;
   const sec = text.match(new RegExp(`^##\\s*${num}${title}[^\\n]*\\n([\\s\\S]*?)(?=^##\\s|(?![\\s\\S]))`, 'm'));
   if (!sec) return [];
-  const lines = sec[1].split(/\r?\n/).filter((l) => l.trim().startsWith('|'));
+  // 섹션 안의 첫 표만 읽는다 (아래 하위 절의 표 — 예: 플로우 "2-1. 도메인 밖 이동 화면" — 는 섞지 않는다)
+  const all = sec[1].split(/\r?\n/);
+  const first = all.findIndex((l) => l.trim().startsWith('|'));
+  const lines = [];
+  for (let i = first; first >= 0 && i < all.length && all[i].trim().startsWith('|'); i++) lines.push(all[i]);
   if (lines.length < 2) return [];
   const head = cells(lines[0]);
   return lines
@@ -193,6 +197,11 @@ const Q_STATUS = ['미답변', '보류', '가정', '확정'];
 const Q_OPEN = ['미답변', '보류', '가정'];
 const Q_BLOCK = ['예', '아니오'];
 
+// 쉼표로 나눈 목록 (빈 칸은 뺀다)
+function splitList(v) {
+  return String(v || '').split(/[,，]/).map((x) => x.trim()).filter(Boolean);
+}
+
 // docs/questions/<source>.md 의 "## 질문 목록" 표를 읽고 형식을 점검한다.
 function readQuestions(root, warn) {
   const dir = join(root, 'docs/questions');
@@ -216,6 +225,8 @@ function readQuestions(root, warn) {
         applied: r['반영 위치'] || '',
         file,
       };
+      // 대상·반영 위치는 쉼표로 여러 개를 적을 수 있다 (docs/questions/_index.md 2번)
+      q.targets = splitList(q.target);
       if (!q.id && !q.text) continue;
       const at = `${where} ${q.id || '(ID 없음)'}`;
       if (!/^[A-Z][A-Z0-9-]*-\d{3}$/.test(q.id)) warn(`${at}: ID 형식이 "<앞부분>-<3자리 번호>"가 아닙니다.`);
@@ -229,8 +240,10 @@ function readQuestions(root, warn) {
       if (q.status === '가정' && !q.answer) warn(`${at}: 가정인데 답 칸에 가정한 내용이 없습니다.`);
       if (q.status === '가정' && q.block === '예') warn(`${at}: 차단 질문은 가정으로 진행할 수 없습니다.`);
       if (q.status === '확정' && (!q.answer || !q.applied)) warn(`${at}: 확정인데 답 또는 반영 위치가 비어 있습니다.`);
-      const path = q.applied.replace(/`/g, '').split('#')[0].trim();
-      if ((path.startsWith('docs/') || path.startsWith(pubDir(root))) && !existsSync(join(root, path))) warn(`${at}: 반영 위치 ${path} 파일이 없습니다.`);
+      for (const item of splitList(q.applied.replace(/`/g, ''))) {
+        const path = item.split('#')[0].trim();
+        if ((path.startsWith('docs/') || path.startsWith(pubDir(root))) && !existsSync(join(root, path))) warn(`${at}: 반영 위치 ${path} 파일이 없습니다.`);
+      }
       list.push(q);
     }
   }
@@ -351,7 +364,7 @@ function buildScreens(root, warn, questions = []) {
       }
       if (ia) {
         const row = iaById.get(s.id);
-        const asked = questions.some((q) => q.file === 'ia.md' && q.target === s.id && Q_OPEN.includes(q.status));
+        const asked = questions.some((q) => q.file === 'ia.md' && q.targets.includes(s.id) && Q_OPEN.includes(q.status));
         if (!row && key === common && asked) pending.add(s.id);
         else if (!row && key === common) warn(`${where}: IA에 없는 공통 화면 ${s.id}인데 docs/questions/ia.md에 IA 추가 요청 질문(대상 ${s.id})이 없습니다.`);
         else if (!row) warn(`${where}: IA 화면 목록에 없는 화면 ${s.id} (IA에 추가를 요청하거나 플로우에서 뺀다)`);
@@ -379,12 +392,12 @@ function buildScreens(root, warn, questions = []) {
   const known = new Set([...(ia?.ids || []), ...seen.keys()]);
   knownIds = known;
   for (const q of questions) {
-    if (idRe.test(q.target) && !known.has(q.target)) {
-      warn(`docs/questions/${q.file} ${q.id}: 대상 ${q.target}가 화면 목록(${ia ? 'IA' : '플로우'})에 없습니다.`);
+    for (const t of q.targets) if (idRe.test(t) && !known.has(t)) {
+      warn(`docs/questions/${q.file} ${q.id}: 대상 ${t}가 화면 목록(${ia ? 'IA' : '플로우'})에 없습니다.`);
     }
   }
   const openQ = (id) => {
-    const qs = questions.filter((q) => q.target === id && Q_OPEN.includes(q.status));
+    const qs = questions.filter((q) => q.targets.includes(id) && Q_OPEN.includes(q.status));
     const b = qs.filter((q) => q.block === '예').length;
     return qs.length ? `${qs.length}${b ? ` (차단 ${b})` : ''}` : '';
   };
@@ -690,7 +703,7 @@ function buildBatches(root, warn) {
     const screens = items.filter((it) => !it.id.startsWith('컴포넌트'));
     for (const it of screens) {
       if (!knownIds.has(it.id)) warn(`${where}: 화면 ${it.id}가 화면 목록에 없습니다.`);
-      if (!['퍼블', '다시 퍼블'].includes(it.work)) warn(`${where}: ${it.id}의 작업 "${it.work}"는 허용 값이 아닙니다 (퍼블 | 다시 퍼블).`);
+      if (!['퍼블', '다시 퍼블', '재검수'].includes(it.work)) warn(`${where}: ${it.id}의 작업 "${it.work}"는 허용 값이 아닙니다 (퍼블 | 다시 퍼블 | 재검수).`);
     }
     const done = screens.filter((it) => screenDone(it.id)).length;
     batches.push({ file, id, basis: fm.basis || '', created: fm.created || '', items, screens, done, open: done < screens.length || screens.length === 0 });
@@ -714,7 +727,7 @@ function buildBatches(root, warn) {
       for (const it of b.items) {
         const spec = allSpecs.get(it.id);
         const rep = allReports.get(it.id);
-        const qs = questionsCache.filter((q) => q.target === it.id && Q_OPEN.includes(q.status));
+        const qs = questionsCache.filter((q) => q.targets.includes(it.id) && Q_OPEN.includes(q.status));
         const blk = qs.filter((q) => q.block === '예').length;
         out.push(`| ${esc(it.order)} | ${esc(it.id)} | ${esc(it.work)} | ${esc(spec?.status || (it.id.startsWith('컴포넌트') ? '' : '명세 없음'))} | ${esc(rep?.result || '')} | ${qs.length ? `${qs.length}${blk ? ` (${blk})` : ''}` : ''} |`);
       }
@@ -756,17 +769,33 @@ function replaceBlock(root, relPath, block, warn) {
 
 // ---------- 실행 ----------
 
+// 훅이면 표준 입력으로 JSON이 온다. 손으로 실행하면 입력이 없으므로 잠깐만 기다리고 수동 실행으로 본다.
+// (표준 입력이 TTY가 아닌 곳 — 다른 명령과 묶어 실행, 에이전트의 셸 — 에서 끝없이 기다리지 않게)
 function hookInput() {
-  if (process.stdin.isTTY) return null; // 수동 실행
-  try {
-    return JSON.parse(readFileSync(0, 'utf8') || 'null');
-  } catch {
-    return null;
-  }
+  if (process.stdin.isTTY) return Promise.resolve(null);
+  return new Promise((done) => {
+    let data = '';
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      process.stdin.pause();
+      try {
+        done(JSON.parse(data || 'null'));
+      } catch {
+        done(null);
+      }
+    };
+    const timer = setTimeout(() => (data ? null : finish()), 300);
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', (c) => (data += c));
+    process.stdin.on('end', finish);
+    process.stdin.on('error', finish);
+  });
 }
 
-function main() {
-  const input = hookInput();
+function main(input) {
   const hookMode = Boolean(input?.tool_input);
   const root =
     process.env.CLAUDE_PROJECT_DIR || fileURLToPath(new URL('../..', import.meta.url));
@@ -809,8 +838,12 @@ function main() {
   return 2;
 }
 
-try {
-  process.exit(main());
-} catch {
-  process.exit(0);
-}
+hookInput()
+  .then((input) => {
+    try {
+      process.exit(main(input));
+    } catch {
+      process.exit(0);
+    }
+  })
+  .catch(() => process.exit(0));

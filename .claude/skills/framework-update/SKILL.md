@@ -29,7 +29,9 @@ description: 공통 지침(이 지침 세트)의 새 버전을 프로젝트에 �
 - 새 버전 `CHANGELOG.md`에서 지금 버전 다음부터 새 버전까지의 항목만 읽는다.
 
 ### 3. 비교 보고 → 승인
-- `node .claude/scripts/framework-update.mjs check --from <임시 폴더>/from --to <임시 폴더>/to`
+- **새 버전 폴더의 스크립트**로 비교한다. 새 버전에서 고친 비교 방법이 이번 업데이트에 바로 적용된다. (프로젝트 폴더에서 실행)
+  `node <임시 폴더>/to/.claude/scripts/framework-update.mjs check --project . --from <임시 폴더>/from --to <임시 폴더>/to`
+  - 새 버전 스크립트가 `--project`를 모르면(옛 버전) 프로젝트의 `node .claude/scripts/framework-update.mjs check …`로 실행한다
 - 사용자에게 보여줄 것:
   - CHANGELOG 요약 (바뀐 규칙·스킬)
   - 처리별 개수와 표 (스크립트 출력 그대로)
@@ -45,11 +47,12 @@ description: 공통 지침(이 지침 세트)의 새 버전을 프로젝트에 �
 - 그대로 두기로 정하면 → 5단계에서 `--keep-conflicts`를 붙이고, 보고에 남긴다. 다음 업데이트에서도 충돌로 다시 나온다.
 
 ### 5. 반영
-- `node .claude/scripts/framework-update.mjs apply --from <임시 폴더>/from --to <임시 폴더>/to` (4단계에서 그대로 두기로 한 충돌이 있으면 `--keep-conflicts`)
+- `node <임시 폴더>/to/.claude/scripts/framework-update.mjs apply --project . --from <임시 폴더>/from --to <임시 폴더>/to` (3단계와 같은 스크립트. 4단계에서 그대로 두기로 한 충돌이 있으면 `--keep-conflicts`)
 - 교체·병합·추가·삭제가 반영되고 `.claude/framework.json`이 새 버전으로 바뀐다.
 
 ### 6. 설정 확인·위치 확인
 - 설정 확인: 스크립트가 보여준 "지금 버전 → 새 버전" 차이를 프로젝트 파일에 옮길지 줄마다 제안하고 승인받아 고친다.
+  - "예외 섹션 새 항목"·"새 항목" 메모가 있으면 그 키를 프로젝트 파일의 같은 자리(예외 섹션·설정 줄)에 넣는다. 값은 사람에게 묻고, 정하지 못하면 `[TODO]`로 둔다. CHANGELOG "프로젝트에서 할 일"과 겹치면 함께 처리한다.
   - `docs/PROJECT.md`에 새 항목이 생겼으면 값을 묻는다. 모르면 `[TODO]`로 둔다.
   - `.claude/settings.json`은 프로젝트가 바꾼 권한을 지키며 새 줄만 더한다.
   - rules frontmatter는 프로젝트의 `paths` 앞부분(퍼블 소스 폴더)을 지키며 바뀐 부분만 옮긴다.
@@ -61,7 +64,7 @@ description: 공통 지침(이 지침 세트)의 새 버전을 프로젝트에 �
 - 새 버전에 새 점검·규칙이 생겼으면 그 영향(예: 새 check-pub 항목)을 `node .claude/scripts/check-pub.mjs <퍼블 소스 폴더>`로 한 번 돌려 보고만 한다. 퍼블 수정은 이 스킬에서 하지 않는다.
 
 ### 8. 커밋 (승인 후)
-- 브랜치 `chore/framework-v<새 버전>`, 커밋 `chore(framework): v<지금 버전> → v<새 버전> 반영`
+- 브랜치는 `docs/GIT.md`(7번 예외 포함)를 따른다. 예) 브랜치 `chore/framework-v<새 버전>`. 커밋 `chore(framework): v<지금 버전> → v<새 버전> 반영`
 - 공통 지침 반영과 프로젝트 문서 수정(예외 섹션 채우기 등)은 커밋을 나눈다. (`docs/GIT.md` 3번)
 
 ## 규칙

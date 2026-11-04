@@ -67,7 +67,7 @@ const tokenDir = readTokenDir(root);
 // 뷰포트 표의 디자인 프레임 폭 (예: 402×874 → 402)
 const frameWidths = [...project.matchAll(/\|\s*[^|\n]+\|\s*(\d{3,4})\s*[×x]\s*\d{3,4}\s*\|/g)].map((m) => m[1]);
 
-// 화면 목록: IA 사본 + 플로우 화면 목록 표의 첫 칸
+// 화면 목록: IA 사본 + 플로우 문서 표의 첫 칸 ("2. 화면 목록"과 "2-1. 도메인 밖 이동 화면" — 이동 대상으로 인정)
 // 화면 ID 모양은 docs/PROJECT.md "화면 ID 형식"을 따른다. 없으면 "영문으로 시작하고 숫자가 들어간 이름"으로 넓게 본다.
 const idRe = screenIdPattern(root) || /^[A-Za-z][\w-]*\d[\w-]*$/;
 function screenIds() {
@@ -112,6 +112,15 @@ function screenLinks(line) {
     }
   }
   return out;
+}
+
+// 바인딩식을 보고용으로 줄인다: 60자를 넘으면 단어 경계에서 자르고 … 를 붙인다
+function shortExpr(expr) {
+  const t = expr.trim().replace(/\s+/g, ' ');
+  if (t.length <= 60) return t;
+  const cut = t.slice(0, 60);
+  const at = cut.search(/\s\S*$/);
+  return `${(at > 20 ? cut.slice(0, at) : cut).trimEnd()} …`;
 }
 
 // ---------- 대상 파일 ----------
@@ -254,7 +263,7 @@ for (const file of files) {
         }
         const found = [...link.expr.matchAll(/["'`]([^"'`$]+)["'`]/g)].map((s) => s[1]).filter((s) => idRe.test(s));
         if (!found.length) {
-          add(file, n, 'P5', '확인 필요', `data-screen-link 바인딩식(${link.expr.trim().slice(0, 40)}) — 값이 오는 곳(더미 데이터 등)에서 화면 ID 확인`);
+          add(file, n, 'P5', '확인 필요', `data-screen-link 바인딩식(${shortExpr(link.expr)}) — 값을 넘기는 곳(부모 화면의 prop·배열, 더미 데이터)에서 화면 ID 확인`);
           continue;
         }
         for (const id of found) {

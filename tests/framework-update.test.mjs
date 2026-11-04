@@ -116,6 +116,26 @@ test('업종별 선택: 새 버전의 새 업종 규칙은 "업종 규칙 확인
   assert.equal(existsSync(join(s.proj, '.claude/rules/sample-ui.md')), false);
 });
 
+test('지침 + 프로젝트 예외: 새 버전 예외 섹션에 생긴 항목은 "설정 확인"으로 알린다', (t) => {
+  const s = setup(t, {
+    change: (to) => replaceIn(to, 'src/components/AGENTS.md', '- 테스트 작성 여부: [TODO]', '- 테스트 작성 여부: [TODO]\n- 새 항목 예시: [TODO]'),
+    edit: (proj) => replaceIn(proj, 'src/components/AGENTS.md', '- 테스트 작성 여부: [TODO]', '- 테스트 작성 여부: lib만'),
+  });
+  const r = s.apply();
+  assert.equal(r.code, 0, r.out);
+  assert.ok(row(r.out, '설정 확인', 'src/components/AGENTS.md'), r.out);
+  assert.match(r.out, /예외 섹션 새 항목: 새 항목 예시/);
+  assert.doesNotMatch(r.out, /예외 섹션 새 항목: [^|]*테스트 작성 여부/);
+  assert.match(read(s.proj, 'src/components/AGENTS.md'), /테스트 작성 여부: lib만/);
+});
+
+test('설정: 프로젝트 설정 파일에 새 버전이 더한 항목을 이름으로 알린다', (t) => {
+  const s = setup(t, { change: (to) => replaceIn(to, 'docs/PROJECT.md', '- 스토리북: [TODO', '- 새 설정 예시: [TODO]\n- 스토리북: [TODO') });
+  const r = s.check();
+  assert.ok(row(r.out, '설정 확인', 'docs/PROJECT.md'), r.out);
+  assert.match(r.out, /새 항목: 새 설정 예시/);
+});
+
 test('설정: 고치지 않고 버전 사이 차이만 보여준다', (t) => {
   const s = setup(t, { change: (to) => replaceIn(to, '.gitignore', '.DS_Store', '.DS_Store\n*.log') });
   const r = s.apply();
@@ -143,4 +163,14 @@ test('지침 원본 전용: tests/는 비교하지 않는다', (t) => {
   const r = s.check();
   assert.equal(r.code, 0, r.out);
   assert.doesNotMatch(r.out, /tests\//);
+});
+
+test('--project: 새 버전 폴더의 스크립트로 다른 폴더의 프로젝트를 비교한다', (t) => {
+  const s = setup(t, { change: (to) => replaceIn(to, 'docs/QA.md', '# QA.md — 검수 기준', '# QA.md — 검수 기준 (새 버전)') });
+  const { spawnSync } = process.getBuiltinModule('node:child_process');
+  const env = { ...process.env };
+  delete env.CLAUDE_PROJECT_DIR;
+  const r = spawnSync(process.execPath, [join(s.to, SCRIPT), 'check', '--project', s.proj, '--from', s.from, '--to', s.to], { cwd: s.proj, encoding: 'utf8', env });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.ok(row(r.stdout, '병합', 'docs/QA.md'), r.stdout);
 });
