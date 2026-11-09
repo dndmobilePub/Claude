@@ -198,3 +198,13 @@ test('P9: 뷰포트 폭이라도 폭 조건이 아닌 곳에 쓰면 잡는다', 
   const r = run(dir, SCRIPT, ['src']);
   assert.ok(has(r.out, 'P9', '중간', 'src/components/ui/Box/Box.vue'), r.out);
 });
+
+test('P5: data-screen-open(드로어·풀팝업 열기)의 화면 ID도 대조한다', (t) => {
+  const dir = makeProject(t);
+  setIdFormat(dir);
+  write(dir, 'docs/ui-flow/transfer.md', flowDoc(['ABCDEF001_10AA', 'ABCDEF001_27DR']));
+  write(dir, 'src/screens/transfer/A.vue', '<template><button type="button" aria-haspopup="dialog" data-screen-open="ABCDEF001_27DR">a</button><button type="button" data-screen-open="ABCDEF001_99DR">b</button></template>\n');
+  const r = run(dir, SCRIPT, ['src']);
+  assert.match(r.out, /data-screen-open 대상 ABCDEF001_99DR이 화면 목록/);
+  assert.doesNotMatch(r.out, /ABCDEF001_27DR이 화면 목록/);
+});

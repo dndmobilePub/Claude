@@ -12,7 +12,7 @@
 //   P3 화면 폭: 디자인 프레임 폭 px, vw 글자 크기·간격, zoom (DESIGN.md 6-2)                       높음
 //      transform: scale (눌림 효과일 수 있음)                                                     확인 필요
 //   P4 개발 몫 코드 의심: 서버 호출·화면 이동 (ARCHITECTURE.md 1번)                                확인 필요
-//   P5 data-screen-link 대상 화면 ID가 화면 목록에 없음 (ARCHITECTURE.md 4번)                       높음
+//   P5 data-screen-link(이동)·data-screen-open(드로어·풀팝업 열기) 대상 화면 ID가 화면 목록에 없음 (ARCHITECTURE.md 4번)                       높음
 //      고정 값은 그대로, 바인딩식(Vue :·v-bind:, JSX {식})은 식 안의 화면 ID 형식 문자열만 대조
 //      바인딩식인데 화면 ID 문자열이 없음 (값이 오는 곳을 사람이 확인)                              확인 필요
 //   P6 위험한 HTML 삽입, 외부 스크립트 직접 추가 (ARCHITECTURE.md 1번)                              높음
@@ -89,20 +89,21 @@ function screenIds() {
   return ids;
 }
 
-// data-screen-link 속성 읽기: 고정 값이면 { fixed }, 바인딩식이면 { expr }
+// data-screen-link·data-screen-open 속성 읽기: 고정 값이면 { fixed }, 바인딩식이면 { expr }
 //   고정: data-screen-link="ID", JSX data-screen-link={"ID"} ({`ID`}는 ${}가 없을 때만)
 //   바인딩: Vue :data-screen-link="식"·v-bind:data-screen-link="식", JSX data-screen-link={식}
 //   한 줄 안에서만 읽는다. 식이 줄을 넘으면 그 줄 끝까지를 식으로 본다.
 function screenLinks(line) {
   const out = [];
-  for (const m of line.matchAll(/(:|v-bind:)?data-screen-link\s*=\s*/g)) {
+  for (const m of line.matchAll(/(:|v-bind:)?data-screen-(link|open)\s*=\s*/g)) {
     const bound = Boolean(m[1]);
+    const attr = `data-screen-${m[2]}`;
     const rest = line.slice(m.index + m[0].length);
     const q = rest[0];
     if (q === '"' || q === "'") {
       const end = rest.indexOf(q, 1);
       const value = end < 0 ? rest.slice(1) : rest.slice(1, end);
-      out.push(bound ? { expr: value } : { fixed: value });
+      out.push(bound ? { attr, expr: value } : { attr, fixed: value });
     } else if (q === '{') {
       let depth = 0;
       let i = 0;
@@ -112,7 +113,7 @@ function screenLinks(line) {
       }
       const inner = rest.slice(1, i).trim();
       const lit = inner.match(/^(["'`])([^"'`]*)\1$/);
-      out.push(lit && !lit[2].includes('${') ? { fixed: lit[2] } : { expr: inner });
+      out.push(lit && !lit[2].includes('${') ? { attr, fixed: lit[2] } : { attr, expr: inner });
     }
   }
   return out;
@@ -269,16 +270,16 @@ for (const file of files) {
     if (ids.size) {
       for (const link of screenLinks(line)) {
         if (link.fixed !== undefined) {
-          if (!ids.has(link.fixed)) add(file, n, 'P5', '높음', `data-screen-link 대상 ${link.fixed}이 화면 목록(IA 사본·플로우)에 없음`);
+          if (!ids.has(link.fixed)) add(file, n, 'P5', '높음', `${link.attr} 대상 ${link.fixed}이 화면 목록(IA 사본·플로우)에 없음`);
           continue;
         }
         const found = [...link.expr.matchAll(/["'`]([^"'`$]+)["'`]/g)].map((s) => s[1]).filter((s) => idRe.test(s));
         if (!found.length) {
-          add(file, n, 'P5', '확인 필요', `data-screen-link 바인딩식(${shortExpr(link.expr)}) — 값을 넘기는 곳(부모 화면의 prop·배열, 더미 데이터)에서 화면 ID 확인`);
+          add(file, n, 'P5', '확인 필요', `${link.attr} 바인딩식(${shortExpr(link.expr)}) — 값을 넘기는 곳(부모 화면의 prop·배열, 더미 데이터)에서 화면 ID 확인`);
           continue;
         }
         for (const id of found) {
-          if (!ids.has(id)) add(file, n, 'P5', '높음', `data-screen-link 대상 ${id}이 화면 목록(IA 사본·플로우)에 없음 (바인딩식 안)`);
+          if (!ids.has(id)) add(file, n, 'P5', '높음', `${link.attr} 대상 ${id}이 화면 목록(IA 사본·플로우)에 없음 (바인딩식 안)`);
         }
       }
     }

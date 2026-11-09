@@ -105,6 +105,7 @@
 | 퍼블 소스 폴더가 `src/`가 아님 | ① `docs/PROJECT.md` "퍼블 소스 폴더"에 적는다 (훅·`check-pub`은 이 값을 읽는다) ② `.claude/rules/`에 남은 규칙 파일 모두의 `paths` 앞부분을 그 폴더로 바꾼다 (규칙 파일은 설정 값을 읽지 못한다) ③ `src/components/AGENTS.md`를 실제 컴포넌트 폴더로 옮긴다. ②·③을 빠뜨리면 `build-index`가 경고한다. 안쪽 폴더 이름이 다르면 `docs/ARCHITECTURE.md` 11번 |
 | 업종 규칙을 고르거나 바꿈 | ① `docs/PROJECT.md` "업종 규칙"에 쓸 파일을 적는다 ② 쓰지 않는 업종 규칙 파일(`.claude/framework.json` "업종별 선택" 분류)은 지운다. 지운 파일은 공통 지침 업데이트 때 되살아나지 않는다 ③ 다시 쓰려면 지금 버전 태그의 공통 지침 저장소에서 그 파일을 가져온다. ①·②가 어긋나면 `build-index`가 경고한다 |
 | 하드코딩 점검 범위 조정 | `.claude/scripts/hardcoded.mjs`의 `RULES` 수정 (훅·P9가 같이 바뀐다. 대상 폴더는 위 줄) |
+| Claude 앱(Code 탭)의 미리보기로 화면을 보고 싶음 | 저장소에 `.claude/launch.json`을 만든다. 명령은 `docs/PROJECT.md` "개발 서버"와 같게. 예) `{"version": "0.0.1", "configurations": [{"name": "dev", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 5173}]}`. "프로젝트 설정" 분류라 업데이트가 덮어쓰지 않는다 (원본에는 이 파일이 없다) |
 | Windows에서 줄바꿈(CRLF)이 섞임 | 저장소 루트 `.gitattributes`(`* text=auto eol=lf`)를 둔다. 이미 받은 작업 폴더는 `git add --renormalize .` 뒤 커밋. 스크립트는 CRLF 파일도 LF로 맞춰 읽지만, 여러 줄을 바꾸는 셸 명령(sed 등)은 실패할 수 있다 |
 | Code Connect를 쓴다 (`docs/PROJECT.md`) | deny 목록의 Code Connect 쓰기 도구(`add_code_connect_map`, `send_code_connect_mappings`)를 ask 목록으로 옮긴다. 다른 Figma 쓰기 도구는 그대로 둔다 |
 

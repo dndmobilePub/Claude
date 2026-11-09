@@ -51,6 +51,7 @@
 - IMPORTANT: 입력 원본(IA·기획서·Figma)은 읽기만 한다. 기획 설계서·디자인을 새로 그리거나, IA·PPT 파일을 고치지 않는다.
 - IMPORTANT: 파일을 만들거나 고치기 전에는 무엇을 바꿀지 보여주고 사용자 승인을 받는다. 커밋·푸시·PR은 `docs/GIT.md` 5번을 따른다. (승인 규칙의 원본은 이 줄과 GIT 5번이다. 스킬은 단계마다 승인 지점을 둔다)
 - 단계를 임의로 건너뛰지 않는다.
+- IMPORTANT: 공통 지침 파일(지침 관리 분류)은 고치지 않는다(`framework-update` 제외). 지침의 문제는 `docs/questions/framework.md`에 적고, 원본 저장소에 이슈·PR을 직접 올리지 않는다.
 
 ## 경로별 규칙 (자동 적용)
 - `.claude/rules/figma-design-system.md`

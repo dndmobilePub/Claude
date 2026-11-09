@@ -68,7 +68,7 @@ export function layoutFile(root) {
 }
 
 // 화면 확인 장치(미리보기) 폴더: 상태를 바꿔 보는 장치를 모은 곳 (docs/ARCHITECTURE.md 6번). 개발에 넘기지 않는다
-// 없거나 [TODO]면 <퍼블 소스 폴더>preview/
+// 없거나 [TODO]면 <퍼블 소스 폴더>/preview/ (예: src/preview/)
 export function previewDir(root) {
   const v = valueOf(readProject(root), '화면 확인 장치 폴더');
   return (v && normalizeDir(v)) || `${pubDir(root)}preview/`;

@@ -258,3 +258,27 @@ test('플로우: "2-1. 도메인 밖 이동 화면" 표는 화면 목록·화면
   assert.equal(r.code, 0, r.out);
   assert.doesNotMatch(read(dir, 'docs/ui-flow/_index.md'), /ACC-100/);
 });
+
+test('질문: 지침 문제(framework.md, Q-FW)는 대상이 지침 파일 경로여도 경고하지 않는다', (t) => {
+  const dir = makeProject(t);
+  write(
+    dir,
+    'docs/questions/framework.md',
+    `---
+source: framework
+prefix: Q-FW
+---
+
+# 질문: 공통 지침
+
+## 질문 목록
+| ID | 대상 | 출처 위치 | 질문 | 확인 대상 | 차단 | 상태 | 답 | 반영 위치 |
+|---|---|---|---|---|---|---|---|---|
+| Q-FW-001 | .claude/rules/a11y.md | 묶음 03 | 드로어 화면 ID를 적을 곳이 없음 | 지침 관리자 | 아니오 | 미답변 | 우회: 주석에 화면 ID | |
+| Q-FW-002 | docs/QA.md | 묶음 02 | 재검수 방법 | 지침 관리자 | 아니오 | 확정 | v0.4.3에서 반영 | 반영 없음 |
+`,
+  );
+  const r = run(dir, HOOK);
+  assert.equal(r.code, 0, r.out);
+  assert.match(read(dir, 'docs/questions/_index.md'), /Q-FW-001/);
+});

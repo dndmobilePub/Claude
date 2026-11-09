@@ -41,7 +41,7 @@ tests/               # 지침 원본 검사용 테스트 (프로젝트에는 쓰
 
 | 분류 | 파일 | 프로젝트에서 | 공통 지침 업데이트 때 |
 |---|---|---|---|
-| 지침 관리 | `AGENTS.md`, `CHANGELOG.md`, `.claude/skills/`·`agents/`·`hooks/`·`scripts/`, `templates/`, PR 양식 | 고치지 않고 그대로 사용 (사람·AI 모두). 고칠 일은 원본 저장소에 보완 요청 | 새 버전으로 바뀜 |
+| 지침 관리 | `AGENTS.md`, `CHANGELOG.md`, `.claude/skills/`·`agents/`·`hooks/`·`scripts/`, `templates/`, PR 양식 | 고치지 않고 그대로 사용 (사람·AI 모두). 고칠 일은 `docs/questions/framework.md`에 적어 지침 관리자에게 전달 | 새 버전으로 바뀜 |
 | 지침 + 프로젝트 예외 | `docs/DESIGN.md`·`ARCHITECTURE.md`·`PATTERNS.md`·`QA.md`·`GIT.md`·`HARNESS.md`, `docs/*/_index.md`, `.claude/rules/`의 공통 규칙(Figma 구현·접근성), `src/components/AGENTS.md` | 맨 아래 "프로젝트별 예외" 섹션만 채움 (rules는 `paths`도) | 공통 부분만 바뀌고 예외 섹션·AUTO 블록·frontmatter는 유지 |
 | 업종별 선택 | `.claude/rules/`의 업종 규칙 (예: `finance-ui.md`) | `docs/PROJECT.md` "업종 규칙"에 고른 것만 두고 나머지는 지움. 남긴 파일은 "지침 + 프로젝트 예외"와 같음 | 남긴 파일은 "지침 + 프로젝트 예외"와 같음. 지운 파일은 되살리지 않고, 새 업종 규칙은 알리기만 함 |
 | 프로젝트 설정 | `docs/PROJECT.md`, `.claude/settings.json`, `.gitignore`, `README.md` | 프로젝트 값으로 채우거나 고침 | 바뀐 줄만 보여주고 사람이 반영 |
@@ -82,18 +82,19 @@ tests/               # 지침 원본 검사용 테스트 (프로젝트에는 쓰
 - 진행 중에 IA·기획서·디자인의 새 버전을 받으면 `/version-update`로 반영합니다. 영향받은 화면만 "수정필요"가 되고, 명세 수정 → 확정 → 다시 퍼블 순서로 처리합니다.
 
 ### 시작 첫날 확인 목록
-실제 프로젝트 환경과 원본으로 한 번씩 확인합니다. 지침은 예제 파일로만 검사했으므로, 안 되는 것이 있으면 프로젝트에서 고치지 말고 **이 원본 저장소**에 보완할 점으로 올립니다. (프로젝트에서 고치면 다음 업데이트 때 충돌로 멈춥니다)
+실제 프로젝트 환경과 원본으로 한 번씩 확인합니다. 지침은 예제 파일로만 검사했으므로, 안 되는 것이 있으면 프로젝트에서 고치지 말고 `docs/questions/framework.md`에 적어 지침 관리자에게 전달합니다. (프로젝트에서 고치면 다음 업데이트 때 충돌로 멈춥니다)
+> 원본 저장소에 이슈·PR을 직접 올리지 않습니다. 원본은 공개될 수 있으므로, 서비스·고객사 이름, 화면 ID, Figma 파일 키 같은 프로젝트 값이 밖으로 나가지 않게 하기 위해서입니다. 전달 방법은 `docs/questions/_index.md` 예외 칸 "지침 문제 전달 방법".
 
 | | 확인 | 방법 | 안 되면 |
 |---|---|---|---|
 | [ ] | `AGENTS.md`를 지침으로 읽는지 | Claude Code 버전 확인 후 "지금 읽은 프로젝트 지침을 요약해줘" | `docs/HARNESS.md` 1번 (`@AGENTS.md` 한 줄짜리 `CLAUDE.md`) |
 | [ ] | Figma MCP 서버 이름·도구 | `/mcp`에서 서버 이름과 도구 목록 확인 | `.claude/settings.json`의 deny·ask를 서버 이름·도구에 맞춤 (`docs/HARNESS.md` 5번) |
 | [ ] | 훅이 도는지 | 플로우 문서 하나를 고친 뒤 `docs/ui-flow/_index.md` 현황이 바뀌는지. Windows는 `node`가 경로에 있는지 | `docs/HARNESS.md` 3번, `node .claude/hooks/build-index.mjs` 수동 실행 |
-| [ ] | IA 읽기 | `node .claude/skills/ia-sync/read-ia.mjs <IA 파일> sheets`, `dump`를 조금 → 병합 셀·숨김 행·WBS 색칠(`fills`)이 맞게 나오는지 | 원본 저장소에 보완 요청 (그동안은 `/ia-sync`에서 사람과 함께 확인) |
+| [ ] | IA 읽기 | `node .claude/skills/ia-sync/read-ia.mjs <IA 파일> sheets`, `dump`를 조금 → 병합 셀·숨김 행·WBS 색칠(`fills`)이 맞게 나오는지 | `framework.md`에 지침 문제로 (그동안은 `/ia-sync`에서 사람과 함께 확인) |
 | [ ] | 기획서 PPT 읽기 | `node .claude/skills/write-flow/read-ppt.mjs <PPT> list`, `text` 몇 장 | 같음 |
 | [ ] | Figma 조회 스크립트 | `/token-sync`·`/write-flow`에서 `read-variables`·`read-styles`·`export-tokens`·`read-storyboard`를 실제 파일로 한 번 실행 (`use_figma`는 실행마다 확인) | 같음 |
 | [ ] | Figma 스크린샷 받기 | 화면 노드 하나를 `get_screenshot`으로 받아 이미지가 보이는지. 클라우드 세션은 주소 내려받기가 막힐 수 있음 | `enableBase64Response: true`로 대화 안에서 받기. 그것도 안 되면 사람이 캡처 (`docs/DESIGN.md` 2번) |
-| [ ] | 토큰 변환 | `/token-sync`에서 `convert-tokens.mjs`가 해시 검사를 통과하고 비교 보고를 내는지 | 원본 저장소에 보완 요청 |
+| [ ] | 토큰 변환 | `/token-sync`에서 `convert-tokens.mjs`가 해시 검사를 통과하고 비교 보고를 내는지 | `framework.md`에 지침 문제로 |
 | [ ] | 점검 스크립트 | 첫 화면을 퍼블한 뒤 `node .claude/scripts/check-pub.mjs` | 같음 |
 
 ## 4. 화면 하나가 완성되는 흐름

@@ -7,6 +7,31 @@
 > - patch: 문구·버그 수정
 > 항목 분류: 추가 / 변경 / 삭제 / 고침 / 옮기는 방법(major만)
 
+## v0.4.3 — 2026-11-09
+v0.4.2 적용 중 나온 문제를 고치고, 지침 문제를 프로젝트 안에서 모으는 자리를 정했다.
+
+### 추가
+- **`data-screen-open="<화면ID>"`**: 화면 ID가 따로 있는 드로어·풀팝업을 여는 요소에 붙인다. 개발이 "여는 곳"을 검색으로 찾고, `check-pub` P5가 이 ID도 화면 목록과 대조한다. 그 화면이 지금 DOM에 없으면 `aria-controls`는 비워 두고 개발 전달에 적는다 (`a11y.md` 1번, `ARCHITECTURE.md` 4·10번)
+- **지침 문제 자리 `docs/questions/framework.md`**(Q-FW, 확인 대상 "지침 관리자"): 공통 지침 자체의 문제를 질문과 같은 표로 모은다. 새 버전에 반영되면 "확정 — v<버전>에서 반영". `docs/questions/_index.md` 예외 칸 "지침 문제 전달 방법"
+- 컴포넌트 명세 5번 **"화면 상태" 표**: 조합 계층(선택 전·선택 후 등)용. 기본 계층은 "요소 상태" 표
+- `.claude/launch.json`(Claude 앱 미리보기 설정)을 "프로젝트 설정" 분류에 넣음. 원본에는 파일이 없고, 만드는 법은 HARNESS 5번·project-init
+
+### 변경
+- **원본 저장소에 이슈·PR을 직접 올리지 않는다** (AGENTS 항상 지킬 규칙, README, framework-update 스킬). 원본은 공개될 수 있어 프로젝트 값(서비스·고객사 이름, 화면 ID, Figma 키)이 밖으로 나가지 않게 한다
+- 여는 요소의 속성을 나눔 (`a11y.md` 1번): 모달 대화상자(알럿·컨펌·풀팝업·화면을 덮는 드로어)는 `aria-haspopup="dialog"`만, 펼침형(드롭다운·아코디언·같은 화면 안 바텀시트)은 `aria-expanded` + `aria-controls`
+- framework-update 커밋 순서: ① 공통 지침 반영 → ② 줄바꿈 정리(`.gitattributes`가 들어왔을 때, renormalize는 다른 변경까지 담으므로 다른 수정 전에) → ③ 프로젝트 할 일
+- 재검수 기록(`QA.md` 5-2, 보고 8번): 비교 방법(캡처 / 계산값 / 키보드·읽기 순서)을 적는다. 마크업·속성만 바뀐 경우도 기록한다
+
+### 고침
+- "화면 확인 장치 폴더" 기본값 표기를 PROJECT.md와 같게 `<퍼블 소스 폴더>/preview/`로 (v0.4.2 CHANGELOG에는 `<퍼블 소스 폴더>preview/`로 적혀 있었다. 뜻은 같다)
+
+### 프로젝트에서 할 일 (framework-update 뒤)
+- 화면 ID가 있는 드로어·풀팝업을 여는 요소에 `data-screen-open`을 붙인다. 화면 ID를 주석으로 적어 두었으면 지운다
+- 모달 대화상자를 여는 요소에 `aria-expanded`를 붙였으면 지우고 `aria-haspopup="dialog"`만 둔다
+- 지침 문제를 따로 모아 두었으면 `docs/questions/framework.md`(양식 `templates/questions.md`, source `framework`, prefix `Q-FW`)로 옮긴다. 원본 저장소에 이슈로 올린 것이 있으면 이 파일로 옮긴 뒤 그 이슈를 닫는다
+- 조합 계층 컴포넌트 명세의 상태 표를 "화면 상태" 표로 바꾼다 (다음에 고칠 때 해도 된다)
+- 설정 확인 새 항목: `docs/questions/_index.md` 예외 칸 "지침 문제 전달 방법"
+
 ## v0.4.2 — 2026-11-09
 네 번째 시험 적용(공통 지침 반영·푸터 정리)에서 나온 문제와, 입력 화면 묶음 전에 필요한 규칙을 넣었다.
 

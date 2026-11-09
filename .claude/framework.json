@@ -1,6 +1,6 @@
 {
   "name": "ui-pub-guide",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "repository": "https://github.com/dndmobilePub/Claude",
   "files": {
     "지침 관리": [
@@ -30,6 +30,7 @@
     ],
     "프로젝트 설정": [
       ".claude/settings.json",
+      ".claude/launch.json",
       ".gitattributes",
       ".gitignore",
       "README.md",
