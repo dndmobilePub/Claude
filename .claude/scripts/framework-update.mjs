@@ -46,7 +46,8 @@ const AUTO_END = '<!-- AUTO:END -->';
 
 const read = (p) => {
   try {
-    return readFileSync(p, 'utf8');
+    // 줄바꿈은 LF로 맞춰 읽는다. Windows 작업 폴더의 CRLF 때문에 같은 내용이 다르게 보이지 않게 (docs/HARNESS.md 5번)
+    return readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
   } catch {
     return null;
   }
@@ -163,7 +164,7 @@ function keysOf(text) {
   const keys = new Set();
   for (const line of (text ?? '').split(/\r?\n/)) {
     const m = line.match(/^\s*-\s+([^:：\n`]{1,40}?)\s*[:：]/);
-    if (m) keys.add(m[1].trim());
+    if (m) keys.add(m[1].replace(/\s*\([^)]*\)\s*$/, '').trim()); // 끝의 "(5-2)" 같은 절 표시는 키에서 뺀다
   }
   return keys;
 }

@@ -46,6 +46,7 @@
 - 퍼블 소스 폴더: [TODO: 기본 src/. 퍼블 파일을 두는 최상위 폴더. 저장소 루트는 쓰지 않는다. 훅·점검 스크립트가 이 폴더를 본다. 바꾸면 `docs/HARNESS.md` 5번의 손으로 바꿀 곳도 함께 바꾼다]
 - 파일 구조: [TODO: 화면 폴더 / 종류별 폴더. 기본 화면 폴더. 종류별 폴더는 퍼블 언어가 JS(HTML·CSS·JS)일 때만 (`docs/ARCHITECTURE.md` 3번)]
 - 코드 토큰 위치: [TODO: 기본 <퍼블 소스 폴더>/styles/tokens/, 종류별 폴더면 <퍼블 소스 폴더>/css/tokens/ (token-sync가 토큰 파일을 만드는 폴더)]
+- 화면 확인 장치 폴더: [TODO: 기본 <퍼블 소스 폴더>/preview/. 상태를 바꿔 보는 장치를 모은 곳 (`docs/ARCHITECTURE.md` 6번). 개발에 넘기지 않으며 점검 스크립트 일부(P4·P9)에서 빠진다]
 - 레이아웃 값 파일: [TODO: 기본 <퍼블 소스 폴더>/styles/layout.css, 종류별 폴더면 <퍼블 소스 폴더>/css/layout.css. 토큰이 없는 종류(폭·높이·z-index 등)의 숫자를 모으는 한 곳 (`docs/DESIGN.md` 3-4). 스타일링이 SCSS면 확장자를 .scss로 적어도 된다]
 
 ## 명령어

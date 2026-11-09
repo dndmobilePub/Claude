@@ -7,6 +7,34 @@
 > - patch: 문구·버그 수정
 > 항목 분류: 추가 / 변경 / 삭제 / 고침 / 옮기는 방법(major만)
 
+## v0.4.2 — 2026-11-09
+네 번째 시험 적용(공통 지침 반영·푸터 정리)에서 나온 문제와, 입력 화면 묶음 전에 필요한 규칙을 넣었다.
+
+### 추가
+- `DESIGN.md` **5-2 요소 상태**: Figma variant 상태 값(Hover·Pressed·Focused·Disabled·Selected·Current·Error)을 CSS 의사 클래스·ARIA 속성에 대응시키는 표. 상태 모양은 클래스가 아니라 그 선택자로 건다. Figma에 없는 상태는 만들지 않고 질문하되 포커스 표시는 9번 예외 "기본 포커스 모양"으로 남긴다. 컴포넌트 명세 5번 상태 표에 "Figma 상태 값·CSS 대응" 칸
+- `DESIGN.md` **5-3 움직임**: Figma 프로토타입·모션 토큰에 있는 것만 옮긴다. 화면 사이 전환은 개발 몫. `prefers-reduced-motion` 대응(a11y 6번). 9번 예외 "hover 처리"·"기본 포커스 모양"·"기본 움직임 값"
+- 이동 태그 규칙에 **탭·드로어** (`a11y.md` 1번, `ARCHITECTURE.md` 4번): 같은 화면 안 탭은 `button role="tab"`, 다른 화면으로 가는 탭은 `a` + `aria-current`, 드로어·바텀시트·모달을 여는 요소는 `button aria-expanded`(`data-screen-link` 없음)
+- **가정 값의 자리** (`DESIGN.md` 3-4·8번, `ds-requests/_index.md` 2번): 토큰 종류는 있는데 맞는 값이 없어 가정으로 진행하는 숫자도 레이아웃 값 파일에 `--assume-<종류>-<용도>`로 모은다. 컴포넌트는 `var()`만
+- `check-pub` **P9 하드코딩**(중간): 색(HEX·rgb·hsl)과 2px 이상 px(소수 포함). 린트에서 늘 돌아, 어떤 도구로 고쳤든 결과가 같다. 규칙은 `.claude/scripts/hardcoded.mjs` 한 곳 — `check-hardcoded` 훅도 같은 함수를 쓴다
+- `docs/PROJECT.md` **"화면 확인 장치 폴더"**(기본 `<퍼블 소스 폴더>preview/`): 개발에 넘기지 않는 미리보기 도구. `check-pub` P4·P9에서 빠진다
+- 저장소 **`.gitattributes`**(`* text=auto eol=lf`, 이미지·글꼴·오피스 파일은 binary). "프로젝트 설정" 분류
+
+### 변경
+- 하드코딩 점검: 뷰포트 표의 구현 기준 폭·최소 폭과 디바이스 전환 폭을 폭 조건(min-width·max-width·@media·SCSS 변수)에 쓴 줄은 허용한다
+- QA C2에 요소 상태 확인, 리뷰어 2·3번에 요소 상태·움직임·탭·드로어 태그
+
+### 고침
+- 하드코딩 점검이 `3.3px`·`14.4px` 같은 **소수 px를 놓치던 것**
+- `framework-update`·`build-index`·`check-pub`·PROJECT.md 읽기가 **CRLF 파일**을 LF로 맞춰 읽는다. Windows 작업 폴더의 CRLF 때문에 같은 내용을 충돌로 보던 것
+- `QA.md` 3-3이 허용 차이를 "5번 예외"로 잘못 가리키던 것 (6번), `PATTERNS.md`·리뷰어가 DESIGN 상태 절을 "5번"으로 가리키던 것 (5-1)
+
+### 프로젝트에서 할 일 (framework-update 뒤)
+- 업데이트 보고의 "설정 확인 — 새 항목"을 채운다: `docs/PROJECT.md` "화면 확인 장치 폴더", `docs/DESIGN.md` 9번 "hover 처리"·"기본 포커스 모양"·"기본 움직임 값". `.gitattributes`는 "설정 확인"으로 나온다 — 프로젝트에 없으면 새 버전 파일을 그대로 복사해 넣고, 있으면 차이를 보고 합친다
+- `.gitattributes`를 넣은 뒤 Windows 작업 폴더에서 `git add --renormalize .`로 줄바꿈을 맞추고 따로 커밋한다
+- `check-pub` P9에 걸린 값을 옮긴다: 토큰이 있으면 토큰, 토큰 종류가 없으면 `--layout-*`, 가정 값이면 `--assume-*` (레이아웃 값 파일). 린트가 P9 때문에 실패할 수 있다
+- 탭·드로어·바텀시트를 여는 요소를 새 태그 규칙에 맞춘다
+- 컴포넌트 명세 5번 상태 표에 "Figma 상태 값·CSS 대응" 칸을 채운다. 기존 명세는 다음에 고칠 때 채워도 된다
+
 ## v0.4.1 — 2026-11-04
 문서·테스트의 예시 값 가운데 시험 적용 프로젝트에서 가져온 값을 일반 예시로 바꿨다. 동작은 바뀌지 않는다.
 

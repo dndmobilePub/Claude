@@ -174,3 +174,16 @@ test('--project: 새 버전 폴더의 스크립트로 다른 폴더의 프로젝
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.ok(row(r.stdout, '병합', 'docs/QA.md'), r.stdout);
 });
+
+test('줄바꿈: 프로젝트 파일이 CRLF여도 내용이 같으면 충돌로 보지 않는다', (t) => {
+  const s = setup(t, {
+    change: (to) => replaceIn(to, 'docs/QA.md', '# QA.md — 검수 기준', '# QA.md — 검수 기준 (새 버전)'),
+    edit: (proj) => {
+      for (const f of ['docs/QA.md', 'templates/report.md']) write(proj, f, read(proj, f).replace(/\n/g, '\r\n'));
+    },
+  });
+  const r = s.check();
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /충돌 0/);
+  assert.ok(row(r.out, '병합', 'docs/QA.md'), r.out);
+});

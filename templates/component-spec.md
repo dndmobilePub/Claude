@@ -58,15 +58,18 @@ Figma variant 속성에서 온 것은 "Figma 속성" 칸을 채운다. 디자인
 | | | |
 
 ### 상태
-<!-- 인터랙션이 있는 컴포넌트만. Figma에 없는 상태는 "디자인 필요". -->
-| 상태 | 표현 방식 | Figma 노드 |
-|---|---|---|
-| 기본 | | |
-| hover / pressed | | |
-| focus | | |
-| 비활성 | | |
-| 로딩 | | |
-| 에러 | | |
+<!-- 인터랙션이 있는 컴포넌트만. Figma에 없는 상태는 "디자인 필요"(포커스는 9번 예외 기본 포커스 모양). CSS 대응은 docs/DESIGN.md 5-2 표 -->
+| 상태 | Figma 상태 값 | CSS 대응 | 표현 방식 | Figma 노드 |
+|---|---|---|---|---|
+| 기본 | | | | |
+| hover | | `:hover` | | |
+| 눌림 | | `:active` | | |
+| 포커스 | | `:focus-visible` | | |
+| 선택 | | `[aria-selected="true"]` 등 | | |
+| 비활성 | | `:disabled` / `[aria-disabled="true"]` | | |
+| 로딩 | | | | |
+| 에러 | | `[aria-invalid="true"]` | | |
+| 움직임 | | `transition` (DESIGN 5-3, 없으면 "없음") | | |
 
 ## 6. 사용 토큰
 | 역할 | 토큰 이름 |

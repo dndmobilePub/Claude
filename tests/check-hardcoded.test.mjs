@@ -37,3 +37,19 @@ test('PROJECT.md "레이아웃 값 파일"에 적은 위치를 따른다', (t) =
   assert.equal(runHook(dir, 'src/styles/_layout.scss').status, 0);
   assert.equal(runHook(dir, 'src/styles/layout.css').status, 2);
 });
+
+test('소수 px도 잡는다 (check-pub P9와 같은 규칙)', (t) => {
+  const dir = makeProject(t);
+  write(dir, 'src/components/ui/Chip/Chip.vue', '<style scoped>\n.chip { padding: 3.3px; border-radius: 14.4px; }\n</style>\n');
+  const r = runHook(dir, 'src/components/ui/Chip/Chip.vue');
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /3\.3px/);
+  assert.match(r.stderr, /14\.4px/);
+});
+
+test('화면 확인 장치(미리보기) 폴더는 경고하지 않는다', (t) => {
+  const dir = makeProject(t);
+  write(dir, 'src/preview/PreviewApp.vue', '<style>.bar { height: 48px; color: #333; }</style>\n');
+  const r = runHook(dir, 'src/preview/PreviewApp.vue');
+  assert.equal(r.status, 0, r.stderr);
+});

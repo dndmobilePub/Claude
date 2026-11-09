@@ -16,7 +16,7 @@ export const DEFAULT_PUB_DIR = 'src/';
 
 function readProject(root) {
   try {
-    return readFileSync(join(root, 'docs/PROJECT.md'), 'utf8');
+    return readFileSync(join(root, 'docs/PROJECT.md'), 'utf8').replace(/\r\n/g, '\n');
   } catch {
     return '';
   }
@@ -65,6 +65,27 @@ export function layoutFile(root) {
   if (norm) return norm.replace(/\/$/, '');
   const def = fileLayout(root) === '종류별 폴더' ? 'css/layout.css' : 'styles/layout.css';
   return `${pubDir(root)}${def}`;
+}
+
+// 화면 확인 장치(미리보기) 폴더: 상태를 바꿔 보는 장치를 모은 곳 (docs/ARCHITECTURE.md 6번). 개발에 넘기지 않는다
+// 없거나 [TODO]면 <퍼블 소스 폴더>preview/
+export function previewDir(root) {
+  const v = valueOf(readProject(root), '화면 확인 장치 폴더');
+  return (v && normalizeDir(v)) || `${pubDir(root)}preview/`;
+}
+
+// 뷰포트 표의 구현 기준 폭·최소 폭과 디바이스 전환 폭 (예: 375, 320, 1280). 하드코딩 점검에서 폭 조건에 쓰면 허용한다
+export function viewportWidths(root) {
+  const text = readProject(root);
+  const out = new Set();
+  for (const line of text.split(/\r?\n/)) {
+    const c = line.split('|').map((x) => x.trim());
+    if (c.length < 6 || !/^\d{3,4}\s*[×x]\s*\d{3,4}$/.test(c[2])) continue;
+    for (const v of [c[3], c[4]]) if (/^\d{3,4}$/.test(v)) out.add(Number(v));
+  }
+  const m = text.match(/디바이스 전환 폭:[ \t]*`?(\d{3,4})/);
+  if (m) out.add(Number(m[1]));
+  return out;
 }
 
 export function tokenDir(root) {

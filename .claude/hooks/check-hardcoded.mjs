@@ -1,20 +1,14 @@
 #!/usr/bin/env node
 // PostToolUse(Edit|Write) 훅: 퍼블 소스 폴더(docs/PROJECT.md, 기본 src/)의 파일을 고친 직후 하드코딩된 디자인 값을 빠르게 찾아 Claude에게 알린다.
-// - 전체 점검은 ds-check 스킬이 맡는다. 이 훅은 색상·px 값만 가볍게 본다.
+// - 규칙은 .claude/scripts/hardcoded.mjs (check-pub P9와 같음). 이 훅은 방금 고친 파일만 본다. 판단이 필요한 점검은 ds-check.
 // - 위반이 있으면 exit 2 + stderr로 Claude에게 전달하고, 없으면 조용히 끝낸다.
 // - 훅 오류로 작업이 막히지 않도록, 예외가 나면 그냥 통과시킨다.
 
 import { readFileSync, existsSync } from 'node:fs';
 import { relative } from 'node:path';
-import { pubDir, tokenDir, layoutFile } from '../scripts/project-values.mjs';
+import { isHardcodeTarget, findHardcoded, HARDCODE_HINT } from '../scripts/hardcoded.mjs';
 
 const MAX_FINDINGS = 10;
-
-const RULES = [
-  { name: 'HEX 색상', re: /(?<![\w&])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g },
-  { name: 'rgb/hsl 색상', re: /\b(?:rgba?|hsla?)\(/g },
-  { name: 'px 값', re: /(?<![\w.-])(?:[2-9]|\d{2,})px\b/g },
-];
 
 function readInput() {
   try {
@@ -31,30 +25,10 @@ function main() {
 
   const root = process.env.CLAUDE_PROJECT_DIR || input.cwd || process.cwd();
   const rel = relative(root, filePath).replace(/\\/g, '/');
+  // 점검 대상·규칙은 check-pub P9와 같다 (.claude/scripts/hardcoded.mjs)
+  if (!isHardcodeTarget(root, rel)) return 0;
 
-  // 점검 대상: 퍼블 소스 폴더 아래 스타일·컴포넌트 파일. 테스트·스토리는 제외.
-  if (!rel.startsWith(pubDir(root))) return 0;
-  if (!/\.(html|vue|tsx?|jsx?|css|scss)$/.test(rel)) return 0;
-  if (/\.(stories|test|spec)\./.test(rel)) return 0;
-
-  // 토큰 정의 파일(또는 폴더)은 제외.
-  const tokens = tokenDir(root);
-  if (rel === tokens.replace(/\/$/, '') || rel.startsWith(tokens)) return 0;
-  // 레이아웃 값 파일은 토큰이 없는 종류의 숫자를 모으는 곳이라 제외 (docs/DESIGN.md 3-4)
-  if (rel === layoutFile(root)) return 0;
-
-  const findings = [];
-  const lines = readFileSync(filePath, 'utf8').split(/\r?\n/);
-  lines.forEach((line, i) => {
-    const trimmed = line.trim();
-    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*') || trimmed.startsWith('<!--')) return;
-    for (const rule of RULES) {
-      for (const match of line.matchAll(rule.re)) {
-        findings.push(`${rel}:${i + 1} ${rule.name} \`${match[0].replace(/\($/, '(...)')}\``);
-      }
-    }
-  });
-
+  const findings = findHardcoded(root, readFileSync(filePath, 'utf8')).map((f) => `${rel}:${f.line} ${f.name} \`${f.value}\``);
   if (findings.length === 0) return 0;
 
   const shown = findings.slice(0, MAX_FINDINGS);
@@ -64,8 +38,8 @@ function main() {
       `[하드코딩 경고] 방금 고친 파일에서 디자인 값 직접 입력 ${findings.length}건을 찾았습니다.`,
       ...shown.map((f) => `- ${f}`),
       ...(more > 0 ? [`- 외 ${more}건`] : []),
-      '토큰으로 바꾸거나, 맞는 토큰이 없으면 사용자에게 물어보세요 (docs/DESIGN.md 3·8번).',
-      '토큰이 없는 종류(폭·높이·z-index 등)는 레이아웃 값 파일에 이름을 붙여 모으고 그 변수를 쓰세요 (docs/DESIGN.md 3-4).',
+      `${HARDCODE_HINT}. 맞는 토큰이 없으면 사용자에게 물어보세요.`,
+      '같은 점검은 check-pub P9에서도 돈다 (스크립트로 고친 파일도 린트에서 잡힌다).',
     ].join('\n') + '\n',
   );
   return 2;

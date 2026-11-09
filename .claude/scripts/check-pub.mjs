@@ -20,6 +20,9 @@
 //      화면 전용 스타일: screens/ 안의 스타일 파일·Vue <style>·스타일 가져오기, 화면 ID 이름의 스타일 파일   높음
 //      global.css 예외: [data-screen="<화면ID>"] 범위가 아님, 바로 위 "/* 예외: <화면ID> — 이유 */" 없음   중간
 //      !important                                                                                 확인 필요
+//   P9 하드코딩: 색(HEX·rgb·hsl)·2px 이상 px(소수 포함) (DESIGN.md 3·3-4·8번)                       중간
+//      토큰 폴더·레이아웃 값 파일·화면 확인 장치 폴더·테스트는 뺀다. 뷰포트 폭을 폭 조건에 쓴 줄은 허용 (.claude/scripts/hardcoded.mjs)
+//   P4·P9는 화면 확인 장치(미리보기) 폴더를 보지 않는다 — 개발에 넘기지 않는 퍼블 도구 (ARCHITECTURE.md 6번)
 //   P8 문서·에셋 (ARCHITECTURE.md 4-1·4-2)
 //      <html>이 있는 문서에 lang·viewport meta·<title>이 없음                                       중간
 //      viewport가 확대를 막음 (user-scalable=no, maximum-scale 2 미만)                              높음
@@ -31,7 +34,8 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { pubDir as readPubDir, tokenDir as readTokenDir, screenIdPattern } from './project-values.mjs';
+import { pubDir as readPubDir, tokenDir as readTokenDir, screenIdPattern, previewDir } from './project-values.mjs';
+import { isHardcodeTarget, findHardcoded, HARDCODE_HINT } from './hardcoded.mjs';
 
 const root = process.env.CLAUDE_PROJECT_DIR || fileURLToPath(new URL('../..', import.meta.url));
 const EXT = /\.(html|vue|jsx?|tsx?|css|scss)$/;
@@ -39,7 +43,7 @@ const SKIP = /\.(stories|test|spec)\.|(^|\/)node_modules\//;
 
 const read = (p) => {
   try {
-    return readFileSync(p, 'utf8');
+    return readFileSync(p, 'utf8').replace(/\r\n/g, '\n'); // CRLF도 LF로 맞춰 읽는다
   } catch {
     return null;
   }
@@ -217,9 +221,16 @@ function checkDocument(file, text) {
   if (!/<title>\s*[^<\s][^<]*<\/title>/i.test(text)) add(file, lineOf(/<head\b|<html\b/i), 'P8', '중간', '<title>이 없거나 비어 있음 (IA 화면명, 형식은 ARCHITECTURE.md 11번)');
 }
 
+const preview = previewDir(root);
 for (const file of files) {
   const text = read(file) || '';
   const lines = text.split(/\r?\n/);
+  const relFile = relative(root, file).replace(/\\/g, '/');
+  const inPreview = relFile.startsWith(preview);
+  // P9
+  if (isHardcodeTarget(root, relFile)) {
+    for (const f of findHardcoded(root, text)) add(file, f.line, 'P9', '중간', `하드코딩 ${f.name} ${f.value} (토큰, 없으면 레이아웃 값 파일 --layout-*·--assume-* — DESIGN.md 3-4)`);
+  }
   checkStyle(file, lines);
   checkDocument(file, text);
   lines.forEach((line, i) => {
@@ -252,7 +263,7 @@ for (const file of files) {
 
     // P4
     const dev = line.match(/\b(fetch\s*\(|axios\b|XMLHttpRequest|location\.(href\s*=|assign|replace)|router\.(push|replace)|history\.(pushState|replaceState)|navigate\s*\()/);
-    if (dev) add(file, n, 'P4', '확인 필요', `개발 몫 코드 의심: ${dev[1]} (서버 호출·화면 이동은 퍼블에서 하지 않음)`);
+    if (dev && !inPreview) add(file, n, 'P4', '확인 필요', `개발 몫 코드 의심: ${dev[1]} (서버 호출·화면 이동은 퍼블에서 하지 않음)`);
 
     // P5
     if (ids.size) {

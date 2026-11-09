@@ -172,3 +172,29 @@ test('P5: 화면 ID 형식이 비어 있으면 숫자가 든 ID를 넓게 읽는
   assert.doesNotMatch(r.out, /건너뜀: P5/);
   assert.doesNotMatch(r.out, /ACC010MS이 화면 목록/);
 });
+
+test('P9: 하드코딩 색·px(소수 포함)는 중간, 뷰포트 폭 조건·레이아웃 값 파일·미리보기 폴더는 뺀다', (t) => {
+  const dir = makeProject(t);
+  replaceIn(dir, 'docs/PROJECT.md', '| [TODO: 예) 모바일] | [TODO: 예) 402×874] | [TODO: 예) 375] | [TODO: 예) 320] |', '| 모바일 | 402×874 | 375 | 320 |');
+  write(dir, 'docs/PROJECT.md', read(dir, 'docs/PROJECT.md').replace(/- 디바이스 전환 폭: .*/, '- 디바이스 전환 폭: 1280 (이 폭부터 PC)'));
+  write(dir, 'src/components/ui/Chip/Chip.vue', '<style scoped>\n.chip { gap: 6px; padding: 3.3px var(--space-8); border-radius: 14.4px; color: #ff0000; border: 1px solid var(--line); }\n</style>\n');
+  write(dir, 'src/styles/common.scss', 'body {\n  min-width: 320px; // 최소 폭\n}\n$pc-min: 1280px;\n');
+  write(dir, 'src/styles/layout.css', ':root {\n  --assume-space-chip-gap: 6px; /* 가정(DS-001) */\n}\n');
+  write(dir, 'src/preview/PreviewApp.vue', '<script setup>\nhistory.replaceState(null, "", "?s=1");\n</script>\n<style>.bar { height: 48px; }</style>\n');
+  const r = run(dir, SCRIPT, ['src']);
+  assert.equal(r.code, 1, r.out);
+  for (const v of ['6px', '3.3px', '14.4px', '#ff0000']) assert.match(r.out, new RegExp(`P9 \\| 중간 \\| src/components/ui/Chip/Chip\\.vue:2 \\| 하드코딩 [^|]*${v.replace('.', '\\.')}`));
+  assert.doesNotMatch(r.out, /하드코딩 px 값 1px/);
+  assert.equal(has(r.out, 'P9', '중간', 'src/styles/common.scss'), false, r.out);
+  assert.equal(has(r.out, 'P9', '중간', 'src/styles/layout.css'), false);
+  assert.equal(has(r.out, 'P9', '중간', 'src/preview/PreviewApp.vue'), false);
+  assert.equal(has(r.out, 'P4', '확인 필요', 'src/preview/PreviewApp.vue'), false);
+});
+
+test('P9: 뷰포트 폭이라도 폭 조건이 아닌 곳에 쓰면 잡는다', (t) => {
+  const dir = makeProject(t);
+  replaceIn(dir, 'docs/PROJECT.md', '| [TODO: 예) 모바일] | [TODO: 예) 402×874] | [TODO: 예) 375] | [TODO: 예) 320] |', '| 모바일 | 402×874 | 375 | 320 |');
+  write(dir, 'src/components/ui/Box/Box.vue', '<style scoped>\n.box { width: 320px; }\n</style>\n');
+  const r = run(dir, SCRIPT, ['src']);
+  assert.ok(has(r.out, 'P9', '중간', 'src/components/ui/Box/Box.vue'), r.out);
+});

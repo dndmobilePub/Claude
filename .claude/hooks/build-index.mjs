@@ -57,7 +57,7 @@ const START_LINE = `${START} — 자동 생성. 직접 고치지 말고 원본 �
 
 function read(path) {
   try {
-    return readFileSync(path, 'utf8');
+    return readFileSync(path, 'utf8').replace(/\r\n/g, '\n'); // CRLF도 LF로 맞춰 읽는다
   } catch {
     return null;
   }

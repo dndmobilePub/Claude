@@ -44,7 +44,7 @@
 
 | 훅 | 시점 | 하는 일 |
 |---|---|---|
-| `check-hardcoded.mjs` | 파일 수정 직후 (Edit·Write) | 퍼블 소스 폴더(`docs/PROJECT.md`, 기본 `src/`)의 스타일·컴포넌트 파일에서 HEX·rgb/hsl 색상, 2px 이상 px 값을 찾아 Claude에게 알린다. 최대 10건만 보여준다 |
+| `check-hardcoded.mjs` | 파일 수정 직후 (Edit·Write) | 퍼블 소스 폴더(`docs/PROJECT.md`, 기본 `src/`)의 스타일·컴포넌트 파일에서 HEX·rgb/hsl 색상, 2px 이상 px 값(소수 포함)을 찾아 Claude에게 알린다. 최대 10건만 보여준다. 규칙은 `check-pub` P9와 같다(`.claude/scripts/hardcoded.mjs`) |
 | `build-index.mjs` | 파일 수정 직후 (Edit·Write) | 아래 문서가 바뀌면 AUTO 블록을 다시 만들고 불일치를 Claude에게 알린다 (아래 목록) |
 | `session-reminder.mjs` | 대화 압축 직후 | 승인·토큰·디자인 핵심 규칙, 현재 브랜치, 커밋되지 않은 변경을 다시 알려준다 |
 
@@ -55,7 +55,7 @@
 - `build-index`가 고치는 `_index.md` 변경은 승인받은 원본 수정의 결과이므로 별도 승인을 받지 않는다. 커밋할 때는 원본과 함께 포함한다.
 - 훅은 Edit·Write 도구로 고칠 때만 돈다. 에디터에서 직접 고쳤거나 셸 명령(sed·스크립트 등)으로 문서를 고쳤으면 `node .claude/hooks/build-index.mjs`로 직접 실행한다. (경고가 있으면 종료 코드 1. 입력을 기다리지 않으므로 다른 명령과 묶어 실행해도 된다)
 - 직접 실행해서 바뀐 `_index.md`·묶음 파일은 커밋 전 파일 목록에 "자동 생성"으로 표시해 함께 보여 주고, 원본과 같은 커밋에 넣는다. 다음 커밋으로 미루지 않는다.
-- `check-hardcoded`는 빠른 1차 경고다. 전체 점검(스타일 작성 방식·컴포넌트)은 `ds-check` 스킬이 맡는다.
+- `check-hardcoded`는 방금 고친 파일만 보는 빠른 경고다. 셸·스크립트로 고친 파일은 훅이 돌지 않으므로, 같은 규칙을 `check-pub` P9가 린트에서 전체로 본다. 판단이 필요한 점검(스타일 작성 방식·컴포넌트)은 `ds-check` 스킬이 맡는다.
 - 제외 대상: 테스트·스토리 파일, `docs/PROJECT.md`의 "코드 토큰 위치"에 적힌 파일·폴더. 이 값이 [TODO]면 토큰 파일도 점검되므로 먼저 채운다.
 - 훅 스크립트에 오류가 나면 작업을 막지 않고 통과시킨다.
 
@@ -71,7 +71,8 @@
 | `.claude/skills/token-sync/read-styles.js` | `token-sync` | Figma 텍스트 스타일·효과 스타일 (Figma `use_figma`로 실행) |
 | `.claude/skills/token-sync/export-tokens.js` | `token-sync` | Figma 변수·텍스트·효과 스타일 전체를 압축 형식 + 해시로 내보낸다 (Figma `use_figma`로 실행, 조각마다) |
 | `.claude/skills/token-sync/convert-tokens.mjs` | `token-sync` | 내보낸 텍스트의 해시를 검사하고 `DESIGN.md` 3-2·3-3·9번대로 토큰 파일을 만든다. 기본은 비교 보고만, `--write`면 토큰 파일을 쓴다 |
-| `.claude/scripts/check-pub.mjs` | `ds-check` | 퍼블 파일의 규칙 위반 P1~P8 (정의 안 된 토큰, 텍스트 스타일 조합, 화면 폭, 개발 몫 코드, 이동 대상 ID, 위험한 HTML·외부 스크립트, 스타일 위치, 문서 기본 요소·임시 에셋 주소). 읽기만 한다 |
+| `.claude/scripts/check-pub.mjs` | `ds-check` | 퍼블 파일의 규칙 위반 P1~P9 (정의 안 된 토큰, 텍스트 스타일 조합, 화면 폭, 개발 몫 코드, 이동 대상 ID, 위험한 HTML·외부 스크립트, 스타일 위치, 문서 기본 요소·임시 에셋 주소, 하드코딩). 읽기만 한다 |
+| `.claude/scripts/hardcoded.mjs` | `check-pub` P9, `check-hardcoded` 훅 | 하드코딩 점검 규칙(대상 파일·빼는 곳·색·px). 두 곳이 같은 결과를 내도록 한 곳에 둔다 |
 | `.claude/skills/version-update/bump-ver.mjs` | `version-update` | 화면 명세 frontmatter의 기준 버전 한 줄만 고친다 (`--write` 없으면 목록만 보여준다) |
 | `.claude/scripts/framework-update.mjs` | `framework-update` | 공통 지침 두 버전과 프로젝트를 비교해 교체·병합·추가·삭제·충돌·설정 확인·업종 규칙 확인을 보고하고, `apply`면 충돌이 없을 때만 반영한다. `lint`는 원본 저장소에서 파일 분류(`.claude/framework.json`)를 점검한다 |
 
@@ -103,7 +104,8 @@
 | Figma MCP 도구 이름이 다름·쓰기 도구가 추가됨 | `/mcp`에서 도구 목록을 확인하고 deny 목록의 Figma 쓰기 도구를 맞춘다 |
 | 퍼블 소스 폴더가 `src/`가 아님 | ① `docs/PROJECT.md` "퍼블 소스 폴더"에 적는다 (훅·`check-pub`은 이 값을 읽는다) ② `.claude/rules/`에 남은 규칙 파일 모두의 `paths` 앞부분을 그 폴더로 바꾼다 (규칙 파일은 설정 값을 읽지 못한다) ③ `src/components/AGENTS.md`를 실제 컴포넌트 폴더로 옮긴다. ②·③을 빠뜨리면 `build-index`가 경고한다. 안쪽 폴더 이름이 다르면 `docs/ARCHITECTURE.md` 11번 |
 | 업종 규칙을 고르거나 바꿈 | ① `docs/PROJECT.md` "업종 규칙"에 쓸 파일을 적는다 ② 쓰지 않는 업종 규칙 파일(`.claude/framework.json` "업종별 선택" 분류)은 지운다. 지운 파일은 공통 지침 업데이트 때 되살아나지 않는다 ③ 다시 쓰려면 지금 버전 태그의 공통 지침 저장소에서 그 파일을 가져온다. ①·②가 어긋나면 `build-index`가 경고한다 |
-| 하드코딩 점검 범위 조정 | `check-hardcoded.mjs`의 `RULES` 수정 (대상 폴더는 위 줄) |
+| 하드코딩 점검 범위 조정 | `.claude/scripts/hardcoded.mjs`의 `RULES` 수정 (훅·P9가 같이 바뀐다. 대상 폴더는 위 줄) |
+| Windows에서 줄바꿈(CRLF)이 섞임 | 저장소 루트 `.gitattributes`(`* text=auto eol=lf`)를 둔다. 이미 받은 작업 폴더는 `git add --renormalize .` 뒤 커밋. 스크립트는 CRLF 파일도 LF로 맞춰 읽지만, 여러 줄을 바꾸는 셸 명령(sed 등)은 실패할 수 있다 |
 | Code Connect를 쓴다 (`docs/PROJECT.md`) | deny 목록의 Code Connect 쓰기 도구(`add_code_connect_map`, `send_code_connect_mappings`)를 ask 목록으로 옮긴다. 다른 Figma 쓰기 도구는 그대로 둔다 |
 
 - 설정을 바꾸면 Claude Code를 다시 시작해야 반영된다.
