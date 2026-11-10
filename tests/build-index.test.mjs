@@ -109,7 +109,10 @@ prefix: Q-PL
   assert.equal(r.code, 1);
   assert.match(r.out, /Q-PL-002: 차단 질문은 가정으로 진행할 수 없습니다/);
   assert.match(r.out, /대상 TRF-999가 화면 목록/);
-  assert.match(read(dir, 'docs/questions/_index.md'), /Q-PL-001/);
+  const index = read(dir, 'docs/questions/_index.md');
+  assert.match(index, /\| Q-PL-001 \| TRF-010 \| 기획 \| 예 \| 미답변 \| \[plan\.md\]\(plan\.md\) \|/);
+  assert.doesNotMatch(index, /한도는\?/, '질문 문장은 현황에 복사하지 않는다');
+  assert.doesNotMatch(index, /기본 문구/, '답은 현황에 복사하지 않는다');
 });
 
 test('업종 규칙: PROJECT.md 값과 실제 파일이 어긋나면 경고한다', (t) => {

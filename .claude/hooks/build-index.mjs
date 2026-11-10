@@ -266,12 +266,13 @@ function buildQuestions(questions) {
   if (open.length === 0) out.push('열린 질문이 없다.');
   else {
     open.sort((a, b) => (a.block === '예' ? 0 : 1) - (b.block === '예' ? 0 : 1) || a.who.localeCompare(b.who) || a.id.localeCompare(b.id));
-    out.push('| ID | 대상 | 질문 | 확인 대상 | 차단 | 상태 | 답(가정·보류 이유) | 파일 |', '|---|---|---|---|---|---|---|---|');
+    // 질문 문장·답은 원본 파일에만 둔다. 현황에는 찾아갈 정보만 (같은 내용을 두 번 적지 않기)
+    out.push('| ID | 대상 | 확인 대상 | 차단 | 상태 | 파일 |', '|---|---|---|---|---|---|');
     for (const q of open) {
-      out.push(`| ${esc(q.id)} | ${esc(q.target)} | ${esc(q.text)} | ${esc(q.who)} | ${esc(q.block)} | ${esc(q.status)} | ${esc(q.answer)} | [${q.file}](${q.file}) |`);
+      out.push(`| ${esc(q.id)} | ${esc(q.target)} | ${esc(q.who)} | ${esc(q.block)} | ${esc(q.status)} | [${q.file}](${q.file}) |`);
     }
   }
-  out.push('', '- 확정된 질문은 원본 파일에서 ID로 검색한다.', '', END);
+  out.push('', '- 질문 문장·답(가정·보류 이유)은 파일 칸의 원본에서 ID로 검색한다. 확정된 질문도 같다.', '', END);
   return out.join('\n');
 }
 
