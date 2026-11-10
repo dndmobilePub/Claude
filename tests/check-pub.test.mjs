@@ -208,3 +208,14 @@ test('P5: data-screen-open(드로어·풀팝업 열기)의 화면 ID도 대조�
   assert.match(r.out, /data-screen-open 대상 ABCDEF001_99DR이 화면 목록/);
   assert.doesNotMatch(r.out, /ABCDEF001_27DR이 화면 목록/);
 });
+
+test('P5: 공백으로 나눈 여러 화면 ID를 하나씩 대조한다', (t) => {
+  const dir = makeProject(t);
+  setIdFormat(dir);
+  write(dir, 'docs/ui-flow/transfer.md', flowDoc(['ABCDEF001_10AA', 'ABCDEF001_27DR', 'ABCDEF001_30DR']));
+  write(dir, 'src/screens/transfer/A.vue', '<template><button type="button" aria-haspopup="dialog" data-screen-open="ABCDEF001_30DR ABCDEF001_27DR ABCDEF001_98DR">a</button></template>\n');
+  const r = run(dir, SCRIPT, ['src']);
+  assert.match(r.out, /data-screen-open 대상 ABCDEF001_98DR이 화면 목록/);
+  assert.doesNotMatch(r.out, /ABCDEF001_30DR이 화면 목록/);
+  assert.doesNotMatch(r.out, /ABCDEF001_27DR이 화면 목록/);
+});

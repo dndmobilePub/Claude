@@ -90,6 +90,7 @@ function screenIds() {
 }
 
 // data-screen-link·data-screen-open 속성 읽기: 고정 값이면 { fixed }, 바인딩식이면 { expr }
+//   고정 값은 화면 ID 하나 또는 공백으로 나눈 여러 개 (ARCHITECTURE.md 4번)
 //   고정: data-screen-link="ID", JSX data-screen-link={"ID"} ({`ID`}는 ${}가 없을 때만)
 //   바인딩: Vue :data-screen-link="식"·v-bind:data-screen-link="식", JSX data-screen-link={식}
 //   한 줄 안에서만 읽는다. 식이 줄을 넘으면 그 줄 끝까지를 식으로 본다.
@@ -270,7 +271,10 @@ for (const file of files) {
     if (ids.size) {
       for (const link of screenLinks(line)) {
         if (link.fixed !== undefined) {
-          if (!ids.has(link.fixed)) add(file, n, 'P5', '높음', `${link.attr} 대상 ${link.fixed}이 화면 목록(IA 사본·플로우)에 없음`);
+          // 값은 화면 ID 하나 또는 공백으로 나눈 여러 개 (대표·기본 결과가 먼저)
+          for (const id of link.fixed.trim().split(/\s+/).filter(Boolean)) {
+            if (!ids.has(id)) add(file, n, 'P5', '높음', `${link.attr} 대상 ${id}이 화면 목록(IA 사본·플로우)에 없음`);
+          }
           continue;
         }
         const found = [...link.expr.matchAll(/["'`]([^"'`$]+)["'`]/g)].map((s) => s[1]).filter((s) => idRe.test(s));
